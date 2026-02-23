@@ -1,3 +1,6 @@
 x64/
 LoploGraphics/x64/
 .vs/
+*.exe
+*.obj
+*.pdp

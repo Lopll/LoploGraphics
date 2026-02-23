@@ -19,7 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\DisplayWin32.cpp" />
     <ClCompile Include="src\MySuper3DApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\DisplayWin32.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
