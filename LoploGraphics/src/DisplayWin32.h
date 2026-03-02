@@ -2,18 +2,24 @@
 
 #include <windows.h>
 #include <WinUser.h>
+#include "InputDevice.h"
+
+class Game;
 
 class DisplayWin32
 {
 private:
-    LPCWSTR applicationName = L"Waht";
-public:
-    int ClientHeight = 360;
-    int ClientWidth = 640;
     HINSTANCE hInstance;
-    HWND hWnd;
-    // Module?
     WNDCLASSEX wc;
+public:
+    int ClientHeight;
+    int ClientWidth;
     
-    DisplayWin32(LRESULT (CALLBACK *WndProc)(HWND, UINT, WPARAM, LPARAM));
+    HWND hWnd;
+    
+    DisplayWin32(LPCWSTR applicationName, Game* game, int width = 800, int height = 800);
+    DisplayWin32();
+    ~DisplayWin32();
+    
+    static LRESULT CALLBACK WndProc(HWND hWnd, UINT umessage, WPARAM wparam, LPARAM lparam);
 };
