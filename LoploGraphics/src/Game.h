@@ -1,4 +1,6 @@
-// TODO: all com pointers
+// TODO: all com pointers?
+
+// MEGA TODO: найти, где хранить константные данные (возможно, в gamecomponent), обновлять и устанавливать их в нужном месте, а не классе игры
 
 #pragma once
 
@@ -51,6 +53,7 @@ public:
     
     // ScreenResized; find method for it. Maybe bool value, which will be wathed somewhere for resize
 
+    // ID3D11Buffer* constantBuffer;
     
     Game();
     

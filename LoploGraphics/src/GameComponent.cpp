@@ -1,8 +1,8 @@
 #include "GameComponent.h"
 
 
-GameComponent::GameComponent(Game* gamePtr)
-    : game(gamePtr)
+GameComponent::GameComponent(Game* gamePtr, DirectX::XMFLOAT4 Position, DirectX::XMFLOAT4 Rotation, DirectX::XMFLOAT4 Scale, DirectX::XMFLOAT4 Color)
+    : game(gamePtr), constantData(ConstantData(TransformData (Position, Rotation, Scale), Color))
 {
     
 }

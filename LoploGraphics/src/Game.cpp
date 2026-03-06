@@ -8,7 +8,7 @@ Game::Game():
 {
 	Instance = this;
 	
-	Components.push_back(std::make_unique<TriangleComponent>(this));
+	Components.push_back(std::make_unique<TriangleComponent>(this, DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
 void Game::CreateBackBuffer()
@@ -83,6 +83,7 @@ void Game::PrepareResources()
 {
 	std::cout<< "game res prep\n";
 	Instance->CreateBackBuffer();
+	
 	for(auto& component : Instance->Components)
 	{
 		std::cout<< "game res prep for component\n";
@@ -127,7 +128,7 @@ void Game::UpdateInternal()
 		SetWindowText(Instance->Display.hWnd, text); 						
 
 		frameCount = 0;
-	} 
+	}
 }
 
 bool Game::MessageHandler()

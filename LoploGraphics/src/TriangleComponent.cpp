@@ -2,10 +2,10 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(Game* gamePtr)
-	: GameComponent(gamePtr)
+TriangleComponent::TriangleComponent(Game* gamePtr, DirectX::XMFLOAT4 Position, DirectX::XMFLOAT4 Rotation, DirectX::XMFLOAT4 Scale, DirectX::XMFLOAT4 Color)
+	: GameComponent(gamePtr, Position, Rotation, Scale, Color)
 {
-	std::cout << "Triangle Created!\n";
+	std::cout << "Triangle Created!\nIts position is " << constantData.Transform.Position.x << " " << constantData.Transform.Position.y << " " << constantData.Transform.Position.z << std::endl;
 }
 
 void TriangleComponent::Initialize()
@@ -119,12 +119,19 @@ void TriangleComponent::Initialize()
 
 	res = game->Device->CreateRasterizerState(&rastDesc, &rastState);
 	
-	std::cout << "Triangle Initialized!\n";
+	// constant buffer
+	D3D11_BUFFER_DESC constantBuffDesc = {};
+	constantBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constantBuffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constantBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constantBuffDesc.MiscFlags = 0;
+	constantBuffDesc.StructureByteStride = 0;
+	constantBuffDesc.ByteWidth = sizeof(ConstantData);
+	game->Device->CreateBuffer(&constantBuffDesc, nullptr, &constantBuffer);
 }
 
 void TriangleComponent::Draw()
 {
-	std::cout << "Triangle Draw!\n";
 	game->Context->RSSetState(rastState);
 	
 	game->Context->IASetInputLayout(layout);
@@ -137,16 +144,23 @@ void TriangleComponent::Draw()
 	
 	game->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
+	game->Context->VSSetConstantBuffers(0, 1, &constantBuffer);
+	
 	game->Context->VSSetShader(vertexShader, nullptr, 0);
 	game->Context->PSSetShader(pixelShader, nullptr, 0);
 	
 	
-	game->Context->DrawIndexed(6, 0, 0);
+	game->Context->DrawIndexed(3, 0, 0);
 }
 
 void TriangleComponent::Update()
 {
-
+	// update constant buffer
+	D3D11_MAPPED_SUBRESOURCE res = {};
+	game->Context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	auto dataPtr = reinterpret_cast<float*>(res.pData);
+	memcpy(dataPtr, &constantData, sizeof(ConstantData));
+	game->Context->Unmap(constantBuffer, 0);
 }
 
 void TriangleComponent::DestroyResources()
@@ -159,4 +173,5 @@ void TriangleComponent::DestroyResources()
 	rastState->Release();
 	vertexShader->Release();
 	vertexShaderByteCode->Release();
+	constantBuffer->Release();
 }
