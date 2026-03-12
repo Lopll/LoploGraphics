@@ -6,6 +6,8 @@
 #include <d3dcompiler.h>
 #include <iostream>
 
+using namespace DirectX::SimpleMath;
+
 class TriangleComponent : public GameComponent
 {
 private:
@@ -29,10 +31,10 @@ public:
     TriangleComponent
     (
         Game* gamePtr = nullptr, 
-        DirectX::XMFLOAT4 Position = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), 
-        DirectX::XMFLOAT4 Rotation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), 
-        DirectX::XMFLOAT4 Scale = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f),
-        DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
+        Matrix Position = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f), 
+        Matrix Rotation = Matrix(), 
+        Matrix Scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f),
+        Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
     void DestroyResources() override;

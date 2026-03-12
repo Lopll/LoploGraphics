@@ -1,21 +1,24 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <SimpleMath.h>
 #include <d3d11.h>
+
+using namespace DirectX::SimpleMath;
 
 class Game;
 
 struct TransformData
 {
-    DirectX::XMFLOAT4 Position;
-    DirectX::XMFLOAT4 Rotation;
-    DirectX::XMFLOAT4 Scale;
+    Matrix Position;
+    Matrix Rotation;
+    Matrix Scale;
 };
 
 struct ConstantData
 {
-    struct TransformData Transform;
-    DirectX::XMFLOAT4 Color;
+    Matrix Transform;
+    Vector4 Color;
 };
 
 class GameComponent
@@ -26,13 +29,15 @@ public:
     ID3D11Buffer* constantBuffer;
     struct ConstantData constantData;
     
+    struct TransformData transform;    
+    
     GameComponent
     (
         Game* gamePtr = nullptr, 
-        DirectX::XMFLOAT4 Position = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), 
-        DirectX::XMFLOAT4 Rotation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), 
-        DirectX::XMFLOAT4 Scale = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f),
-        DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
+        Matrix Position = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f), 
+        Matrix Rotation = Matrix(), 
+        Matrix Scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f),
+        Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
     virtual void DestroyResources();
@@ -40,4 +45,6 @@ public:
     virtual void Initialize();
     virtual void Reload();
     virtual void Update();
+    
+    void ApplyTransform();
 };

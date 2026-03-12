@@ -1,7 +1,6 @@
 // TODO: all com pointers?
 
-// MEGA TODO: найти, где хранить константные данные (возможно, в gamecomponent), обновлять и устанавливать их в нужном месте, а не классе игры
-
+// MEGA TODO: найти у Луны инфу про offset и Transform, решить вопрос, где лучше считать каждый компонент transform: в шейдере или в коде игры (на видеокарте, может, быстрее будет?)
 #pragma once
 
 #include <windows.h>
@@ -14,6 +13,9 @@
 #include <chrono>
 #include <memory>
 #include <vector>
+
+#include <SimpleMath.h>
+using namespace DirectX::SimpleMath;
 
 #include "DisplayWin32.h"
 #include "InputDevice.h"

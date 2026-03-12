@@ -2,10 +2,10 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(Game* gamePtr, DirectX::XMFLOAT4 Position, DirectX::XMFLOAT4 Rotation, DirectX::XMFLOAT4 Scale, DirectX::XMFLOAT4 Color)
+TriangleComponent::TriangleComponent(Game* gamePtr, Matrix Position, Matrix Rotation, Matrix Scale, Vector4 Color)
 	: GameComponent(gamePtr, Position, Rotation, Scale, Color)
 {
-	std::cout << "Triangle Created!\nIts position is " << constantData.Transform.Position.x << " " << constantData.Transform.Position.y << " " << constantData.Transform.Position.z << std::endl;
+	// std::cout << "Triangle Created!\nIts position is " << transform.Position.x << " " << transform.Position.y << " " << transform.Position.z << std::endl;
 }
 
 void TriangleComponent::Initialize()
@@ -155,6 +155,8 @@ void TriangleComponent::Draw()
 
 void TriangleComponent::Update()
 {
+	ApplyTransform();
+	
 	// update constant buffer
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	game->Context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);

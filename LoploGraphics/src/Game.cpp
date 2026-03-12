@@ -1,14 +1,13 @@
 #include "Game.h"
 
+float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
 
 Game::Game():
-	Input(this), Display(L"My3DApp", this), TotalTime(0.0f)
+	Input(this), Display(L"GeneralGame", this), TotalTime(0.0f)
 {
 	Instance = this;
-	
-	Components.push_back(std::make_unique<TriangleComponent>(this, DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
 void Game::CreateBackBuffer()
@@ -109,26 +108,26 @@ void Game::UpdateInput()
 
 void Game::UpdateInternal()
 {
-	unsigned int frameCount = 0;
+	// unsigned int frameCount = 0;
 	
-	auto currentTime = std::chrono::steady_clock::now();
-	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - Instance->PrevTime).count() / 1000000.0f;
-	Instance->PrevTime = currentTime;
+	// auto currentTime = std::chrono::steady_clock::now();
+	// float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - Instance->PrevTime).count() / 1000000.0f;
+	// Instance->PrevTime = currentTime;
 	
-	Instance->TotalTime += deltaTime;
-	frameCount++;
+	// Instance->TotalTime += deltaTime;
+	// frameCount++;
 	
-	if(Instance->TotalTime > 1.0f)
-	{
-		float fps = frameCount / Instance->TotalTime;
-		Instance->TotalTime -= 1.0f;
+	// if(Instance->TotalTime > 1.0f)
+	// {
+	// 	float fps = frameCount / Instance->TotalTime;
+	// 	Instance->TotalTime -= 1.0f;
 		
-		WCHAR text[256];
-		swprintf_s(text, TEXT("FPS: %f"), fps);
-		SetWindowText(Instance->Display.hWnd, text); 						
+	// 	WCHAR text[256];
+	// 	swprintf_s(text, TEXT("FPS: %f"), fps);
+	// 	SetWindowText(Instance->Display.hWnd, text); 						
 
-		frameCount = 0;
-	}
+	// 	frameCount = 0;
+	// }
 }
 
 bool Game::MessageHandler()
@@ -150,7 +149,7 @@ void Game::PrepareFrame()
 {
 	Instance->Context->ClearState();
 
-	float color[] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
+	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Instance->Context->ClearRenderTargetView(Instance->RenderView, color);
 
 	// 																				TODO: set viewPort only on resize

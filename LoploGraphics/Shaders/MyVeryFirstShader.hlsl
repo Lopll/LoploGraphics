@@ -1,8 +1,6 @@
 struct ConstantData
 {
-	float4 posOffset;
-	float4 rotOffset;
-	float4 scale;
+	float4x4 transform;
 	float4 color;
 };
 
@@ -27,7 +25,8 @@ PS_IN VSMain( VS_IN input )
 {
 	PS_IN output = (PS_IN)0;
 	
-	output.pos = float4(input.pos.xyz + constantData.posOffset.xyz, 1.0f);//float4(constantData.posOffset.xyz, 1.0f);
+	// output.pos = float4(input.pos.xyz + constantData.offset.xyz, 1.0f);
+	output.pos = mul(float4(input.pos.xyz, 1.0f), constantData.transform);
 	output.col = constantData.color;
 	
 	return output;
