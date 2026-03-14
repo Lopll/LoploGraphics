@@ -40,5 +40,5 @@ void GameComponent::ApplyTransform(TransformData newTransform)
     {
         newTransform = transform;
     }
-    constantData.Transform = (newTransform.Scale * newTransform.Rotation * newTransform.Position).Transpose(); 
+    constantData.Transform = (newTransform.Position * newTransform.Scale * newTransform.Rotation).Transpose(); 
 }

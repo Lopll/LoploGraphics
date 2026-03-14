@@ -7,3 +7,29 @@ RectangleComponent::RectangleComponent(Game* gamePtr, std::array<int,6> idx, Mat
 {
     
 }
+
+void RectangleComponent::Initialize()
+{
+	triangle1.Initialize();
+	triangle2.Initialize();
+}
+
+void RectangleComponent::Draw()
+{
+	triangle1.Draw();
+	triangle2.Draw();
+}
+
+void RectangleComponent::Update()
+{   
+    triangle1.transform = transform;
+	triangle1.Update();
+	triangle2.transform = transform;
+	triangle2.Update();
+}
+
+void RectangleComponent::DestroyResources()
+{
+	triangle1.DestroyResources();
+	triangle2.DestroyResources();
+}

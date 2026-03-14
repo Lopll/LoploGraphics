@@ -18,4 +18,9 @@ public:
         Matrix Scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f),
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
-}; 
+    
+    void DestroyResources() override;
+    void Draw() override;
+    void Initialize() override;
+    void Update() override;
+};
