@@ -2,8 +2,8 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(Game* gamePtr, Matrix Position, Matrix Rotation, Matrix Scale, Vector4 Color)
-	: GameComponent(gamePtr, Position, Rotation, Scale, Color)
+TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Matrix Position, Matrix Rotation, Matrix Scale, Vector4 Color)
+	: GameComponent(gamePtr, Position, Rotation, Scale, Color), indices(idx)
 {
 	// std::cout << "Triangle Created!\nIts position is " << transform.Position.x << " " << transform.Position.y << " " << transform.Position.z << std::endl;
 }
@@ -89,7 +89,7 @@ void TriangleComponent::Initialize()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * std::size(points);
+	vertexBufDesc.ByteWidth = sizeof(Vector4) * std::size(points);
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	vertexData.pSysMem = points;
@@ -107,7 +107,7 @@ void TriangleComponent::Initialize()
     indexBufDesc.ByteWidth = sizeof(int) * std::size(indices);
 
     D3D11_SUBRESOURCE_DATA indexData = {};
-    indexData.pSysMem = indices;
+    indexData.pSysMem = indices.data();
     indexData.SysMemPitch = 0;
     indexData.SysMemSlicePitch = 0;
 

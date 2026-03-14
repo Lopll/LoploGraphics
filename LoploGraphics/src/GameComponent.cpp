@@ -33,7 +33,12 @@ void GameComponent::Reload()
 
 }
 
-void GameComponent::ApplyTransform()
+void GameComponent::ApplyTransform(TransformData newTransform)
 {
-    constantData.Transform = (transform.Scale * transform.Rotation * transform.Position).Transpose(); 
+    Matrix Empty{};
+    if (newTransform.Position == Empty and newTransform.Rotation == Empty and newTransform.Scale == Empty)
+    {
+        newTransform = transform;
+    }
+    constantData.Transform = (newTransform.Scale * newTransform.Rotation * newTransform.Position).Transpose(); 
 }

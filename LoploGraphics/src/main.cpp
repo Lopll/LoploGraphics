@@ -1,9 +1,9 @@
 // MySuper3DApp.cpp
 #include "Game.h"
-
+#include "Pong.h"
 int main()
 {
-    Game game;
+    Pong game;
     game.Run();
     return 0;
 }

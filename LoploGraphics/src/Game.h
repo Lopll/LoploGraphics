@@ -1,6 +1,5 @@
 // TODO: all com pointers?
-
-// MEGA TODO: найти у Луны инфу про offset и Transform, решить вопрос, где лучше считать каждый компонент transform: в шейдере или в коде игры (на видеокарте, может, быстрее будет?)
+// MEGA TODO: 
 #pragma once
 
 #include <windows.h>
@@ -30,9 +29,6 @@ using namespace DirectX::SimpleMath;
 class Game
 {
 public:
-
-    LPCWSTR Name = L"Waht";
-
     DisplayWin32 Display;
     InputDevice Input;
     std::vector<std::unique_ptr<GameComponent>> Components;
@@ -57,7 +53,7 @@ public:
 
     // ID3D11Buffer* constantBuffer;
     
-    Game();
+    Game(LPCWSTR Name = L"Waht");
     
     void Exit();
     bool MessageHandler();

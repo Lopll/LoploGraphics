@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <iostream>
+#include <array>
 
 using namespace DirectX::SimpleMath;
 
@@ -14,23 +15,27 @@ private:
     ID3D11InputLayout* layout;
     ID3D11PixelShader* pixelShader;
     ID3DBlob* pixelShaderByteCode;
-    DirectX::XMFLOAT4 points[6] = 
+    Vector4 points[8] = 
     {
-		DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.0f, 1.0f),DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.0f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
+		Vector4(0.0f, 0.5f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(0.0f, 0.0f, 0.0f, 1.0f),    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(0.5f, 0.0f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(0.5f, 0.5f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
     ID3D11RasterizerState* rastState;
     ID3D11VertexShader* vertexShader;
     ID3DBlob* vertexShaderByteCode;
     ID3D11Buffer* vertexBuffer;
-    int indices[3] = {0,1,2};
+    std::array<int,3> indices;
     ID3D11Buffer* indexBuffer;
+protected:
+    
 public:
 
     TriangleComponent
     (
-        Game* gamePtr = nullptr, 
+        Game* gamePtr = nullptr,
+        std::array<int,3> idx = {0,1,2},
         Matrix Position = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f), 
         Matrix Rotation = Matrix(), 
         Matrix Scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f),

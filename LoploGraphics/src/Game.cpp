@@ -4,8 +4,8 @@ float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
 
-Game::Game():
-	Input(this), Display(L"GeneralGame", this), TotalTime(0.0f)
+Game::Game(LPCWSTR Name):
+	Input(this), Display(Name, this), TotalTime(0.0f)
 {
 	Instance = this;
 }
