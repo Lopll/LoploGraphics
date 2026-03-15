@@ -6,4 +6,6 @@ class Pong : public Game
 {
 public:
     Pong();
+
+    void static UpdateInput();
 };

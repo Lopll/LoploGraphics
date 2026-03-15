@@ -2,10 +2,10 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Matrix Position, Matrix Rotation, Matrix Scale, Vector4 Color)
+TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Vector4 Position, Matrix Rotation, Matrix Scale, Vector4 Color)
 	: GameComponent(gamePtr, Position, Rotation, Scale, Color), indices(idx)
 {
-	// std::cout << "Triangle Created!\nIts position is " << transform.Position.x << " " << transform.Position.y << " " << transform.Position.z << std::endl;
+
 }
 
 void TriangleComponent::Initialize()

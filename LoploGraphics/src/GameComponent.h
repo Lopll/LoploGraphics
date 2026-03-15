@@ -10,7 +10,7 @@ class Game;
 
 struct TransformData
 {
-    Matrix Position;
+    Matrix Translation;
     Matrix Rotation;
     Matrix Scale;
 };
@@ -18,6 +18,7 @@ struct TransformData
 struct ConstantData
 {
     Matrix Transform;
+    Vector4 ActualPosition;
     Vector4 Color;
 };
 
@@ -34,7 +35,7 @@ public:
     GameComponent
     (
         Game* gamePtr = nullptr, 
-        Matrix Position = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f), 
+        Vector4 Position = Vector4(0.0f), 
         Matrix Rotation = Matrix(), 
         Matrix Scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f),
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)

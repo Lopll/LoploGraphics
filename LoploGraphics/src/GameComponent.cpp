@@ -1,9 +1,9 @@
 #include "GameComponent.h"
 
-GameComponent::GameComponent(Game* gamePtr, Matrix Position, Matrix Rotation, Matrix Scale, Vector4 Color)
+GameComponent::GameComponent(Game* gamePtr, Vector4 Position, Matrix Rotation, Matrix Scale, Vector4 Color)
     : game(gamePtr), 
-    constantData(ConstantData(Matrix(), Color)), 
-    transform(TransformData(Position, Rotation, Scale))
+    constantData(ConstantData(Matrix(), Position, Color)), 
+    transform(TransformData(Matrix::CreateTranslation(0.0f, 0.0f, 0.0f), Rotation, Scale))
 {
         
 }
@@ -36,9 +36,10 @@ void GameComponent::Reload()
 void GameComponent::ApplyTransform(TransformData newTransform)
 {
     Matrix Empty{};
-    if (newTransform.Position == Empty and newTransform.Rotation == Empty and newTransform.Scale == Empty)
+    if (newTransform.Translation == Empty and newTransform.Rotation == Empty and newTransform.Scale == Empty)
     {
         newTransform = transform;
     }
-    constantData.Transform = (newTransform.Position * newTransform.Scale * newTransform.Rotation).Transpose(); 
+    
+    constantData.Transform = (newTransform.Scale * newTransform.Rotation * newTransform.Translation).Transpose();
 }
