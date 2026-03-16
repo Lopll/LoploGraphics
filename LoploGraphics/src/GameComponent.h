@@ -43,6 +43,8 @@ public:
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
+    virtual void setProjectionMatrix(Matrix proj) { ProjectionMatrix = proj; }
+    
     virtual void DestroyResources();
     virtual void Draw();
     virtual void Initialize(Matrix projectionMatrix = Matrix());

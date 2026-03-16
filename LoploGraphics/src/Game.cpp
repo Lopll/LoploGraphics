@@ -252,11 +252,10 @@ void Game::Resize()
 	CreateBackBuffer();
 	RestoreTargets();
 	
-	
 	Matrix proj = CalcProjectionMatrix();
 	for(auto& component : Components)
 	{
-		component->ProjectionMatrix = proj;
+		component->setProjectionMatrix(proj);
 	}
 	
 	ScreenResized = false;

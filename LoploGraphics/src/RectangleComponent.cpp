@@ -33,3 +33,10 @@ void RectangleComponent::DestroyResources()
 	triangle1.DestroyResources();
 	triangle2.DestroyResources();
 }
+
+void RectangleComponent::setProjectionMatrix(Matrix proj)
+{
+	ProjectionMatrix = proj;
+	triangle1.setProjectionMatrix(proj);
+	triangle2.setProjectionMatrix(proj);
+}

@@ -19,6 +19,8 @@ public:
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
+    void setProjectionMatrix(Matrix proj) override;
+    
     void DestroyResources() override;
     void Draw() override;
     void Initialize(Matrix projectionMatrix = Matrix()) override;
