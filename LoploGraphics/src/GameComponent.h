@@ -30,6 +30,8 @@ public:
     ID3D11Buffer* constantBuffer;
     struct ConstantData constantData;
     
+    Matrix ProjectionMatrix;
+        
     struct TransformData transform;    
     
     GameComponent
@@ -43,7 +45,7 @@ public:
     
     virtual void DestroyResources();
     virtual void Draw();
-    virtual void Initialize();
+    virtual void Initialize(Matrix projectionMatrix = Matrix());
     virtual void Reload();
     virtual void Update();
     

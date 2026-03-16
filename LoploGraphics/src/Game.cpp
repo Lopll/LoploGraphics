@@ -4,8 +4,8 @@ float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
 
-Game::Game(LPCWSTR Name):
-	Input(this), Display(Name, this), TotalTime(0.0f)
+Game::Game(LPCWSTR Name, int width, int height):
+	Input(this), Display(Name, this, width, height), TotalTime(0.0f)
 {
 	Instance = this;
 }
@@ -29,8 +29,7 @@ void Game::CreateBackBuffer()
 
 bool Game::Initialize()
 {
- 	std::cout<< "game init\n";
-   D3D_FEATURE_LEVEL featureLevel[] = {D3D_FEATURE_LEVEL_11_1};
+	D3D_FEATURE_LEVEL featureLevel[] = {D3D_FEATURE_LEVEL_11_1};
     
     DXGI_SWAP_CHAIN_DESC swapDesc = {};
     swapDesc.BufferCount = 2;
@@ -78,15 +77,21 @@ bool Game::Initialize()
 	return true;
 }
 
+Matrix Game::CalcProjectionMatrix()
+{
+	float aspectRation = (float)Display.ClientWidth / (float)Display.ClientHeight;
+	return Matrix::CreateOrthographicOffCenter(-5.0f * aspectRation, 5.0f * aspectRation, -5.0f, 5.0f, 0.1f, 100.0f);                   
+}
+
 void Game::PrepareResources()
 {
-	std::cout<< "game res prep\n";
 	Instance->CreateBackBuffer();
+	
+	Matrix proj = Instance->CalcProjectionMatrix();
 	
 	for(auto& component : Instance->Components)
 	{
-		std::cout<< "game res prep for component\n";
-		component->Initialize();
+		component->Initialize(proj);
 	}	
 }
 
@@ -108,6 +113,10 @@ void Game::UpdateInput()
 
 void Game::UpdateInternal()
 {
+	if(Instance->ScreenResized)
+	{
+		Instance->Resize();
+	}
 	// unsigned int frameCount = 0;
 	
 	// auto currentTime = std::chrono::steady_clock::now();
@@ -145,14 +154,8 @@ bool Game::MessageHandler()
 	return false;
 }
 
-void Game::PrepareFrame()
+void Game::SetViewport()
 {
-	Instance->Context->ClearState();
-
-	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
-	Instance->Context->ClearRenderTargetView(Instance->RenderView, color);
-
-	// 																				TODO: set viewPort only on resize
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(Instance->Display.ClientWidth);
 	viewport.Height = static_cast<float>(Instance->Display.ClientHeight);
@@ -162,6 +165,16 @@ void Game::PrepareFrame()
 	viewport.MaxDepth = 1.0f;
 
 	Instance->Context->RSSetViewports(1, &viewport);
+}
+
+void Game::PrepareFrame()
+{
+	Instance->Context->ClearState();
+
+	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	Instance->Context->ClearRenderTargetView(Instance->RenderView, color);
+
+	SetViewport();
 	
 	Instance->RestoreTargets();
 }
@@ -218,4 +231,33 @@ void Game::DestroyResources()
 	{
 		component->DestroyResources();
 	}
+}
+
+void Game::Resize()
+{
+	RenderView->Release();
+	RenderView = nullptr;
+	backBuffer->Release();
+	backBuffer = nullptr;
+	
+	Context->OMSetRenderTargets(0, nullptr, nullptr);
+	
+	auto res = SwapChain->ResizeBuffers(0, Display.ClientWidth, Display.ClientHeight, DXGI_FORMAT_UNKNOWN, 0);
+	if(FAILED(res))
+	{
+		std::cerr << "Failed to resize buffers!" << std::endl;
+		return;
+	}
+	
+	CreateBackBuffer();
+	RestoreTargets();
+	
+	
+	Matrix proj = CalcProjectionMatrix();
+	for(auto& component : Components)
+	{
+		component->ProjectionMatrix = proj;
+	}
+	
+	ScreenResized = false;
 }

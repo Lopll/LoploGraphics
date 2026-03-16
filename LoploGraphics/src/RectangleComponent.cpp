@@ -8,10 +8,10 @@ RectangleComponent::RectangleComponent(Game* gamePtr, std::array<int,6> idx, Vec
     
 }
 
-void RectangleComponent::Initialize()
+void RectangleComponent::Initialize(Matrix projectionMatrix)
 {
-	triangle1.Initialize();
-	triangle2.Initialize();
+	triangle1.Initialize(projectionMatrix);
+	triangle2.Initialize(projectionMatrix);
 }
 
 void RectangleComponent::Draw()

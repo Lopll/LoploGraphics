@@ -1,5 +1,8 @@
 #include "DisplayWin32.h"
 #include "Game.h"
+#include <iostream>
+
+DisplayWin32* DisplayWin32::Instance = nullptr;
 
 LRESULT CALLBACK DisplayWin32::WndProc(HWND hWnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
@@ -14,6 +17,18 @@ LRESULT CALLBACK DisplayWin32::WndProc(HWND hWnd, UINT umessage, WPARAM wparam, 
 	   case WM_DESTROY:
 	       PostQuitMessage(0);
 	       return 0;
+	   case WM_SIZE:
+	   {
+	       UINT newW = LOWORD(lparam);
+	       UINT newH = HIWORD(lparam);
+	       if (newW != 0 and newH != 0)
+	       {
+               Instance->ClientWidth = newW;
+               Instance->ClientHeight = newH;
+               game->ScreenResized = true;
+	       }
+	       return 0;
+	   }
 	   case WM_INPUT:
 	   {
 	       UINT inputBufferSize = 0;
@@ -54,8 +69,10 @@ LRESULT CALLBACK DisplayWin32::WndProc(HWND hWnd, UINT umessage, WPARAM wparam, 
 DisplayWin32::DisplayWin32(LPCWSTR applicationName, Game* game, int width, int height)
     : ClientWidth(width), ClientHeight(height)
 {
+    Instance = this;
+    
     hInstance = GetModuleHandle(nullptr);
-
+    
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.lpfnWndProc = &WndProc;
     wc.cbClsExtra = 0;

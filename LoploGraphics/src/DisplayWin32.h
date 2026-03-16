@@ -8,10 +8,11 @@ class Game;
 
 class DisplayWin32
 {
-private:
+private: 
     HINSTANCE hInstance;
     WNDCLASSEX wc;
 public:
+    static DisplayWin32* Instance;
     int ClientHeight;
     int ClientWidth;
     

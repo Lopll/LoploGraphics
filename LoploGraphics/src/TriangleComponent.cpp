@@ -8,7 +8,7 @@ TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Vecto
 
 }
 
-void TriangleComponent::Initialize()
+void TriangleComponent::Initialize(Matrix projectionMatrix)
 {
 	ID3DBlob* errorVertexCode = nullptr;
 	auto res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
@@ -128,6 +128,8 @@ void TriangleComponent::Initialize()
 	constantBuffDesc.StructureByteStride = 0;
 	constantBuffDesc.ByteWidth = sizeof(ConstantData);
 	game->Device->CreateBuffer(&constantBuffDesc, nullptr, &constantBuffer);
+	
+	ProjectionMatrix = projectionMatrix;
 }
 
 void TriangleComponent::Draw()

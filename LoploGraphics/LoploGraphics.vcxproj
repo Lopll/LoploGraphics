@@ -25,6 +25,8 @@
     <ClCompile Include="src\GameComponent.cpp" />
     <ClCompile Include="src\InputDevice.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Pong.cpp" />
+    <ClCompile Include="src\RectangleComponent.cpp" />
     <ClCompile Include="src\TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +37,8 @@
     <ClInclude Include="src\GameComponent.h" />
     <ClInclude Include="src\InputDevice.h" />
     <ClInclude Include="src\Keys.h" />
+    <ClInclude Include="src\Pong.h" />
+    <ClInclude Include="src\RectangleComponent.h" />
     <ClInclude Include="src\TriangleComponent.h" />
   </ItemGroup>
   <ItemGroup>

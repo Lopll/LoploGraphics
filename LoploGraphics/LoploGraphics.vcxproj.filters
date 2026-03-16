@@ -36,6 +36,12 @@
     <ClCompile Include="src\TriangleComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Pong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RectangleComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\DisplayWin32.h">
@@ -60,6 +66,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TriangleComponent.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pong.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RectangleComponent.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

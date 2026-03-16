@@ -18,9 +18,9 @@ void GameComponent::Draw()
 
 }
 
-void GameComponent::Initialize()
+void GameComponent::Initialize(Matrix projectionMatrix)
 {
-
+    ProjectionMatrix = projectionMatrix;
 }
 
 void GameComponent::Update()
@@ -41,5 +41,5 @@ void GameComponent::ApplyTransform(TransformData newTransform)
         newTransform = transform;
     }
     
-    constantData.Transform = (newTransform.Scale * newTransform.Rotation * newTransform.Translation).Transpose();
+    constantData.Transform = (newTransform.Scale * newTransform.Rotation * newTransform.Translation * ProjectionMatrix).Transpose();
 }

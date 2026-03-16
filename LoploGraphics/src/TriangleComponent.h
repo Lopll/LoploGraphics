@@ -44,6 +44,6 @@ public:
     
     void DestroyResources() override;
     void Draw() override;
-    void Initialize() override;
+    void Initialize(Matrix projectionMatrix = Matrix()) override;
     void Update() override;
 };

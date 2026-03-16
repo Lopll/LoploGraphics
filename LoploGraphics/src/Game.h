@@ -33,9 +33,9 @@ public:
     InputDevice Input;
     std::vector<std::unique_ptr<GameComponent>> Components;
     
-    // DebugAnnotation; no in super
+    // DebugAnnotation; 
     
-    static Game* Instance; // Get access to non-static fields from static methods
+    static Game* Instance;
 
     // FPS counter
     std::chrono::time_point<std::chrono::steady_clock> PrevTime;
@@ -49,26 +49,30 @@ public:
     ID3D11RenderTargetView* RenderView;
     IDXGISwapChain* SwapChain;
     
-    // ScreenResized; find method for it. Maybe bool value, which will be wathed somewhere for resize
+    bool ScreenResized = false;// find method for it. Maybe bool value, which will be wathed somewhere for resize
 
     // ID3D11Buffer* constantBuffer;
     
-    Game(LPCWSTR Name = L"Waht");
+    Game(LPCWSTR Name = L"Waht", int width = 800, int height = 800);
     
     void Exit();
     bool MessageHandler();
     void RestoreTargets();
     int Run();
+    Matrix CalcProjectionMatrix();
+    void Resize();
     
-    void static DestroyResources();
-    void static Draw();
-    void static EndFrame();
-    bool static Initialize();
-    void static PrepareFrame();
-    void static PrepareResources();
-    void static Update();
-    void static UpdateInput();
-    void static UpdateInternal();
+    
+    static void DestroyResources();
+    static void Draw();
+    static void EndFrame();
+    static bool Initialize();
+    static void SetViewport();
+    static void PrepareFrame();
+    static void PrepareResources();
+    static void Update();
+    static void UpdateInput();
+    static void UpdateInternal();
 
 private:
     void CreateBackBuffer();
