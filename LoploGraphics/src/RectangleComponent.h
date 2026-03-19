@@ -6,9 +6,10 @@
 class RectangleComponent : public GameComponent
 {
 private:
+    
+public:
     TriangleComponent triangle1;
     TriangleComponent triangle2;
-public:
     RectangleComponent
     (
         Game* gamePtr = nullptr,

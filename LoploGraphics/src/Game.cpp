@@ -9,7 +9,7 @@ Game::Game(LPCWSTR Name, int width, int height):
 {
 	Instance = this;
 	
-	aspectRatio = width/height;
+	aspectRatio = (float)width/(float)height;
 }
 
 void Game::CreateBackBuffer()

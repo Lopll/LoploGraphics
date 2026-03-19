@@ -4,7 +4,7 @@
 
 int width = 640;
 int height = 360;
-int gridStep = 50;
+float gridStep = 100;
 
 BlockComponent* Player1 = nullptr;
     
@@ -13,14 +13,17 @@ BlockComponent* Player1 = nullptr;
 float movementSpeed = 0.01f;
 Vector3 movementInput = Vector3();
 
+DirectX::BoundingBox field;
+
 
 Pong::Pong():
     Game(L"LoploPong", width, height)
 {
-    int gridLen = (height * 2) - gridStep;
-    for(int i = gridStep; i <= gridLen; i+=gridStep)
+    gridStep /= aspectRatio;
+    float gridLen = (height * 2) - gridStep;
+    for(float i = gridStep; i <= gridLen; i+=gridStep)
     {
-         Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(0.0f, aspectRatio - ((float)i/height) , 0.0f), 0.0f, Vector3(0.025f, 0.2f, 1.f), Vector4(1.0f, 1.0f, 1.0f, 1.0f)));
+         Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(0.0f, 1.f - ((float)i/height) , 0.0f), 0.0f, Vector3(0.05f, 0.2f, 1.f), Vector4(1.0f, 1.0f, 1.0f, 1.0f))); // TODO: fix grid
     }
     
     auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(-startXPos, 0.0f , 0.0f), 0.0f, Vector3(0.2f, 0.6f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -29,6 +32,14 @@ Pong::Pong():
 
     //Components.push_back(std::make_unique<BlockComponent>(this, std::array<int, 6>{0, 1, 2, 0, 3, 2}, Vector3(-1.0f, 0.0f, 0.0f), 0.0f, Vector3(0.75f, 1.f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)));
     
+    
+    std::vector<Vector3> vert;
+    vert.push_back(Vector3(100.f, 100.f, 0.0f));
+    vert.push_back(Vector3(100.f, 0.f, 0.0f));
+    vert.push_back(Vector3(0.f, 100.f, 0.0f));
+    vert.push_back(Vector3(0.f, 100.f, 0.0f));
+    DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));
+    // field.Transform(field, CalcProjectionMatrix());
 }
 
 void Pong::Update()
@@ -39,11 +50,21 @@ void Pong::Update()
     //     movement.y = movementInput.y * movementSpeed;
     // }
     
-    if(movementInput.y)
+    if(field.Contains(Player1->collision) == DirectX::CONTAINS)
     {
-        Matrix delta = Matrix::CreateTranslation(Vector3(0.f, movementInput.y, 0.f) * movementSpeed);
+        std::cout<<"CONTAINS\n";
+    }
+    else if (field.Contains(Player1->collision) != DirectX::CONTAINS)
+    {
+        std::cout<<"ELSE\n";
+    }
+    
+    if( movementInput.y or movementInput.x)
+    {
+        Matrix delta = Matrix::CreateTranslation(Vector3(movementInput.x, movementInput.y, 0.f) * movementSpeed);
         Player1->setTranslation(Player1->transform.Translation * delta);           
         movementInput.y = 0.f;
+        movementInput.x = 0.f;
     }
     Game::Update();
 }
@@ -59,6 +80,14 @@ void Pong::UpdateInput()
         else if (Instance->Input.IsKeyDown(Keys::S))
         {
             movementInput.y -= 1.f;
+        }
+        if(Instance->Input.IsKeyDown(Keys::D))
+        {
+            movementInput.x += 1.f;
+        }
+        else if (Instance->Input.IsKeyDown(Keys::A))
+        {
+            movementInput.x -= 1.f;
         }
     }
 }

@@ -4,6 +4,7 @@
 #include <array>
 #include <iostream>
 #include "RectangleComponent.h"
+#include <DirectXCollision.h>
 #include "BlockComponent.h"
 
 class Pong : public Game

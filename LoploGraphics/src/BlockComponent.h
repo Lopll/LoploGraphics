@@ -11,6 +11,8 @@ class BlockComponent : public GameComponent
 private:
     RectangleComponent form;
 public:
+    DirectX::BoundingBox collision;
+    
     BlockComponent
     (
         Game* gamePtr = nullptr,
@@ -28,4 +30,6 @@ public:
     void Draw() override;
     void Initialize() override;
     void Update() override;
+    
+    void ApplyTransform(TransformData newTransform = TransformData()) override;
 };

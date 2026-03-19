@@ -52,5 +52,5 @@ public:
     virtual void Reload();
     virtual void Update();
     
-    void ApplyTransform(TransformData newTransform = TransformData());
+    virtual void ApplyTransform(TransformData newTransform = TransformData());
 };
