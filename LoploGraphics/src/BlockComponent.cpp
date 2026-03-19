@@ -48,7 +48,7 @@ void BlockComponent::setTranslation(Matrix translation)
 void BlockComponent::ApplyTransform(TransformData newTransform)
 {
     
-    collision.Transform(collision, form.triangle1.constantData.Transform);
+    collision.Transform(collision, form.triangle1.constantData.Transform.Transpose());
         GameComponent::ApplyTransform(newTransform);
 
 }

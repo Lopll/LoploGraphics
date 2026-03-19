@@ -32,14 +32,9 @@ Pong::Pong():
 
     //Components.push_back(std::make_unique<BlockComponent>(this, std::array<int, 6>{0, 1, 2, 0, 3, 2}, Vector3(-1.0f, 0.0f, 0.0f), 0.0f, Vector3(0.75f, 1.f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)));
     
-    
-    std::vector<Vector3> vert;
-    vert.push_back(Vector3(100.f, 100.f, 0.0f));
-    vert.push_back(Vector3(100.f, 0.f, 0.0f));
-    vert.push_back(Vector3(0.f, 100.f, 0.0f));
-    vert.push_back(Vector3(0.f, 100.f, 0.0f));
-    DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));
-    // field.Transform(field, CalcProjectionMatrix());
+    field = DirectX::BoundingBox(Vector3(), Vector3(2.2f, 1.f, 1.f));
+    // field
+     field.Transform(field, CalcProjectionMatrix());
 }
 
 void Pong::Update()
@@ -54,9 +49,13 @@ void Pong::Update()
     {
         std::cout<<"CONTAINS\n";
     }
-    else if (field.Contains(Player1->collision) != DirectX::CONTAINS)
+    else if (field.Contains(Player1->collision) == DirectX::INTERSECTS)
     {
-        std::cout<<"ELSE\n";
+        std::cout<<"INTERSECTS\n";
+    }
+    else
+    {
+        std::cout << "DISJOINT\n";
     }
     
     if( movementInput.y or movementInput.x)
