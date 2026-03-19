@@ -29,14 +29,16 @@ using namespace DirectX::SimpleMath;
 class Game
 {
 public:
-    DisplayWin32 Display;
+    DisplayWin32 Display;\
+    float aspectRatio;
+    
     InputDevice Input;
     std::vector<std::unique_ptr<GameComponent>> Components;
     
     // DebugAnnotation; 
     
     static Game* Instance;
-
+    
     // FPS counter
     std::chrono::time_point<std::chrono::steady_clock> PrevTime;
     std::chrono::time_point<std::chrono::steady_clock> StartTime;
@@ -58,7 +60,7 @@ public:
     void Exit();
     bool MessageHandler();
     void RestoreTargets();
-    int Run();
+    virtual int Run();
     Matrix CalcProjectionMatrix();
     void Resize();
     

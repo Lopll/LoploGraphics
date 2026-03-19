@@ -1,15 +1,17 @@
 #pragma once
 
-#include "GameComponent.h"
-#include "TriangleComponent.h"
+#include <DirectXCollision.h>
 
-class RectangleComponent : public GameComponent
+#include "GameComponent.h"
+#include "RectangleComponent.h"
+
+
+class BlockComponent : public GameComponent
 {
 private:
-    TriangleComponent triangle1;
-    TriangleComponent triangle2;
+    RectangleComponent form;
 public:
-    RectangleComponent
+    BlockComponent
     (
         Game* gamePtr = nullptr,
         std::array<int,6> idx = {0,1,2, 0,3,2},

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\BlockComponent.cpp" />
     <ClCompile Include="src\Delegates.cpp" />
     <ClCompile Include="src\DisplayWin32.cpp" />
     <ClCompile Include="src\Game.cpp" />
@@ -30,6 +31,7 @@
     <ClCompile Include="src\TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\BlockComponent.h" />
     <ClInclude Include="src\Delegates.h" />
     <ClInclude Include="src\DisplayWin32.h" />
     <ClInclude Include="src\Exports.h" />

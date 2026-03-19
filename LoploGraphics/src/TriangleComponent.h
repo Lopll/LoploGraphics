@@ -17,10 +17,10 @@ private:
     ID3DBlob* pixelShaderByteCode;
     Vector4 points[8] = 
     {
-		Vector4(0.0f, 0.5f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-		Vector4(0.0f, 0.0f, 0.0f, 1.0f),    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-		Vector4(0.5f, 0.0f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-		Vector4(0.5f, 0.5f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f)
+		Vector4(-0.25f, 0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(-0.25f, -0.25f, 0.0f, 1.0f),    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(0.25f, -0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(0.25f, 0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
     ID3D11RasterizerState* rastState;
     ID3D11VertexShader* vertexShader;
@@ -36,14 +36,14 @@ public:
     (
         Game* gamePtr = nullptr,
         std::array<int,3> idx = {0,1,2},
-        Vector4 Position = Vector4(0.0f),
-        Matrix Rotation = Matrix(), 
-        Matrix Scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f),
+        Vector3 Translation = Vector3(0.0f), 
+        float Rotation = 0.0f, 
+        Vector3 Scale = Vector3(1.0f),
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
     void DestroyResources() override;
     void Draw() override;
-    void Initialize(Matrix projectionMatrix = Matrix()) override;
+    void Initialize() override;
     void Update() override;
 };

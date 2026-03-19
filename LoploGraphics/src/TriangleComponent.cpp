@@ -2,13 +2,13 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Vector4 Position, Matrix Rotation, Matrix Scale, Vector4 Color)
-	: GameComponent(gamePtr, Position, Rotation, Scale, Color), indices(idx)
+TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Vector3 Translation, float Rotation, Vector3 Scale, Vector4 Color)
+	: GameComponent(gamePtr, Translation, Rotation, Scale, Color), indices(idx)
 {
 
 }
 
-void TriangleComponent::Initialize(Matrix projectionMatrix)
+void TriangleComponent::Initialize()
 {
 	ID3DBlob* errorVertexCode = nullptr;
 	auto res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
@@ -128,8 +128,6 @@ void TriangleComponent::Initialize(Matrix projectionMatrix)
 	constantBuffDesc.StructureByteStride = 0;
 	constantBuffDesc.ByteWidth = sizeof(ConstantData);
 	game->Device->CreateBuffer(&constantBuffDesc, nullptr, &constantBuffer);
-	
-	ProjectionMatrix = projectionMatrix;
 }
 
 void TriangleComponent::Draw()
@@ -157,7 +155,7 @@ void TriangleComponent::Draw()
 
 void TriangleComponent::Update()
 {
-	ApplyTransform();
+	ApplyTransform(transform);
 	
 	// update constant buffer
 	D3D11_MAPPED_SUBRESOURCE res = {};

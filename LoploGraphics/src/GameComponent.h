@@ -18,7 +18,7 @@ struct TransformData
 struct ConstantData
 {
     Matrix Transform;
-    Vector4 ActualPosition;
+    // Vector4 ActualPosition;
     Vector4 Color;
 };
 
@@ -37,17 +37,18 @@ public:
     GameComponent
     (
         Game* gamePtr = nullptr, 
-        Vector4 Position = Vector4(0.0f), 
-        Matrix Rotation = Matrix(), 
-        Matrix Scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f),
+        Vector3 Translation = Vector3(0.0f), 
+        float Rotation = 0.0f, 
+        Vector3 Scale = Vector3(1.0f),
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
     virtual void setProjectionMatrix(Matrix proj) { ProjectionMatrix = proj; }
+    virtual void setTranslation(Matrix translation) { transform.Translation = translation; }
     
     virtual void DestroyResources();
     virtual void Draw();
-    virtual void Initialize(Matrix projectionMatrix = Matrix());
+    virtual void Initialize();
     virtual void Reload();
     virtual void Update();
     
