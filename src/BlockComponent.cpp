@@ -10,7 +10,8 @@ BlockComponent::BlockComponent(Game* gamePtr, std::array<int,6> idx, Vector3 Sca
     vert.push_back(Vector3(-0.25f, -0.25f, 0.0f));
     vert.push_back(Vector3(0.25f, 0.25f, 0.0f));
     DirectX::BoundingBox::CreateFromPoints(collision, vert.size(), vert.data(), sizeof(Vector3));*/
-     DirectX::BoundingBox::CreateFromPoints(collision, Vector3(-0.25f, -0.25f, 0.f), Vector3(0.25f, 0.25f, 0.f));
+     //DirectX::BoundingBox::CreateFromPoints(collision, Vector3(-0.25f, -0.25f, 0.f), Vector3(0.25f, 0.25f, 0.f));
+     collision = DirectX::BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(40, 120, 0.f));
 }
 
 void BlockComponent::setProjectionMatrix(Matrix proj)

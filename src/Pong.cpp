@@ -25,7 +25,7 @@ Pong::Pong():
          Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(10.f, 40.f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
     }
     
-    auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(40.f, 120.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+    auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(40.f, 120.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
     Player1 = playerPtr.get();
     Components.push_back(std::move(playerPtr));
     
@@ -40,9 +40,9 @@ Pong::Pong():
     vert.push_back(Vector3(0.f, 1.f, 0.0f));
     vert.push_back(Vector3(0.f, 1.f, 0.0f));
     DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));*/
-
-     field = DirectX::BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f)); 
-     //field.Transform(field, CalcProjectionMatrix());
+    field = DirectX::BoundingBox(Vector3(0.0f, 0.0f, -100.0f), Vector3((float)Display.ClientWidth, (float)Display.ClientHeight, 100.f));
+     //field = DirectX::BoundingBox(Vector3(-1.0f, -1.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f)); 
+     field.Transform(field, CalcProjectionMatrix());
     /*std::vector<Vector3> screenCorners =
     {
         Vector3(left,  bottom, 0.0f),
@@ -93,7 +93,7 @@ void Pong::Update()
         Player1->collision.Center.x,
         Player1->collision.Center.y,
         Player1->collision.Center.z);
-    ImGui::Text("World Center: %.3f %.3f %.3f",
+    ImGui::Text("Field Center: %.3f %.3f %.3f",
         field.Center.x,
         field.Center.y,
         field.Center.z);
