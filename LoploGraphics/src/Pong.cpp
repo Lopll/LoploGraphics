@@ -3,7 +3,7 @@
 //TODO:: 
 
 int width = 640;
-int height = 360;
+int height = 640;
 float gridStep = 100;
 
 BlockComponent* Player1 = nullptr;
@@ -32,31 +32,18 @@ Pong::Pong():
 
     //Components.push_back(std::make_unique<BlockComponent>(this, std::array<int, 6>{0, 1, 2, 0, 3, 2}, Vector3(-1.0f, 0.0f, 0.0f), 0.0f, Vector3(0.75f, 1.f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)));
     
-    field = DirectX::BoundingBox(Vector3(), Vector3(2.2f, 1.f, 1.f));
+    //field = DirectX::BoundingBox(Vector3(), Vector3(aspectRatio, 1.f, 1.f));
     // field
-     field.Transform(field, CalcProjectionMatrix());
+    //
+    field = DirectX::BoundingBox(
+        Vector3(0, 0, 0),
+        Vector3(aspectRatio, 2.0f, 2.0f)   // полный размер по X = aspect*2, по Y = 2
+    );
+    field.Transform(field, CalcProjectionMatrix());
 }
 
 void Pong::Update()
 {
-    // Vector3 movement{};
-    // if(movementInput.y)
-    // {
-    //     movement.y = movementInput.y * movementSpeed;
-    // }
-    
-    if(field.Contains(Player1->collision) == DirectX::CONTAINS)
-    {
-        std::cout<<"CONTAINS\n";
-    }
-    else if (field.Contains(Player1->collision) == DirectX::INTERSECTS)
-    {
-        std::cout<<"INTERSECTS\n";
-    }
-    else
-    {
-        std::cout << "DISJOINT\n";
-    }
     
     if( movementInput.y or movementInput.x)
     {
@@ -65,6 +52,24 @@ void Pong::Update()
         movementInput.y = 0.f;
         movementInput.x = 0.f;
     }
+
+    if (field.Contains(Player1->collision) == DirectX::CONTAINS)
+    {
+        std::cout << "CONTAINS\n";
+    }
+    else if (field.Contains(Player1->collision) == DirectX::INTERSECTS)
+    {
+        std::cout << "INTERSECTS\n";
+    }
+    else if (field.Contains(Player1->collision) == DirectX::DISJOINT)
+    {
+        std::cout << "DISJOINT\n";
+    }
+    else
+    {
+        std::cout << "Else\n";
+    }
+
     Game::Update();
 }
 
