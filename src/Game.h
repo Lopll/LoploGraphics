@@ -39,7 +39,7 @@ class Game
 {
 public:
     DisplayWin32 Display;
-    float aspectRatio;
+    // float aspectRatio;
     
     InputDevice Input;
     std::vector<std::unique_ptr<GameComponent>> Components;

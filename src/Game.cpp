@@ -12,7 +12,7 @@ Game::Game(LPCWSTR Name, int width, int height):
 {
 	Instance = this;
 	
-	aspectRatio = (float)width/(float)height;
+	// aspectRatio = (float)width/(float)height;
 }
 
 void Game::CreateBackBuffer()
@@ -86,8 +86,7 @@ bool Game::Initialize()
 
 Matrix Game::CalcProjectionMatrix()
 {
-	aspectRatio = (float)Display.ClientWidth / (float)Display.ClientHeight;
-	return Matrix::CreateOrthographicOffCenter(-aspectRatio, aspectRatio, -1.f, 1.f, 0.1f, 100.0f);                   
+	return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);                   
 }
 
 void Game::PrepareResources()

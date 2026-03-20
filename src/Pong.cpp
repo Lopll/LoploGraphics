@@ -18,14 +18,14 @@ DirectX::BoundingBox field;
 Pong::Pong():
     Game(L"LoploPong", width, height)
 {
-    gridStep /= aspectRatio;
+    // gridStep /= aspectRatio;
     float gridLen = (height * 2) - gridStep;
     for(float i = gridStep; i <= gridLen; i+=gridStep)
     {
-         Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(0.05f, 0.2f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
+         Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(10.f, 40.f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
     }
     
-    auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(1.f, 1.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+    auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(40.f, 120.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
     Player1 = playerPtr.get();
     Components.push_back(std::move(playerPtr));
     
@@ -34,15 +34,15 @@ Pong::Pong():
     // float bottom = -1.0f;
     // float top = 1.0f;
 
-    // std::vector<Vector3> vert;
-    // vert.push_back(Vector3(100.f, 100.f, 0.0f));
-    // vert.push_back(Vector3(100.f, 0.f, 0.0f));
-    // vert.push_back(Vector3(0.f, 100.f, 0.0f));
-    // vert.push_back(Vector3(0.f, 100.f, 0.0f));
-    // DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));
+    /*std::vector<Vector3> vert;
+    vert.push_back(Vector3(1.f, 1.f, 0.0f));
+    vert.push_back(Vector3(1.f, 0.f, 0.0f));
+    vert.push_back(Vector3(0.f, 1.f, 0.0f));
+    vert.push_back(Vector3(0.f, 1.f, 0.0f));
+    DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));*/
 
-    field = DirectX::BoundingBox(Vector3(-1.0f, -1.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f));
-
+     field = DirectX::BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f)); 
+     //field.Transform(field, CalcProjectionMatrix());
     /*std::vector<Vector3> screenCorners =
     {
         Vector3(left,  bottom, 0.0f),
