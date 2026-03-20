@@ -22,24 +22,24 @@ Pong::Pong():
     float gridLen = (height * 2) - gridStep;
     for(float i = gridStep; i <= gridLen; i+=gridStep)
     {
-         Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(0.05f, 0.2f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f))); // TODO: fix grid
+         Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(0.05f, 0.2f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
     }
     
-    auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(0.2f, 0.6f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+    auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(1.f, 1.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
     Player1 = playerPtr.get();
     Components.push_back(std::move(playerPtr));
     
-    float left = -aspectRatio;
-    float right = aspectRatio;
-    float bottom = -1.0f;
-    float top = 1.0f;
+    // float left = -aspectRatio;
+    // float right = aspectRatio;
+    // float bottom = -1.0f;
+    // float top = 1.0f;
 
-    std::vector<Vector3> vert;
-    vert.push_back(Vector3(100.f, 100.f, 0.0f));
-    vert.push_back(Vector3(100.f, 0.f, 0.0f));
-    vert.push_back(Vector3(0.f, 100.f, 0.0f));
-    vert.push_back(Vector3(0.f, 100.f, 0.0f));
-    DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));
+    // std::vector<Vector3> vert;
+    // vert.push_back(Vector3(100.f, 100.f, 0.0f));
+    // vert.push_back(Vector3(100.f, 0.f, 0.0f));
+    // vert.push_back(Vector3(0.f, 100.f, 0.0f));
+    // vert.push_back(Vector3(0.f, 100.f, 0.0f));
+    // DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));
 
     field = DirectX::BoundingBox(Vector3(-1.0f, -1.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f));
 
@@ -66,15 +66,16 @@ void Pong::Update()
     if( movementInput.y or movementInput.x)
     {
         Matrix delta = Matrix::CreateTranslation(Vector3(movementInput.x, movementInput.y, 0.f) * movementSpeed);
-        Player1->setTranslation(Player1->transform.Translation * delta);           
+        // Player1->setTranslation(Player1->transform.Translation * delta);
+        Player1->setTranslation(Vector3::Transform(Player1->transform.Translation, delta));
         movementInput.y = 0.f;
         movementInput.x = 0.f;
     }
 
     SimpleMath::Vector3 player_pos = SimpleMath::Vector3(
-	    Player1->transform.Translation._41,
-	    Player1->transform.Translation._42,
-	    Player1->transform.Translation._43
+	    Player1->transform.Translation.x,
+	    Player1->transform.Translation.y,
+	    Player1->transform.Translation.z
     );
     
     std::string temp;
@@ -84,9 +85,9 @@ void Pong::Update()
 
     ImGui::Begin("Update Info");
     ImGui::Text("Player Pos: %.3f %.3f %.3f",
-        Player1->transform.Translation._41,
-        Player1->transform.Translation._42,
-        Player1->transform.Translation._43);
+        Player1->transform.Translation.x,
+        Player1->transform.Translation.y,
+        Player1->transform.Translation.z);
 
     ImGui::Text("Collision Center: %.3f %.3f %.3f",
         Player1->collision.Center.x,

@@ -41,7 +41,7 @@ void RectangleComponent::setProjectionMatrix(Matrix proj)
 	triangle2.setProjectionMatrix(proj);
 }
 
-void RectangleComponent::setTranslation(Matrix translation) 
+void RectangleComponent::setTranslation(Vector3 translation) 
 { 
 	transform.Translation = translation;
 	triangle1.setTranslation(translation);

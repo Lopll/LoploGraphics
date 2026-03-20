@@ -9,9 +9,9 @@ class Game;
 
 struct TransformData
 {
-    Matrix Scale;
-    Matrix Rotation;
-    Matrix Translation;
+    Vector3 Scale;
+    float Rotation;
+    Vector3 Translation;
 };
 
 
@@ -36,7 +36,7 @@ public:
     );
     
     virtual void setProjectionMatrix(Matrix proj) { ProjectionMatrix = proj; }
-    virtual void setTranslation(Matrix translation) { transform.Translation = translation; }
+    virtual void setTranslation(Vector3 translation) { transform.Translation = translation; }
     virtual void ApplyTransform(TransformData newTransform = TransformData());
     
     virtual void DestroyResources(){};

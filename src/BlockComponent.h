@@ -24,7 +24,7 @@ public:
     );
     
     void setProjectionMatrix(Matrix proj) override;
-    void setTranslation(Matrix translation) override;
+    void setTranslation(Vector3 translation) override;
     
     void DestroyResources() override;
     void Draw() override;
