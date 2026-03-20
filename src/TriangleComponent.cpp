@@ -2,8 +2,8 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Vector3 Translation, float Rotation, Vector3 Scale, Vector4 Color)
-	: GameComponent(gamePtr, Translation, Rotation, Scale, Color), indices(idx)
+TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color)
+	: GameComponent(gamePtr, Scale, Rotation, Translation, Color), indices(idx)
 {
 
 }
@@ -127,7 +127,7 @@ void TriangleComponent::Initialize()
 	constantBuffDesc.MiscFlags = 0;
 	constantBuffDesc.StructureByteStride = 0;
 	constantBuffDesc.ByteWidth = sizeof(ConstantData);
-	game->Device->CreateBuffer(&constantBuffDesc, nullptr, &constantBuffer);
+	game->Device->CreateBuffer(&constantBuffDesc, nullptr, constantBuffer.GetAddressOf());
 }
 
 void TriangleComponent::Draw()
@@ -144,7 +144,7 @@ void TriangleComponent::Draw()
 	
 	game->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
-	game->Context->VSSetConstantBuffers(0, 1, &constantBuffer);
+	game->Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 	
 	game->Context->VSSetShader(vertexShader, nullptr, 0);
 	game->Context->PSSetShader(pixelShader, nullptr, 0);
@@ -159,10 +159,10 @@ void TriangleComponent::Update()
 	
 	// update constant buffer
 	D3D11_MAPPED_SUBRESOURCE res = {};
-	game->Context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	game->Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	auto dataPtr = reinterpret_cast<float*>(res.pData);
 	memcpy(dataPtr, &constantData, sizeof(ConstantData));
-	game->Context->Unmap(constantBuffer, 0);
+	game->Context->Unmap(constantBuffer.Get(), 0);
 }
 
 void TriangleComponent::DestroyResources()

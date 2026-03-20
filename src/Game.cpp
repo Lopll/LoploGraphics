@@ -5,7 +5,10 @@ float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 Game* Game::Instance = nullptr; // definiton if the static variable?
 
 Game::Game(LPCWSTR Name, int width, int height):
-	Input(this), Display(Name, this, width, height), TotalTime(0.0f)
+	Input(this),
+	Display(Name, this, width, height),
+	TotalTime(0.0f),
+	frameCount(0)
 {
 	Instance = this;
 	
@@ -14,8 +17,8 @@ Game::Game(LPCWSTR Name, int width, int height):
 
 void Game::CreateBackBuffer()
 {
-    auto res = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);	// __uuidof(ID3D11Texture2D)
-	res = Device->CreateRenderTargetView(backBuffer, nullptr, &RenderView);
+    auto res = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)backBuffer.GetAddressOf());	// __uuidof(ID3D11Texture2D)
+	res = Device->CreateRenderTargetView(backBuffer.Get(), nullptr, RenderView.GetAddressOf());
 	if(FAILED(res))
 	{
 		std::cerr << "Failed to create render target view!" << std::endl;
@@ -35,15 +38,15 @@ bool Game::Initialize()
     
     DXGI_SWAP_CHAIN_DESC swapDesc = {};
     swapDesc.BufferCount = 2;
-	swapDesc.BufferDesc.Width = Instance->Display.ClientWidth;
-	swapDesc.BufferDesc.Height = Instance->Display.ClientHeight;
+	swapDesc.BufferDesc.Width = Display.ClientWidth;
+	swapDesc.BufferDesc.Height = Display.ClientHeight;
 	swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;;
-	swapDesc.OutputWindow = Instance->Display.hWnd;
+	swapDesc.OutputWindow = Display.hWnd;
 	swapDesc.Windowed = true;
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -59,10 +62,10 @@ bool Game::Initialize()
 		1,
 		D3D11_SDK_VERSION,
 		&swapDesc,
-		&Instance->SwapChain,
-		&(Instance->Device),
+		SwapChain.GetAddressOf(),
+		Device.GetAddressOf(),
 		nullptr,
-		&(Instance->Context));
+		Context.GetAddressOf());
 		
 	if(FAILED(res))
 	{
@@ -73,8 +76,10 @@ bool Game::Initialize()
 	
 	PrepareResources();
 	
-	Instance->StartTime = std::chrono::steady_clock::now();
-	Instance->PrevTime = Instance->StartTime;
+	InitImGui();
+	
+	StartTime = std::chrono::steady_clock::now();
+	PrevTime = StartTime;
 	
 	return true;
 }
@@ -87,11 +92,11 @@ Matrix Game::CalcProjectionMatrix()
 
 void Game::PrepareResources()
 {
-	Instance->CreateBackBuffer();
+	CreateBackBuffer();
 	
-	Matrix proj = Instance->CalcProjectionMatrix();
+	Matrix proj = CalcProjectionMatrix();
 	
-	for(auto& component : Instance->Components)
+	for(auto& component : Components)
 	{
 		component->Initialize();
 		component->setProjectionMatrix(proj);
@@ -100,7 +105,7 @@ void Game::PrepareResources()
 
 void Game::Update()
 {
-	for(auto& component : Instance->Components)
+	for(auto& component : Components)
 	{
 		component->Update();
 	}
@@ -108,7 +113,7 @@ void Game::Update()
 
 void Game::UpdateInput()
 {
-	if (Instance->Input.IsKeyDown(Keys::Escape))
+	if (Input.IsKeyDown(Keys::Escape))
 	{
 		PostQuitMessage(0);
 	}
@@ -116,30 +121,65 @@ void Game::UpdateInput()
 
 void Game::UpdateInternal()
 {
-	if(Instance->ScreenResized)
+	if(ScreenResized)
 	{
-		Instance->Resize();
+		Resize();
 	}
-	// unsigned int frameCount = 0;
-	
-	// auto currentTime = std::chrono::steady_clock::now();
-	// float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - Instance->PrevTime).count() / 1000000.0f;
-	// Instance->PrevTime = currentTime;
-	
-	// Instance->TotalTime += deltaTime;
-	// frameCount++;
-	
-	// if(Instance->TotalTime > 1.0f)
-	// {
-	// 	float fps = frameCount / Instance->TotalTime;
-	// 	Instance->TotalTime -= 1.0f;
-		
-	// 	WCHAR text[256];
-	// 	swprintf_s(text, TEXT("FPS: %f"), fps);
-	// 	SetWindowText(Instance->Display.hWnd, text); 						
+	auto currentTime = std::chrono::steady_clock::now();
+	float deltaTime = std::chrono::duration<float>(
+		currentTime - PrevTime
+	).count();
 
-	// 	frameCount = 0;
-	// }
+	PrevTime = currentTime;
+	TotalTime += deltaTime;
+	frameCount++;
+
+	if (TotalTime >= 1.0f)
+	{
+		float fps = static_cast<float>(frameCount) / TotalTime;
+		TotalTime -= 1.0f;
+
+		WCHAR text[256];
+		swprintf_s(text, L"FPS: %.1f", fps);
+		SetWindowText(Display.hWnd, text);
+
+		frameCount = 0;
+	}
+}
+
+void Game::InitImGui()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	// io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // если хочешь
+
+	ImGui::StyleColorsDark();  // или Light, Classic...
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplWin32_Init(Display.hWnd);
+	ImGui_ImplDX11_Init(Device.Get(), Context.Get());
+}
+
+void Game::ShutdownImGui()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void Game::NewImGuiFrame()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+}
+
+void Game::RenderImGui()
+{
+	ImGui::Render();
+	//Context->OMSetRenderTargets(1, &RenderView, nullptr);
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 bool Game::MessageHandler()
@@ -160,37 +200,37 @@ bool Game::MessageHandler()
 void Game::SetViewport()
 {
 	D3D11_VIEWPORT viewport = {};
-	viewport.Width = static_cast<float>(Instance->Display.ClientWidth);
-	viewport.Height = static_cast<float>(Instance->Display.ClientHeight);
+	viewport.Width = static_cast<float>(Display.ClientWidth);
+	viewport.Height = static_cast<float>(Display.ClientHeight);
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0;
 	viewport.MaxDepth = 1.0f;
 
-	Instance->Context->RSSetViewports(1, &viewport);
+	Context->RSSetViewports(1, &viewport);
 }
 
 void Game::PrepareFrame()
 {
-	Instance->Context->ClearState();
+	Context->ClearState();
 
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
-	Instance->Context->ClearRenderTargetView(Instance->RenderView, color);
+	Context->ClearRenderTargetView(RenderView.Get(), color);
 
 	SetViewport();
 	
-	Instance->RestoreTargets();
+	RestoreTargets();
 }
 
 void Game::EndFrame()
 {
-	Instance->SwapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
-	Instance->Context->OMSetRenderTargets(0, nullptr, nullptr);
+	SwapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
+	Context->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
 void Game::RestoreTargets()
 {
-	Context->OMSetRenderTargets(1, &RenderView, nullptr);
+	Context->OMSetRenderTargets(1, RenderView.GetAddressOf(), nullptr);
 }
 
 int Game::Run()
@@ -203,25 +243,29 @@ int Game::Run()
 	while(!MessageHandler())
 	{
 		UpdateInternal();
+		PrepareFrame();
+		NewImGuiFrame();
 		UpdateInput();
 		Update();
-		PrepareFrame();
+
 		Draw();
+		RenderImGui();
 		EndFrame();
 	}
-	Instance->Exit();
+	Exit();
 	return 0;
 }
 
 void Game::Exit()
 {
+	ShutdownImGui();
 	DestroyResources();
 	PostQuitMessage(0);
 }
 
 void Game::Draw()
 {
-	for(auto& component : Instance->Components)
+	for(auto& component : Components)
 	{
 		component->Draw();
 	}
@@ -229,8 +273,8 @@ void Game::Draw()
 
 void Game::DestroyResources()
 {
-	// Instance->Context->ClearState();
-	for(auto& component : Instance->Components)
+	// Context->ClearState();
+	for(auto& component : Components)
 	{
 		component->DestroyResources();
 	}
@@ -238,10 +282,8 @@ void Game::DestroyResources()
 
 void Game::Resize()
 {
-	RenderView->Release();
-	RenderView = nullptr;
-	backBuffer->Release();
-	backBuffer = nullptr;
+	RenderView.Reset();
+	backBuffer.Reset();
 	
 	Context->OMSetRenderTargets(0, nullptr, nullptr);
 	

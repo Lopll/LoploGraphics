@@ -4,6 +4,8 @@
 
 DisplayWin32* DisplayWin32::Instance = nullptr;
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK DisplayWin32::WndProc(HWND hWnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
     Game* game = (Game*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -12,6 +14,9 @@ LRESULT CALLBACK DisplayWin32::WndProc(HWND hWnd, UINT umessage, WPARAM wparam, 
         return DefWindowProc(hWnd, umessage, wparam, lparam);
     }
     
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, umessage, wparam, lparam))
+        return true;
+
 	switch (umessage)
 	{
 	   case WM_DESTROY:
