@@ -13,7 +13,6 @@ struct TransformData
     Vector3 Translation;
 };
 
-
 class GameComponent
 {
 public:    
@@ -26,7 +25,6 @@ public:
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
-    virtual void setTranslation(Vector3 translation) { transform.Translation = translation; }
     virtual void ApplyTransform();
     
     virtual void DestroyResources(){};

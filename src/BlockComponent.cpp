@@ -27,9 +27,3 @@ void BlockComponent::DestroyResources()
 {
     form.DestroyResources();
 }
-
-void BlockComponent::setTranslation(Vector3 translation) 
-{ 
-	transform.Translation = translation;
-	form.setTranslation(translation);
-}

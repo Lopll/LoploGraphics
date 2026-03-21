@@ -65,9 +65,10 @@ void Pong::Update()
     Game::Update();
     if( movementInput.y or movementInput.x)
     {
-        Matrix delta = Matrix::CreateTranslation(Vector3(movementInput.x, movementInput.y, 0.f) * movementSpeed);
+        //Matrix delta = Matrix::CreateTranslation(Vector3(movementInput.x, movementInput.y, 0.f) * movementSpeed);
         // Player1->setTranslation(Player1->transform.Translation * delta);
-        Player1->setTranslation(Vector3::Transform(Player1->transform.Translation, delta));
+        //Player1->setTranslation(Vector3::Transform(Player1->transform.Translation, delta));
+        Player1->transform.Translation += Vector3(movementInput.x, movementInput.y, 0.f) * movementSpeed;
         movementInput.y = 0.f;
         movementInput.x = 0.f;
     }
@@ -106,7 +107,7 @@ void Pong::Update()
             playerCol->bounds.Center.x, playerCol->bounds.Center.y);
         ImGui::Text("Player Extents:%.2f, %.2f",
             playerCol->bounds.Extents.x, playerCol->bounds.Extents.y);
-        ImGui::Text("Player Size:   %.1f x %.1f",
+        ImGui::Text("Player Size:   %.2f x %.2f",
             playerCol->bounds.Extents.x * 2, playerCol->bounds.Extents.y * 2);
     }
     else
@@ -125,8 +126,8 @@ void Pong::Update()
             "Contains result: %s", typeStr);
 
         // === БЕЗОПАСНЫЙ CLAMP ===
-        float halfW = worldCol->bounds.Extents.x - playerCol->bounds.Extents.x;
-        float halfH = worldCol->bounds.Extents.y - playerCol->bounds.Extents.y;
+        float halfW = worldCol->bounds.Extents.x - playerCol->bounds.Extents.x / 2;
+        float halfH = worldCol->bounds.Extents.y - playerCol->bounds.Extents.y / 2;
 
         if (halfW > 0.0f && halfH > 0.0f)
         {
@@ -136,7 +137,7 @@ void Pong::Update()
             pos.x = std::clamp(pos.x, -halfW, halfW);
             pos.y = std::clamp(pos.y, -halfH, halfH);
 
-            Player1->setTranslation(pos);
+            Player1->transform.Translation = pos;
 
             if (pos.x != oldPos.x || pos.y != oldPos.y)
             {

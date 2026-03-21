@@ -31,10 +31,3 @@ void RectangleComponent::DestroyResources()
 	triangle1.DestroyResources();
 	triangle2.DestroyResources();
 }
-
-void RectangleComponent::setTranslation(Vector3 translation) 
-{ 
-	transform.Translation = translation;
-	triangle1.setTranslation(translation);
-	triangle2.setTranslation(translation);
-}
