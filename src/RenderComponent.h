@@ -5,19 +5,10 @@
 #include <d3dcompiler.h>
 #include <wrl/client.h>
 
-struct Vertex3D
-{
-    DirectX::SimpleMath::Vector3 Pos;
-    DirectX::SimpleMath::Vector3 Normal;
-    DirectX::SimpleMath::Vector3 TangentU;
-    DirectX::SimpleMath::Vector2 TexC;
-};
-
 struct Vertex
 {
     DirectX::SimpleMath::Vector3 Pos;
     DirectX::SimpleMath::Vector4 Color;
-    //DirectX::SimpleMath::Vector2 TexC;
 };
 
 class RenderComponent : public GameComponent
@@ -45,9 +36,9 @@ public:
     (
         TransformData& ownerTransform,
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-        std::vector<Vertex> Vertices = {{ Vector3(-0.25f, 0.25f, 0.0f),  Color(1, 0, 0) },
-                                        { Vector3(-0.25f, -0.25f, 0.0f), Color(0, 1, 0) },
-                                        { Vector3(0.25f, -0.25f, 0.0f),  Color(0, 0, 1) }},
+        std::vector<Vertex> Vertices = {{ Vector3(-0.5f, 0.5f, 0.0f),  Color(1, 0, 0) },
+                                        { Vector3(-0.5f, -0.5f, 0.0f), Color(1, 1, 1) },
+                                        { Vector3(0.5f, -0.5f, 0.0f),  Color(0, 0, 1) }},
         std::vector<std::uint32_t> Indices = { 0, 1, 2 }
     );
 

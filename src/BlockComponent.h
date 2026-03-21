@@ -10,9 +10,8 @@ class BlockComponent : public GameComponent
 {
 private:
     RectangleComponent form;
-public:
-    DirectX::BoundingBox collision;
-    
+
+public:    
     BlockComponent
     (
         TransformData& ownerTransform,
@@ -20,7 +19,6 @@ public:
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
-    void setProjectionMatrix(Matrix proj) override;
     void setTranslation(Vector3 translation) override;
     
     void DestroyResources() override;

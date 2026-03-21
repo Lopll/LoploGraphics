@@ -86,19 +86,31 @@ bool Game::Initialize()
 
 Matrix Game::CalcProjectionMatrix()
 {
-	return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);                   
+	//return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);
+	return Matrix::CreateOrthographic(2.f, 2.f, -100.f, 100.f);
 }
 
 void Game::PrepareResources()
 {
 	CreateBackBuffer();
 	
+	if (!ProjectionBuffer)
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.ByteWidth = sizeof(PassConstants);
+
+		Device->CreateBuffer(&desc, nullptr, ProjectionBuffer.GetAddressOf());
+	}
+
 	Matrix proj = CalcProjectionMatrix();
+	UpdateProjectionBuffer(proj);
 	
 	for(auto& component : Components)
 	{
 		component->Initialize();
-		component->setProjectionMatrix(proj);
 	}	
 }
 
@@ -296,11 +308,31 @@ void Game::Resize()
 	CreateBackBuffer();
 	RestoreTargets();
 	
-	Matrix proj = CalcProjectionMatrix();
-	for(auto& component : Components)
+	if (!ProjectionBuffer)
 	{
-		component->setProjectionMatrix(proj);
+		D3D11_BUFFER_DESC desc = {};
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.ByteWidth = sizeof(PassConstants);
+
+		Device->CreateBuffer(&desc, nullptr, ProjectionBuffer.GetAddressOf());
 	}
+
+	Matrix proj = CalcProjectionMatrix();
+	UpdateProjectionBuffer(proj);
 	
 	ScreenResized = false;
+}
+
+void Game::UpdateProjectionBuffer(Matrix proj)
+{
+	Matrix tProj = proj.Transpose();
+
+	PassConstants temp = { tProj, tProj.Invert() };
+
+	D3D11_MAPPED_SUBRESOURCE mapped = {};
+	Context->Map(ProjectionBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	memcpy(mapped.pData, &temp, sizeof(PassConstants));
+	Context->Unmap(ProjectionBuffer.Get(), 0);
 }

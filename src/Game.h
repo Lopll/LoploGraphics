@@ -106,6 +106,7 @@ public:
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context;
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderView;
     Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> ProjectionBuffer;
     // ID3D11ShaderResourceView* RenderSRV;
     
     bool ScreenResized = false;// find method for it. Maybe bool value, which will be wathed somewhere for resize
@@ -120,6 +121,7 @@ public:
     virtual int Run();
     Matrix CalcProjectionMatrix();
     void Resize();
+    void UpdateProjectionBuffer(Matrix proj);
 
     void DestroyResources();
     virtual void Draw();

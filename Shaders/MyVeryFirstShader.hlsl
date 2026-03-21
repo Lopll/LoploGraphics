@@ -1,7 +1,6 @@
 struct ConstantData
 {
-	float4x4 transform;
-	// float4 position;
+    float4x4 World;
 	float4 color;
 };
 
@@ -10,34 +9,21 @@ cbuffer ConstantBuffer : register(b0)
 	ConstantData constantData;
 }
 
-struct cbPass
+cbuffer MainPass : register(b1)
 {
-    float4x4 gView;
-    float4x4 gInvView;
-    float4x4 gProj;
-    float4x4 gInvProj;
-    float4x4 gViewProj;
-    float4x4 gInvViewProj;
-    float3 gEyePosW;
-    float cbPerObjectPad1;
-    float2 gRenderTargetSize;
-    float2 gInvRenderTargetSize;
-    float gNearZ;
-    float gFarZ;
-    float gTotalTime;
-    float gDeltaTime;
-    float4 gAmbientLight;
+    float4x4 gProjection;
+    float4x4 gInvProjection;
 };
 
 struct VS_IN
 {
-	float3 pos : POSITION0;
+	float3 posL : POSITION0;
 	float4 col : COLOR0;
 };
 
 struct PS_IN
 {
-	float4 pos : SV_POSITION;
+	float4 posH : SV_POSITION;
  	float4 col : COLOR;
 };
 
@@ -45,9 +31,10 @@ PS_IN VSMain( VS_IN input )
 {
 	PS_IN output = (PS_IN)0;
 	
-	output.pos = mul(float4(input.pos.xyz, 1.0f), constantData.transform);
-	// output.pos = float4(output.pos + constantData.position.xyz, 1.0f);
-	output.col = constantData.color;
+    float4 PosW = mul(float4(input.posL.xyz, 1.0f), constantData.World);
+    output.posH = mul(PosW, gProjection);
+
+    output.col = input.col;
 	
 	return output;
 }

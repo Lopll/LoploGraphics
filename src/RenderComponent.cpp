@@ -150,7 +150,12 @@ void RenderComponent::Draw()
 	UINT offsets[] = { 0 };
 	Game::Instance->Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), strides, offsets);
 	Game::Instance->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	Game::Instance->Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+
+	ID3D11Buffer* buffers[2] = {
+	constantBuffer.Get(),
+	Game::Instance->ProjectionBuffer.Get()
+	};
+	Game::Instance->Context->VSSetConstantBuffers(0, 2, buffers);
 
 	Game::Instance->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	Game::Instance->Context->PSSetShader(pixelShader.Get(), nullptr, 0);

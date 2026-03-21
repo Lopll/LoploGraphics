@@ -1,9 +1,11 @@
 #include "Pong.h"
 #include "BlockComponent.h"
 #include "RenderComponent.h"
+#include "CollisionComponent.h"
 #include <DirectXCollision.h>
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 
 int width = 640;
 int height = 640;
@@ -26,52 +28,35 @@ Pong::Pong():
     float gridLen = (height * 2) - gridStep;
     for(float i = gridStep; i <= gridLen; i+=gridStep)
     {
-         //Components.push_back(std::make_unique<RectangleComponent>(std::array<int, 6>{0,1,2, 0,3,2}, Vector3(10.f, 40.f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
-        Entities["Wall_" + std::to_string(i)].transform.Scale = Vector3(10.f, 40.f, 1.f);
+        Entities["Wall_" + std::to_string(i)].transform.Scale = Vector3(0.03125f, 0.125f, 1.0f);
         Entities["Wall_" + std::to_string(i)].transform.Translation = Vector3(0.0f, 1.f - ((float)i / height), 0.0f);
         Entities["Wall_" + std::to_string(i)].AddComponent<RectangleComponent>("Sprite", std::array<int, 6>{0, 1, 2, 0, 3, 2});
     }
     
-    //Entity Player;
-    Entities["Player"].transform.Scale = Vector3(40.f, 120.0f, 1.0f);
+    //Player 1;
+    Entities["Player"].transform.Scale = Vector3(0.125f, 0.375f, 1.0f);
     Entities["Player"].transform.Translation = Vector3(-startXPos, 0.0f, 1.0f);
-    Entities["Player"].AddComponent<BlockComponent>("Sprite", std::array<int, 6>{0, 1, 2, 0, 3, 2}, Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-    Player1 = Entities["Player"].GetComponent<BlockComponent>("Sprite");
-    //Player.AddComponent<BlockComponent>("Sprite");
-    Entities["RenderEntity"].transform.Scale = Vector3(100.f);
-    Entities["RenderEntity"].transform.Translation = Vector3(-startXPos, 0.0f, 1.0f);
+    Player1 = Entities["Player"].AddComponent<BlockComponent>("Sprite",
+        std::array<int, 6>{0, 1, 2, 0, 3, 2},
+        Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+    Entities["Player"].AddComponentDefault<CollisionComponent>("collider");
 
+    // Test Render Component
+    Entities["RenderEntity"].transform.Scale = Vector3(0.3f, 0.3f, 1.0f);
+    Entities["RenderEntity"].transform.Translation = Vector3(-startXPos, 0.0f, 1.0f);
     Entities["RenderEntity"].AddComponentDefault<RenderComponent>("renderer");
 
+    // Test wall with collision
+    //auto& wallEnt = Entities["Wall_100"];
+    //wallEnt.transform.Scale = Vector3(10.f, 40.f, 1.f);
+    //wallEnt.transform.Translation = Vector3(0.0f, 0.5f, 0.0f);
+    //wallEnt.AddComponent<RectangleComponent>("Sprite", std::array<int, 6>{0, 1, 2, 0, 3, 2});
+    //wallEnt.AddComponentDefault<CollisionComponent>("collider");
     
-    // float left = -aspectRatio;
-    // float right = aspectRatio;
-    // float bottom = -1.0f;
-    // float top = 1.0f;
-
-    /*std::vector<Vector3> vert;
-    vert.push_back(Vector3(1.f, 1.f, 0.0f));
-    vert.push_back(Vector3(1.f, 0.f, 0.0f));
-    vert.push_back(Vector3(0.f, 1.f, 0.0f));
-    vert.push_back(Vector3(0.f, 1.f, 0.0f));
-    DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));*/
-    field = DirectX::BoundingBox(Vector3(0.0f, 0.0f, -100.0f), Vector3((float)Display.ClientWidth, (float)Display.ClientHeight, 100.f));
-     //field = DirectX::BoundingBox(Vector3(-1.0f, -1.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f)); 
-    field.Transform(field, CalcProjectionMatrix());
-    /*std::vector<Vector3> screenCorners =
-    {
-        Vector3(left,  bottom, 0.0f),
-        Vector3(right, bottom, 0.0f),
-        Vector3(right, top,    0.0f),
-        Vector3(left,  top,    0.0f) 
-    };
-
-    DirectX::BoundingBox::CreateFromPoints(
-        field,
-        screenCorners.size(),
-        screenCorners.data(),
-        sizeof(Vector3)
-    );*/
+    Entities["WorldBounds"].transform.Scale = Vector3(2.0f, 2.0f, 1.0f);
+    Entities["WorldBounds"].transform.Translation = Vector3(0.0f, 0.0f, 0.0f);
+    Entities["WorldBounds"].AddComponentDefault<CollisionComponent>("bounds");
+    field = Entities["WorldBounds"].GetComponent<CollisionComponent>("bounds")->bounds;
 }
 
 using namespace DirectX;
@@ -93,26 +78,79 @@ void Pong::Update()
 	    Player1->transform.Translation.z
     );
     
-    std::string temp;
-    if(field.Contains(Player1->collision) == DirectX::CONTAINS)         temp = "CONTAINS\n";
-    else if (field.Contains(Player1->collision) == DirectX::INTERSECTS) temp = "INTERSECTS\n";
-    else                                                                temp = "DISJOINT\n";
 
-    ImGui::Begin("Update Info");
-    ImGui::Text("Player Pos: %.3f %.3f %.3f",
-        Player1->transform.Translation.x,
-        Player1->transform.Translation.y,
-        Player1->transform.Translation.z);
+    ImGui::Begin("Collision Debug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-    ImGui::Text("Collision Center: %.3f %.3f %.3f",
-        Player1->collision.Center.x,
-        Player1->collision.Center.y,
-        Player1->collision.Center.z);
-    ImGui::Text("Field Center: %.3f %.3f %.3f",
-        field.Center.x,
-        field.Center.y,
-        field.Center.z);
-    ImGui::Text("Collision type: %s", temp.c_str());
+    auto* playerCol = Entities["Player"].GetComponent<CollisionComponent>("collider");
+    auto* worldCol = Entities["WorldBounds"].GetComponent<CollisionComponent>("bounds");
+
+    ImGui::TextColored(ImVec4(1, 1, 0, 1), "=== WORLD BOUNDS ===");
+    if (worldCol)
+    {
+        ImGui::Text("World Center:  %.1f, %.1f", worldCol->bounds.Center.x, worldCol->bounds.Center.y);
+        ImGui::Text("World Extents: %.1f, %.1f", worldCol->bounds.Extents.x, worldCol->bounds.Extents.y);
+        ImGui::Text("World Size:    %.1f x %.1f",
+            worldCol->bounds.Extents.x * 2, worldCol->bounds.Extents.y * 2);
+    }
+    else
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "WorldBounds collider NOT FOUND!");
+
+    ImGui::Separator();
+
+    ImGui::TextColored(ImVec4(0, 1, 1, 1), "=== PLAYER ===");
+    if (playerCol && Player1)
+    {
+        ImGui::Text("Player Pos:    %.2f, %.2f",
+            Player1->transform.Translation.x, Player1->transform.Translation.y);
+        ImGui::Text("Player Center: %.2f, %.2f",
+            playerCol->bounds.Center.x, playerCol->bounds.Center.y);
+        ImGui::Text("Player Extents:%.2f, %.2f",
+            playerCol->bounds.Extents.x, playerCol->bounds.Extents.y);
+        ImGui::Text("Player Size:   %.1f x %.1f",
+            playerCol->bounds.Extents.x * 2, playerCol->bounds.Extents.y * 2);
+    }
+    else
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "Player collider NOT FOUND!");
+
+    ImGui::Separator();
+
+    if (playerCol && worldCol)
+    {
+        DirectX::ContainmentType type = worldCol->bounds.Contains(playerCol->bounds);
+
+        const char* typeStr = (type == DirectX::CONTAINS) ? "CONTAINS" :
+            (type == DirectX::INTERSECTS) ? "INTERSECTS" : "DISJOINT";
+
+        ImGui::TextColored(type == DirectX::CONTAINS ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0.5f, 0, 1),
+            "Contains result: %s", typeStr);
+
+        // === БЕЗОПАСНЫЙ CLAMP ===
+        float halfW = worldCol->bounds.Extents.x - playerCol->bounds.Extents.x;
+        float halfH = worldCol->bounds.Extents.y - playerCol->bounds.Extents.y;
+
+        if (halfW > 0.0f && halfH > 0.0f)
+        {
+            Vector3 pos = Player1->transform.Translation;
+            Vector3 oldPos = pos;
+
+            pos.x = std::clamp(pos.x, -halfW, halfW);
+            pos.y = std::clamp(pos.y, -halfH, halfH);
+
+            Player1->setTranslation(pos);
+
+            if (pos.x != oldPos.x || pos.y != oldPos.y)
+            {
+                ImGui::TextColored(ImVec4(1, 0, 0, 1), "CLAMP APPLIED!");
+                ImGui::Text("Old: %.2f, %.2f → New: %.2f, %.2f",
+                    oldPos.x, oldPos.y, pos.x, pos.y);
+            }
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "ERROR: Player larger than world! (halfW = %.2f)", halfW);
+        }
+    }
+
     ImGui::End();
 }
 

@@ -20,15 +20,12 @@ public:
     struct ObjectConstants constantData;
     TransformData& transform;
 
-    Matrix ProjectionMatrix;
-
     GameComponent
     (
         TransformData& ownerTransform,
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
     );
     
-    virtual void setProjectionMatrix(Matrix proj) { ProjectionMatrix = proj; }
     virtual void setTranslation(Vector3 translation) { transform.Translation = translation; }
     virtual void ApplyTransform();
     
