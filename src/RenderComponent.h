@@ -43,9 +43,7 @@ protected:
 public:
     RenderComponent
     (
-        Vector3 Scale = Vector3(1.0f),
-        float Rotation = 0.0f,
-        Vector3 Translation = Vector3(0.0f),
+        TransformData& ownerTransform,
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f),
         std::vector<Vertex> Vertices = {{ Vector3(-0.25f, 0.25f, 0.0f),  Color(1, 0, 0) },
                                         { Vector3(-0.25f, -0.25f, 0.0f), Color(0, 1, 0) },

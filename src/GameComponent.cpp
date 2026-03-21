@@ -1,15 +1,16 @@
 #include "GameComponent.h"
 
-GameComponent::GameComponent(Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color)
+GameComponent::GameComponent(TransformData& ownerTransform, Vector4 Color)
     : constantData(ObjectConstants(Matrix(), Color)), 
-    transform(TransformData(Scale, Rotation, Translation))
-{}
+    transform(ownerTransform)
+{
+}
 
-void GameComponent::ApplyTransform(TransformData newTransform)
+void GameComponent::ApplyTransform()
 {
     constantData.World = ProjectionMatrix
-                            * Matrix::CreateScale(newTransform.Scale)
-                            * Matrix::CreateRotationZ(DirectX::XMConvertToRadians(newTransform.Rotation))
-                            * Matrix::CreateTranslation(newTransform.Translation);
+                            * Matrix::CreateScale(transform.Scale)
+                            * Matrix::CreateRotationZ(DirectX::XMConvertToRadians(transform.Rotation))
+                            * Matrix::CreateTranslation(transform.Translation);
     constantData.World = constantData.World.Transpose();
 }

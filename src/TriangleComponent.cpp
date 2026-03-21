@@ -2,8 +2,8 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(std::array<int,3> idx, Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color)
-	: GameComponent(Scale, Rotation, Translation, Color), indices(idx)
+TriangleComponent::TriangleComponent(TransformData& ownerTransform, std::array<int,3> idx, Vector4 Color)
+	: GameComponent(ownerTransform, Color), indices(idx)
 {
 
 }
@@ -154,7 +154,7 @@ void TriangleComponent::Draw()
 
 void TriangleComponent::Update()
 {
-	ApplyTransform(transform);
+	ApplyTransform();
 	
 	// update constant buffer
 	D3D11_MAPPED_SUBRESOURCE res = {};

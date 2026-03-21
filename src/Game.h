@@ -18,6 +18,7 @@
 #include <chrono>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "DisplayWin32.h"
 #include "InputDevice.h"
@@ -35,6 +36,51 @@
 
 using namespace DirectX::SimpleMath;
 
+typedef struct Entity {
+    int id = 0;
+    TransformData transform;
+    std::unordered_map<std::string, GameComponent*> components;
+
+    template<typename T, typename... Args>
+    T* AddComponent(const std::string& name, Args&&... args)
+    {
+        static_assert(std::is_base_of_v<GameComponent, T>,
+            "T must derive from GameComponent!");
+
+        auto newComp = std::make_unique<T>(transform, std::forward<Args>(args)...);
+
+        T* rawPtr = newComp.get();
+        components[name] = rawPtr;
+
+        Game::Instance->Components.push_back(std::move(newComp));
+        return rawPtr;
+    }
+
+    // With default constructor
+    template<typename T>
+    T* AddComponentDefault(const std::string& name)
+    {
+        return AddComponent<T>(name);
+    }
+
+    template<typename T>
+    T* GetComponent(const std::string& name)
+    {
+        auto it = components.find(name);
+        if (it == components.end())
+            return nullptr;
+
+        return dynamic_cast<T*>(it->second);
+    }
+
+    void RemoveComponent(const std::string& name)
+    {
+        components.erase(name);
+        // TODO: Remove from global list
+    }
+
+} Entity;
+
 class Game
 {
 public:
@@ -43,6 +89,7 @@ public:
     
     InputDevice Input;
     std::vector<std::unique_ptr<GameComponent>> Components;
+    std::unordered_map<std::string, Entity> Entities;
     
     // DebugAnnotation; 
     

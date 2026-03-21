@@ -2,9 +2,8 @@
 #include "Game.h"
 #include <array>
 
-RenderComponent::RenderComponent(Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color,
-	std::vector<Vertex> Vertices, std::vector<std::uint32_t> Indices)
-	: GameComponent(Scale, Rotation, Translation, Color),
+RenderComponent::RenderComponent(TransformData& ownerTransform, Vector4 Color, std::vector<Vertex> Vertices, std::vector<std::uint32_t> Indices)
+	: GameComponent(ownerTransform, Color),
 	vertices(Vertices), indices(Indices)
 {}
 
@@ -160,7 +159,7 @@ void RenderComponent::Draw()
 
 void RenderComponent::Update()
 {
-	ApplyTransform(transform);
+	ApplyTransform();
 
 	// update constant buffer
 	D3D11_MAPPED_SUBRESOURCE res = {};

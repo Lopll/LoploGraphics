@@ -26,14 +26,23 @@ Pong::Pong():
     float gridLen = (height * 2) - gridStep;
     for(float i = gridStep; i <= gridLen; i+=gridStep)
     {
-         Components.push_back(std::make_unique<RectangleComponent>(std::array<int, 6>{0,1,2, 0,3,2}, Vector3(10.f, 40.f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
+         //Components.push_back(std::make_unique<RectangleComponent>(std::array<int, 6>{0,1,2, 0,3,2}, Vector3(10.f, 40.f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
+        Entities["Wall_" + std::to_string(i)].transform.Scale = Vector3(10.f, 40.f, 1.f);
+        Entities["Wall_" + std::to_string(i)].transform.Translation = Vector3(0.0f, 1.f - ((float)i / height), 0.0f);
+        Entities["Wall_" + std::to_string(i)].AddComponent<RectangleComponent>("Sprite", std::array<int, 6>{0, 1, 2, 0, 3, 2});
     }
     
-    auto playerPtr = std::make_unique<BlockComponent>(std::array<int, 6>{0,1,2, 0,3,2}, Vector3(40.f, 120.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-    Player1 = playerPtr.get();
-    Components.push_back(std::move(playerPtr));
-    Components.emplace_back(std::make_unique<RenderComponent>());
-    Components[Components.size() - 1]->transform = (TransformData(Vector3(100), 0, Vector3(-startXPos, 0.0f, 1.0f)));
+    //Entity Player;
+    Entities["Player"].transform.Scale = Vector3(40.f, 120.0f, 1.0f);
+    Entities["Player"].transform.Translation = Vector3(-startXPos, 0.0f, 1.0f);
+    Entities["Player"].AddComponent<BlockComponent>("Sprite", std::array<int, 6>{0, 1, 2, 0, 3, 2}, Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+    Player1 = Entities["Player"].GetComponent<BlockComponent>("Sprite");
+    //Player.AddComponent<BlockComponent>("Sprite");
+    Entities["RenderEntity"].transform.Scale = Vector3(100.f);
+    Entities["RenderEntity"].transform.Translation = Vector3(-startXPos, 0.0f, 1.0f);
+
+    Entities["RenderEntity"].AddComponentDefault<RenderComponent>("renderer");
+
     
     // float left = -aspectRatio;
     // float right = aspectRatio;
