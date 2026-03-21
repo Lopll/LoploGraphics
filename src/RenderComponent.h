@@ -3,11 +3,26 @@
 #include "GameComponent.h"
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include <wrl/client.h>
+
+struct Vertex3D
+{
+    DirectX::SimpleMath::Vector3 Pos;
+    DirectX::SimpleMath::Vector3 Normal;
+    DirectX::SimpleMath::Vector3 TangentU;
+    DirectX::SimpleMath::Vector2 TexC;
+};
+
+struct Vertex
+{
+    DirectX::SimpleMath::Vector3 Pos;
+    DirectX::SimpleMath::Vector4 Color;
+    //DirectX::SimpleMath::Vector2 TexC;
+};
 
 class RenderComponent : public GameComponent
 {
-private:
-
+protected:
 #pragma region DirectX Resources
     Microsoft::WRL::ComPtr<ID3D11InputLayout> layout;
     Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
@@ -17,8 +32,30 @@ private:
     Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderByteCode;
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
 #pragma endregion 
+    std::vector<Vertex> vertices;
+    std::vector<std::uint32_t> indices;
 
-    
+    void LoadShadersAndLayout();
+    void LoadGeometry();
+
+public:
+    RenderComponent
+    (
+        Vector3 Scale = Vector3(1.0f),
+        float Rotation = 0.0f,
+        Vector3 Translation = Vector3(0.0f),
+        Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+        std::vector<Vertex> Vertices = {{ Vector3(-0.25f, 0.25f, 0.0f),  Color(1, 0, 0) },
+                                        { Vector3(-0.25f, -0.25f, 0.0f), Color(0, 1, 0) },
+                                        { Vector3(0.25f, -0.25f, 0.0f),  Color(0, 0, 1) }},
+        std::vector<std::uint32_t> Indices = { 0, 1, 2 }
+    );
+
+    void DestroyResources() override;
+    void Draw() override;
+    void Initialize() override;
+    void Update() override;
 };
 

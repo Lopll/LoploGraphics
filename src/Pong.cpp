@@ -1,4 +1,8 @@
 #include "Pong.h"
+#include "BlockComponent.h"
+#include "RenderComponent.h"
+#include <DirectXCollision.h>
+#include <iostream>
 #include <cstdlib>
 
 int width = 640;
@@ -22,12 +26,14 @@ Pong::Pong():
     float gridLen = (height * 2) - gridStep;
     for(float i = gridStep; i <= gridLen; i+=gridStep)
     {
-         Components.push_back(std::make_unique<RectangleComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(10.f, 40.f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
+         Components.push_back(std::make_unique<RectangleComponent>(std::array<int, 6>{0,1,2, 0,3,2}, Vector3(10.f, 40.f, 1.f), 0.0f, Vector3(0.0f, 1.f - ((float)i / height), 0.0f)));
     }
     
-    auto playerPtr = std::make_unique<BlockComponent>(this, std::array<int, 6>{0,1,2, 0,3,2}, Vector3(40.f, 120.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+    auto playerPtr = std::make_unique<BlockComponent>(std::array<int, 6>{0,1,2, 0,3,2}, Vector3(40.f, 120.0f, 1.0f), 0.0f, Vector3(-startXPos, 0.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f));
     Player1 = playerPtr.get();
     Components.push_back(std::move(playerPtr));
+    Components.emplace_back(std::make_unique<RenderComponent>());
+    Components[Components.size() - 1]->transform = (TransformData(Vector3(100), 0, Vector3(-startXPos, 0.0f, 1.0f)));
     
     // float left = -aspectRatio;
     // float right = aspectRatio;
@@ -42,7 +48,7 @@ Pong::Pong():
     DirectX::BoundingBox::CreateFromPoints(field, vert.size(), vert.data(), sizeof(Vector3));*/
     field = DirectX::BoundingBox(Vector3(0.0f, 0.0f, -100.0f), Vector3((float)Display.ClientWidth, (float)Display.ClientHeight, 100.f));
      //field = DirectX::BoundingBox(Vector3(-1.0f, -1.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f)); 
-     field.Transform(field, CalcProjectionMatrix());
+    field.Transform(field, CalcProjectionMatrix());
     /*std::vector<Vector3> screenCorners =
     {
         Vector3(left,  bottom, 0.0f),
