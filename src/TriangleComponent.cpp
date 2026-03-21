@@ -2,8 +2,8 @@
 
 #include "Game.h" 
 
-TriangleComponent::TriangleComponent(Game* gamePtr, std::array<int,3> idx, Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color)
-	: GameComponent(gamePtr, Scale, Rotation, Translation, Color), indices(idx)
+TriangleComponent::TriangleComponent(std::array<int,3> idx, Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color)
+	: GameComponent(Scale, Rotation, Translation, Color), indices(idx)
 {
 
 }
@@ -30,7 +30,7 @@ void TriangleComponent::Initialize()
 		// If there was  nothing in the error message then it simply could not find the shader file itself.
 		else
 		{
-			MessageBox(game->Display.hWnd, L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(Game::Instance->Display.hWnd, L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
 		}
 
 		return;
@@ -48,12 +48,12 @@ void TriangleComponent::Initialize()
 	   &pixelShaderByteCode, 
 	   &errorPixelCode);
 	
-	game->Device->CreateVertexShader(
+	Game::Instance->Device->CreateVertexShader(
 		vertexShaderByteCode->GetBufferPointer(),
 		vertexShaderByteCode->GetBufferSize(),
 		nullptr, &vertexShader);
 
-	game->Device->CreatePixelShader(
+	Game::Instance->Device->CreatePixelShader(
 		pixelShaderByteCode->GetBufferPointer(),
 		pixelShaderByteCode->GetBufferSize(),
 		nullptr, &pixelShader);
@@ -62,7 +62,7 @@ void TriangleComponent::Initialize()
 		D3D11_INPUT_ELEMENT_DESC {
 			"POSITION",
 			0,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			DXGI_FORMAT_R32G32B32_FLOAT,
 			0,
 			0,
 			D3D11_INPUT_PER_VERTEX_DATA,
@@ -76,7 +76,7 @@ void TriangleComponent::Initialize()
 			D3D11_INPUT_PER_VERTEX_DATA,
 			0}
 	};
-	game->Device->CreateInputLayout(
+	Game::Instance->Device->CreateInputLayout(
 		inputElements,
 		2,
 		vertexShaderByteCode->GetBufferPointer(),
@@ -96,7 +96,7 @@ void TriangleComponent::Initialize()
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-	game->Device->CreateBuffer(&vertexBufDesc, &vertexData, &vertexBuffer);
+	Game::Instance->Device->CreateBuffer(&vertexBufDesc, &vertexData, &vertexBuffer);
 	
     D3D11_BUFFER_DESC indexBufDesc = {};
     indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -111,13 +111,13 @@ void TriangleComponent::Initialize()
     indexData.SysMemPitch = 0;
     indexData.SysMemSlicePitch = 0;
 
-    game->Device->CreateBuffer(&indexBufDesc, &indexData, &indexBuffer);
+	Game::Instance->Device->CreateBuffer(&indexBufDesc, &indexData, &indexBuffer);
     
     CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_NONE;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
-	res = game->Device->CreateRasterizerState(&rastDesc, &rastState);
+	res = Game::Instance->Device->CreateRasterizerState(&rastDesc, &rastState);
 	
 	// constant buffer
 	D3D11_BUFFER_DESC constantBuffDesc = {};
@@ -126,25 +126,30 @@ void TriangleComponent::Initialize()
 	constantBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	constantBuffDesc.MiscFlags = 0;
 	constantBuffDesc.StructureByteStride = 0;
-	constantBuffDesc.ByteWidth = sizeof(ConstantData);
-	game->Device->CreateBuffer(&constantBuffDesc, nullptr, constantBuffer.GetAddressOf());
+	constantBuffDesc.ByteWidth = sizeof(ObjectConstants);
+	Game::Instance->Device->CreateBuffer(&constantBuffDesc, nullptr, constantBuffer.GetAddressOf());
+
+	if (!constantBuffer) {
+		MessageBox(nullptr, L"constantBuffer creation failed!", L"ERROR", MB_OK);
+		return; // или throw
+	}
 }
 
 void TriangleComponent::Draw()
 {
-	game->Context->RSSetState(rastState.Get());
-	game->Context->IASetInputLayout(layout.Get());
-	game->Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	
+	Game::Instance->Context->RSSetState(rastState.Get());
+	Game::Instance->Context->IASetInputLayout(layout.Get());
+	Game::Instance->Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
 	UINT strides[] = { 32 };
 	UINT offsets[] = { 0 };
-	game->Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), strides, offsets);
-	game->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	game->Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+	Game::Instance->Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), strides, offsets);
+	Game::Instance->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Game::Instance->Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 
-	game->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
-	game->Context->PSSetShader(pixelShader.Get(), nullptr, 0);
-	game->Context->DrawIndexed(3, 0, 0);
+	Game::Instance->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
+	Game::Instance->Context->PSSetShader(pixelShader.Get(), nullptr, 0);
+	Game::Instance->Context->DrawIndexed(3, 0, 0);
 }
 
 void TriangleComponent::Update()
@@ -153,10 +158,10 @@ void TriangleComponent::Update()
 	
 	// update constant buffer
 	D3D11_MAPPED_SUBRESOURCE res = {};
-	game->Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	Game::Instance->Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	auto dataPtr = reinterpret_cast<float*>(res.pData);
-	memcpy(dataPtr, &constantData, sizeof(ConstantData));
-	game->Context->Unmap(constantBuffer.Get(), 0);
+	memcpy(dataPtr, &constantData, sizeof(ObjectConstants));
+	Game::Instance->Context->Unmap(constantBuffer.Get(), 0);
 }
 
 void TriangleComponent::DestroyResources()

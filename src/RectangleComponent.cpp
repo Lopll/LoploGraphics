@@ -1,9 +1,9 @@
 #include "RectangleComponent.h"
 
-RectangleComponent::RectangleComponent(Game* gamePtr, std::array<int,6> idx, Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color):
-    GameComponent(gamePtr, Scale, Rotation, Translation, Color),
-    triangle1(gamePtr, std::array<int,3> {idx[0], idx[1], idx[2]}, Scale, Rotation, Translation, Color),
-    triangle2(gamePtr, std::array<int,3> {idx[3], idx[4], idx[5]}, Scale, Rotation, Translation, Color)
+RectangleComponent::RectangleComponent(std::array<int,6> idx, Vector3 Scale, float Rotation, Vector3 Translation, Vector4 Color):
+    GameComponent(Scale, Rotation, Translation, Color),
+    triangle1(std::array<int,3> {idx[0], idx[1], idx[2]}, Scale, Rotation, Translation, Color),
+    triangle2(std::array<int,3> {idx[3], idx[4], idx[5]}, Scale, Rotation, Translation, Color)
 {
     
 }

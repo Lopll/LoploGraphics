@@ -16,17 +16,14 @@ struct TransformData
 
 class GameComponent
 {
-public:
-    Game* game;
-    
-    struct ConstantData constantData;
+public:    
+    struct ObjectConstants constantData;
     struct TransformData transform;    
     
     Matrix ProjectionMatrix;
 
     GameComponent
     (
-        Game* gamePtr = nullptr, 
         Vector3 Scale = Vector3(1.0f),
         float Rotation = 0.0f, 
         Vector3 Translation = Vector3(0.0f), 

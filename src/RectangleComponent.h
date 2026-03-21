@@ -12,7 +12,6 @@ public:
     TriangleComponent triangle2;
     RectangleComponent
     (
-        Game* gamePtr = nullptr,
         std::array<int,6> idx = {0,1,2, 0,3,2},
         Vector3 Scale = Vector3(1.0f),
         float Rotation = 0.0f, 
