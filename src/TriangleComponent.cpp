@@ -132,24 +132,18 @@ void TriangleComponent::Initialize()
 
 void TriangleComponent::Draw()
 {
-	game->Context->RSSetState(rastState);
-	
-	game->Context->IASetInputLayout(layout);
-	
-	game->Context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	game->Context->RSSetState(rastState.Get());
+	game->Context->IASetInputLayout(layout.Get());
+	game->Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	
 	UINT strides[] = { 32 };
 	UINT offsets[] = { 0 };
-	game->Context->IASetVertexBuffers(0, 1, &vertexBuffer, strides, offsets);
-	
+	game->Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), strides, offsets);
 	game->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
 	game->Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
-	
-	game->Context->VSSetShader(vertexShader, nullptr, 0);
-	game->Context->PSSetShader(pixelShader, nullptr, 0);
-	
-	
+
+	game->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
+	game->Context->PSSetShader(pixelShader.Get(), nullptr, 0);
 	game->Context->DrawIndexed(3, 0, 0);
 }
 

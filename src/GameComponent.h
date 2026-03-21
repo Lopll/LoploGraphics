@@ -1,7 +1,6 @@
 #pragma once
 
 #include "FrameResources.h"
-#include <wrl/client.h>
 
 using namespace DirectX::SimpleMath;
 
@@ -20,7 +19,6 @@ class GameComponent
 public:
     Game* game;
     
-    Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
     struct ConstantData constantData;
     struct TransformData transform;    
     

@@ -3,6 +3,7 @@
 #include "GameComponent.h"
 #include <DirectXMath.h>
 #include <d3d11.h>
+#include <wrl/client.h>
 #include <d3dcompiler.h>
 #include <iostream>
 #include <array>
@@ -12,9 +13,9 @@ using namespace DirectX::SimpleMath;
 class TriangleComponent : public GameComponent
 {
 private:
-    ID3D11InputLayout* layout;
-    ID3D11PixelShader* pixelShader;
-    ID3DBlob* pixelShaderByteCode;
+    Microsoft::WRL::ComPtr <ID3D11InputLayout> layout;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
+    Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderByteCode;
     Vector4 points[8] = 
     {
 		Vector4(-0.25f, 0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
@@ -22,14 +23,14 @@ private:
 		Vector4(0.25f, -0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
 		Vector4(0.25f, 0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
-    ID3D11RasterizerState* rastState;
-    ID3D11VertexShader* vertexShader;
-    ID3DBlob* vertexShaderByteCode;
-    ID3D11Buffer* vertexBuffer;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastState;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
+    Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderByteCode;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
+    Microsoft::WRL::ComPtr <ID3D11Buffer> indexBuffer;
     std::array<int,3> indices;
-    ID3D11Buffer* indexBuffer;
 protected:
-    
+    Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
 public:
 
     TriangleComponent
