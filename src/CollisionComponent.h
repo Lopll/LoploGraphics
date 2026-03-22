@@ -1,6 +1,10 @@
 #pragma once
 #include "GameComponent.h"
 #include <DirectXCollision.h>
+#include <SimpleMath.h>
+#include <cmath>
+
+using namespace DirectX::SimpleMath;
 
 class CollisionComponent : public GameComponent
 {
@@ -17,4 +21,6 @@ public:
 
     bool Intersects(const CollisionComponent& other) const;
     DirectX::ContainmentType Contains(const CollisionComponent& other) const;
+    
+    Vector3 calcNormal(DirectX::BoundingBox box);
 };
