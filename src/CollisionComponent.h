@@ -17,7 +17,7 @@ public:
         Vector3 extents = Vector3(1.0f, 1.0f, 1.0f)
     );
 
-    void Update() override;
+    void Update(float dt) override;
 
     bool Intersects(const CollisionComponent& other) const;
     DirectX::ContainmentType Contains(const CollisionComponent& other) const;

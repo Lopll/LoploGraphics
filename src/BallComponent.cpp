@@ -23,13 +23,13 @@ void BallComponent::Draw()
     form.Draw();
 }
 
-void BallComponent::Update()
+void BallComponent::Update(float dt)
 {
-    form.Update();
+    form.Update(dt);
     ApplyTransform();
     
     // move to dir
-    transform.Translation += movementDirection * movementSpeed;
+    transform.Translation += movementDirection * movementSpeed * dt;
 }
 
 void BallComponent::DestroyResources()

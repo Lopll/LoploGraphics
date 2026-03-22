@@ -129,9 +129,9 @@ public:
     void SetViewport();
     void PrepareFrame();
     virtual void PrepareResources();
-    virtual void Update();
+    virtual void Update(float dt);
     virtual void UpdateInput();
-    void UpdateInternal();
+    float  UpdateInternal();
 
     void InitImGui();
     void ShutdownImGui();

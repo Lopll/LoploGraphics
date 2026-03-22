@@ -20,10 +20,10 @@ void RectangleComponent::Draw()
 	triangle2.Draw();
 }
 
-void RectangleComponent::Update()
+void RectangleComponent::Update(float dt)
 {   
-	triangle1.Update();
-	triangle2.Update();
+	triangle1.Update(dt);
+	triangle2.Update(dt);
 }
 
 void RectangleComponent::DestroyResources()

@@ -31,5 +31,5 @@ public:
     virtual void Draw(){};
     virtual void Initialize(){};
     virtual void Reload(){};
-    virtual void Update(){};
+    virtual void Update(float dt){};
 };

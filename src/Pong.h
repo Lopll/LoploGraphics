@@ -7,6 +7,6 @@ class Pong : public Game
 public:
     Pong();
         
-    void Update() override;
+    void Update(float dt) override;
     void UpdateInput() override;
 };

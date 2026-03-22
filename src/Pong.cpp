@@ -20,7 +20,7 @@ BlockComponent* Player2 = nullptr;
     
 float startXPos = 0.4f * width;
 
-float movementSpeed = 3.f;
+float movementSpeed = 500.f;
 Vector3 movementInputPlayer1 = Vector3();
 Vector3 movementInputPlayer2 = Vector3();
 
@@ -72,23 +72,23 @@ Pong::Pong():
     Entities["Ball"].transform.Scale = Vector3(0.034f * width, 0.034f * width, 1.f);
     Entities["Ball"].transform.Translation = Vector3(0.f, 0.f, 0.f);
     Entities["Ball"].AddComponent<CollisionComponent>("Collision");
-    Ball = Entities["Ball"].AddComponent<BallComponent>("Ball", Vector3((dis(gen) == 0) ? -1.f : -1.f ,0.f,0.f), 1.618f, 1.034f);
+    Ball = Entities["Ball"].AddComponent<BallComponent>("Ball", Vector3((dis(gen) == 0) ? -1.f : -1.f ,0.f,0.f), 618.f, 1.034f);
 }
 
 using namespace DirectX;
-void Pong::Update()
+void Pong::Update(float dt)
 {   
-    Game::Update();
+    Game::Update(dt);
     if( movementInputPlayer1.y or movementInputPlayer1.x)
     {
-        Player1->transform.Translation += Vector3(movementInputPlayer1.x, movementInputPlayer1.y, 0.f) * movementSpeed;
+        Player1->transform.Translation += Vector3(movementInputPlayer1.x, movementInputPlayer1.y, 0.f) * movementSpeed * dt;
         movementInputPlayer1.y = 0.f;
         movementInputPlayer1.x = 0.f;
     }
     
     if( movementInputPlayer2.y or movementInputPlayer2.x)
     {
-        Player2->transform.Translation += Vector3(movementInputPlayer2.x, movementInputPlayer2.y, 0.f) * movementSpeed;
+        Player2->transform.Translation += Vector3(movementInputPlayer2.x, movementInputPlayer2.y, 0.f) * movementSpeed * dt;
         movementInputPlayer2.y = 0.f;
         movementInputPlayer2.x = 0.f;
     }

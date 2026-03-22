@@ -167,7 +167,7 @@ void RenderComponent::Draw()
 	Game::Instance->Context->DrawIndexed(indices.size(), 0, 0);
 }
 
-void RenderComponent::Update()
+void RenderComponent::Update(float dt)
 {
 	ApplyTransform();
 

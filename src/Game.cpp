@@ -114,11 +114,11 @@ void Game::PrepareResources()
 	}	
 }
 
-void Game::Update()
+void Game::Update(float dt)
 {
 	for(auto& component : Components)
 	{
-		component->Update();
+		component->Update(dt);
 	}
 }
 
@@ -130,7 +130,7 @@ void Game::UpdateInput()
 	}
 }
 
-void Game::UpdateInternal()
+float Game::UpdateInternal()
 {
 	if(ScreenResized)
 	{
@@ -156,6 +156,7 @@ void Game::UpdateInternal()
 
 		frameCount = 0;
 	}
+	return deltaTime;
 }
 
 void Game::InitImGui()
@@ -253,11 +254,11 @@ int Game::Run()
 	
 	while(!MessageHandler())
 	{
-		UpdateInternal();
+		float dt = UpdateInternal();
 		PrepareFrame();
 		NewImGuiFrame();
 		UpdateInput();
-		Update();
+		Update(dt);
 
 		Draw();
 		RenderImGui();

@@ -9,7 +9,7 @@ CollisionComponent::CollisionComponent(TransformData& ownerTransform,
 {
 }
 
-void CollisionComponent::Update()
+void CollisionComponent::Update(float dt)
 {
     bounds.Center = transform.Translation;
     bounds.Extents = transform.Scale * 0.5f;

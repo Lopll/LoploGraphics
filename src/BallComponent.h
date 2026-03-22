@@ -18,7 +18,7 @@ public:
     Vector3 movementDirection;    
     float movementSpeed;
     float movementAcceleration;
-    const float MAX_SPEED = 30.f;
+    const float MAX_SPEED = 3000.f;
     
     BallComponent
     (
@@ -33,7 +33,7 @@ public:
     void DestroyResources() override;
     void Draw() override;
     void Initialize() override;
-    void Update() override;
+    void Update(float dt) override;
 
     void OnBoundsContact(CollisionComponent* ball, CollisionComponent* box);
     void OnPlayerContact(CollisionComponent* ball, CollisionComponent* box);

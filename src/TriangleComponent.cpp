@@ -157,7 +157,7 @@ void TriangleComponent::Draw()
 	Game::Instance->Context->DrawIndexed(3, 0, 0);
 }
 
-void TriangleComponent::Update()
+void TriangleComponent::Update(float dt)
 {
 	ApplyTransform();
 	

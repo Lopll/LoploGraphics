@@ -17,9 +17,9 @@ void BlockComponent::Draw()
     form.Draw();
 }
 
-void BlockComponent::Update()
+void BlockComponent::Update(float dt)
 {
-    form.Update();
+    form.Update(dt);
     ApplyTransform();
 }
 
