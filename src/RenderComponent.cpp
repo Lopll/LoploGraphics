@@ -121,7 +121,12 @@ void RenderComponent::LoadGeometry()
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
 	auto res = Game::Instance->Device->CreateRasterizerState(&rastDesc, &rastState);
-
+	if(FAILED(res))
+	{
+		std::cerr << "Failed to create rasterizer state!" << std::endl;
+		return;
+	}
+	
 	// constant buffer
 	D3D11_BUFFER_DESC constantBuffDesc = {};
 	constantBuffDesc.Usage = D3D11_USAGE_DYNAMIC;

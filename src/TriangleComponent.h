@@ -18,10 +18,10 @@ private:
     Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderByteCode;
     Vector4 points[8] = 
     {
-		Vector4(-0.25f, 0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-		Vector4(-0.25f, -0.25f, 0.0f, 1.0f),    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-		Vector4(0.25f, -0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-		Vector4(0.25f, 0.25f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f)
+		Vector4(-0.5f, 0.5f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(-0.5f, -0.5f, 0.0f, 1.0f),    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(0.5f, -0.5f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vector4(0.5f, 0.5f, 0.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastState;
     Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;

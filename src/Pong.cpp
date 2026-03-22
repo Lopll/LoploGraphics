@@ -9,7 +9,7 @@
 
 int width = 640;
 int height = 640;
-float gridStep = width/16;
+float gridStep = (float)width/16;
 
 BlockComponent* Player1 = nullptr;
     
@@ -28,20 +28,21 @@ Pong::Pong():
     float gridLen = (height * 2) - gridStep;
     for(float i = gridStep; i <= gridLen; i+=gridStep)
     {
-        Entities["GridElement_" + std::to_string(i)].transform.Scale = Vector3(10.f, 40.f, 1.0f);
+        Entities["GridElement_" + std::to_string(i)].transform.Scale = Vector3(5.f, 20.f, 1.0f);
         Entities["GridElement_" + std::to_string(i)].transform.Translation = Vector3(0.0f, (float)height - (float)i, 0.0f);
         Entities["GridElement_" + std::to_string(i)].AddComponent<RectangleComponent>("Sprite");
     }
     
     //Player 1
-    Player1 = Entities["Player1"].AddComponent<BlockComponent>("Sprite");
-    Entities["Player1"].transform.Scale = Vector3(0.146 * width, 0.382 * height, 1.0f);
+    Entities["Player1"].transform.Scale = Vector3(0.09f * width, 0.236f * height, 1.0f);
     Entities["Player1"].transform.Translation = Vector3(-startXPos, 0.0f, 1.0f);
     Entities["Player1"].AddComponent<CollisionComponent>("Collider");
+    Player1 = Entities["Player1"].AddComponent<BlockComponent>("Sprite");
     
-    field = Entities["WorldBounds"].AddComponent<CollisionComponent>("Bounds")->bounds;
-    Entities["WorldBounds"].transform.Scale = Vector3(width, height, 1.0f);
+    // World Bounds    
+    Entities["WorldBounds"].transform.Scale = Vector3((float)width, (float)height, 100.0f);
     Entities["WorldBounds"].transform.Translation = Vector3(0.0f, 0.0f, 0.0f);
+    field = Entities["WorldBounds"].AddComponent<CollisionComponent>("Bounds")->bounds;
 }
 
 using namespace DirectX;
@@ -63,9 +64,9 @@ void Pong::Update()
     ImGui::TextColored(ImVec4(1, 1, 0, 1), "World Bounds");
     if (worldCol)
     {
-        ImGui::Text("World Center:  %.2f, %.2f, %.2f", worldCol->bounds.Center.x, worldCol->bounds.Center.y, worldCol->bounds.Center.z);
-        ImGui::Text("World Extents: %.2f, %.2f, %.2f", worldCol->bounds.Extents.x, worldCol->bounds.Extents.y, worldCol->bounds.Extents.z);
-        ImGui::Text("World Size:    %.2f x %.2f, %.2f", worldCol->bounds.Extents.x * 2, worldCol->bounds.Extents.y * 2, worldCol->bounds.Extents.z * 2);
+        ImGui::Text("Center:  %.2f, %.2f, %.2f", worldCol->bounds.Center.x, worldCol->bounds.Center.y, worldCol->bounds.Center.z);
+        ImGui::Text("Extents: %.2f, %.2f, %.2f", worldCol->bounds.Extents.x, worldCol->bounds.Extents.y, worldCol->bounds.Extents.z);
+        ImGui::Text("Size:    %.2f x %.2f, %.2f", worldCol->bounds.Extents.x * 2, worldCol->bounds.Extents.y * 2, worldCol->bounds.Extents.z * 2);
     }
     else
     {
@@ -76,10 +77,10 @@ void Pong::Update()
     ImGui::TextColored(ImVec4(0, 1, 1, 1), "Player 1");
     if (playerCol && Player1)
     {
-        ImGui::Text("Player 1 Pos:    %.2f, %.2f, %.2f", Player1->transform.Translation.x, Player1->transform.Translation.y, Player1->transform.Translation.z);
-        ImGui::Text("Player 1 Center: %.2f, %.2f, %.2f", playerCol->bounds.Center.x, playerCol->bounds.Center.y, playerCol->bounds.Center.z);
-        ImGui::Text("Player 1 Extents:%.2f, %.2f, %.2f", playerCol->bounds.Extents.x, playerCol->bounds.Extents.y, playerCol->bounds.Extents.z);
-        ImGui::Text("Player 1 Size:   %.2f x %.2f, %.2f", playerCol->bounds.Extents.x * 2, playerCol->bounds.Extents.y * 2, playerCol->bounds.Extents.z * 2);
+        ImGui::Text("Pos:    %.2f, %.2f, %.2f", Player1->transform.Translation.x, Player1->transform.Translation.y, Player1->transform.Translation.z);
+        ImGui::Text("Bounds Center: %.2f, %.2f, %.2f", playerCol->bounds.Center.x, playerCol->bounds.Center.y, playerCol->bounds.Center.z);
+        ImGui::Text("Bounds Extents:%.2f, %.2f, %.2f", playerCol->bounds.Extents.x, playerCol->bounds.Extents.y, playerCol->bounds.Extents.z);
+        ImGui::Text("Bounds Size:   %.2f x %.2f, %.2f", playerCol->bounds.Extents.x * 2, playerCol->bounds.Extents.y * 2, playerCol->bounds.Extents.z * 2);
     }
     else
     {
@@ -87,7 +88,7 @@ void Pong::Update()
     }
     ImGui::Separator();
 
-    if (playerCol && worldCol)
+    if (Player1 != NULL && playerCol && worldCol)
     {
         DirectX::ContainmentType type = worldCol->bounds.Contains(playerCol->bounds);
 
@@ -98,11 +99,11 @@ void Pong::Update()
             "Contains result: %s", typeStr);
 
         // Clamp
-        float halfW = worldCol->bounds.Extents.x - playerCol->bounds.Extents.x / 2;
-        float halfH = worldCol->bounds.Extents.y - playerCol->bounds.Extents.y / 2;
-
-        if (halfW > 0.0f && halfH > 0.0f)
+        if (type != DirectX::CONTAINS)
         {
+            float halfW = worldCol->bounds.Extents.x - playerCol->bounds.Extents.x;
+            float halfH = worldCol->bounds.Extents.y - playerCol->bounds.Extents.y;
+        
             Vector3 pos = Player1->transform.Translation;
             Vector3 oldPos = pos;
 
