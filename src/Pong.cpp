@@ -72,7 +72,7 @@ Pong::Pong():
     Entities["Ball"].transform.Scale = Vector3(0.034f * width, 0.034f * width, 1.f);
     Entities["Ball"].transform.Translation = Vector3(0.f, 0.f, 0.f);
     Entities["Ball"].AddComponent<CollisionComponent>("Collision");
-    Ball = Entities["Ball"].AddComponent<BallComponent>("Ball", Vector3((dis(gen) == 0) ? -1.f : -1.f ,0.f,0.f), 618.f, 1.034f);
+    Ball = Entities["Ball"].AddComponent<BallComponent>("Ball", Vector3((dis(gen) == 0) ? -1.f : -1.f ,0.f,0.f), 382.f, 1.034f);
 }
 
 using namespace DirectX;
