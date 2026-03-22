@@ -86,8 +86,8 @@ bool Game::Initialize()
 
 Matrix Game::CalcProjectionMatrix()
 {
-	//return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);
-	return Matrix::CreateOrthographic(2.f, 2.f, -100.f, 100.f);
+	return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);
+	// return Matrix::CreateOrthographic(2.f, 2.f, -100.f, 100.f);
 }
 
 void Game::PrepareResources()

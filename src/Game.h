@@ -56,12 +56,11 @@ typedef struct Entity {
         return rawPtr;
     }
 
-    // With default constructor
-    template<typename T>
-    T* AddComponentDefault(const std::string& name)
-    {
-        return AddComponent<T>(name);
-    }
+    // template<typename T>
+    // T* AddComponentDefault(const std::string& name)
+    // {
+    //     return AddComponent<T>(name);
+    // }
 
     template<typename T>
     T* GetComponent(const std::string& name)
