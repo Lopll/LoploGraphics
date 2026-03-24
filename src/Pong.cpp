@@ -17,12 +17,16 @@ CollisionComponent* World = nullptr;
 
 BlockComponent* Player1 = nullptr;
 BlockComponent* Player2 = nullptr;
+BlockComponent* Player3 = nullptr;
+BlockComponent* Player4 = nullptr;
     
 float startXPos = 0.4f * width;
 
 float movementSpeed = 500.f;
 Vector3 movementInputPlayer1 = Vector3();
 Vector3 movementInputPlayer2 = Vector3();
+Vector3 movementInputPlayer3 = Vector3();
+Vector3 movementInputPlayer4 = Vector3();
 
 DirectX::BoundingBox field;
 
@@ -32,6 +36,8 @@ bool ballBounced = false;
 
 int Player1Score = 0;
 int Player2Score = 0;
+int Player3Score = 0;
+int Player4Score = 0;
 
 Pong::Pong():
     Game(L"LoploPong", width, height)
@@ -54,6 +60,7 @@ Pong::Pong():
     //Player 1
     Entities["Player1"].transform.Scale = Vector3(0.055f * width, 0.236f * height, 1.0f);
     Entities["Player1"].transform.Translation = Vector3(-startXPos, 0.0f, 0.0f);
+    // Entities["Player1"].transform.Rotation = 45.f;
     Entities["Player1"].AddComponent<CollisionComponent>("Collision");
     Player1 = Entities["Player1"].AddComponent<BlockComponent>("Sprite");
     
@@ -62,6 +69,18 @@ Pong::Pong():
     Entities["Player2"].transform.Translation = Vector3(startXPos, 0.0f, 0.0f);
     Entities["Player2"].AddComponent<CollisionComponent>("Collision");
     Player2 = Entities["Player2"].AddComponent<BlockComponent>("Sprite");
+    
+    //Player 3
+    Entities["Player3"].transform.Scale = Vector3(0.236f * height, 0.055f * width, 1.0f);
+    Entities["Player3"].transform.Translation = Vector3(-startXPos * 0.3, 0.3f * height, 0.0f);
+    Entities["Player3"].AddComponent<CollisionComponent>("Collision");
+    Player3 = Entities["Player3"].AddComponent<BlockComponent>("Sprite");
+    
+    //Player 4
+    Entities["Player4"].transform.Scale = Vector3(0.236f * height, 0.055f * width, 1.0f);
+    Entities["Player4"].transform.Translation = Vector3(-startXPos * 0.5, -0.3f * height, 0.0f);
+    Entities["Player4"].AddComponent<CollisionComponent>("Collision");
+    Player4 = Entities["Player4"].AddComponent<BlockComponent>("Sprite");
     
     // Random
     std::random_device rd;
@@ -92,11 +111,27 @@ void Pong::Update(float dt)
         movementInputPlayer2.y = 0.f;
         movementInputPlayer2.x = 0.f;
     }
+    
+    if( movementInputPlayer3.y or movementInputPlayer3.x)
+    {
+        Player3->transform.Translation += Vector3(movementInputPlayer3.x, 0.f, 0.f) * movementSpeed * dt;
+        movementInputPlayer3.y = 0.f;
+        movementInputPlayer3.x = 0.f;
+    }
+    
+    if( movementInputPlayer4.y or movementInputPlayer4.x)
+    {
+        Player4->transform.Translation += Vector3(movementInputPlayer4.x, 0.f, 0.f) * movementSpeed * dt;
+        movementInputPlayer4.y = 0.f;
+        movementInputPlayer4.x = 0.f;
+    }
 
     // ImGui::Begin("Collision Debug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
     auto* player1Col = Entities["Player1"].GetComponent<CollisionComponent>("Collision");
     auto* player2Col = Entities["Player2"].GetComponent<CollisionComponent>("Collision");
+    auto* player3Col = Entities["Player3"].GetComponent<CollisionComponent>("Collision");
+    auto* player4Col = Entities["Player4"].GetComponent<CollisionComponent>("Collision");
     auto* worldCol = Entities["WorldBounds"].GetComponent<CollisionComponent>("Bounds");
     auto* ballCol = Entities["Ball"].GetComponent<CollisionComponent>("Collision");
 
@@ -169,6 +204,45 @@ void Pong::Update(float dt)
             }
         }
         
+        if (Player3 != NULL && player3Col)
+        {
+            DirectX::ContainmentType type = worldCol->bounds.Contains(player3Col->bounds);
+            
+            // Clamp player
+            if (type != DirectX::CONTAINS)
+            {
+                float halfW = worldCol->bounds.Extents.x - player3Col->bounds.Extents.x;
+                float halfH = worldCol->bounds.Extents.y - player3Col->bounds.Extents.y;
+            
+                Vector3 pos = Player3->transform.Translation;
+                Vector3 oldPos = pos;
+
+                pos.x = std::clamp(pos.x, -halfW, halfW);
+                pos.y = std::clamp(pos.y, -halfH, halfH);
+
+                Player3->transform.Translation = pos;
+            }
+        }
+        
+        if (Player4 != NULL && player4Col)
+        {
+            DirectX::ContainmentType type = worldCol->bounds.Contains(player4Col->bounds);
+            
+            // Clamp player
+            if (type != DirectX::CONTAINS)
+            {
+                float halfW = worldCol->bounds.Extents.x - player4Col->bounds.Extents.x;
+                float halfH = worldCol->bounds.Extents.y - player4Col->bounds.Extents.y;
+            
+                Vector3 pos = Player4->transform.Translation;
+                Vector3 oldPos = pos;
+
+                pos.x = std::clamp(pos.x, -halfW, halfW);
+                pos.y = std::clamp(pos.y, -halfH, halfH);
+
+                Player4->transform.Translation = pos;
+            }
+        }
         // ImGui::TextColored(ImVec4(1, 1, 1, 1), "Ball direction: %.2f, %.2f, %.2f", Ball->movementDirection.x, Ball->movementDirection.y, Ball->movementDirection.z);
         
         ImGui::Begin("Score", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
@@ -197,6 +271,7 @@ void Pong::Update(float dt)
                     Ball->movementDirection = Vector3(-1.f, 0.f, 0.f);
                     ballBounced = false;
                     Player1Score++;
+                    Player3Score++;
                 }
                 else if (ballCol->bounds.Center.x <= -scoreTrigger)
                 {
@@ -205,6 +280,7 @@ void Pong::Update(float dt)
                     Ball->movementDirection = Vector3(1.f, 0.f, 0.f);
                     ballBounced = false;
                     Player2Score++;
+                    Player4Score++;
                 }
             }
             else if (ballBounced && lastBallObstacle == World && type == DirectX::CONTAINS)
@@ -213,7 +289,7 @@ void Pong::Update(float dt)
             }
         }
     }
-    ImGui::TextColored(ImVec4(1, 1, 1, 1), "SCORE: %d, %d", Player1Score, Player2Score);
+    ImGui::TextColored(ImVec4(1, 1, 1, 1), "SCORE: %d, %d", Player1Score + Player3Score, Player2Score+ Player4Score);
     
     // Ball Collisions
     if (ballCol)
@@ -254,8 +330,49 @@ void Pong::Update(float dt)
                 ballBounced = false;
             }
         }
+        
+        if (Player3 != NULL && player3Col)
+        {
+            DirectX::ContainmentType type = player3Col->bounds.Contains(ballCol->bounds);
+        
+            if (type == DirectX::INTERSECTS && !ballBounced)
+            {   
+                ballBounced = true;
+                lastBallObstacle = Player3;
+                Entities["Ball"].GetComponent<BallComponent>("Ball")->OnPlayerContact(ballCol, player3Col);
+            }
+            else if (ballBounced && lastBallObstacle == Player3 && type == DirectX::DISJOINT)
+            {
+                ballBounced = false;
+            }
+        }
+        
+        if (Player4 != NULL && player4Col)
+        {
+            DirectX::ContainmentType type = player4Col->bounds.Contains(ballCol->bounds);
+        
+            if (type == DirectX::INTERSECTS && !ballBounced)
+            {   
+                ballBounced = true;
+                lastBallObstacle = Player4;
+                Entities["Ball"].GetComponent<BallComponent>("Ball")->OnPlayerContact(ballCol, player4Col);
+            }
+            else if (ballBounced && lastBallObstacle == Player4 && type == DirectX::DISJOINT)
+            {
+                ballBounced = false;
+            }
+        }
+        
+        if(std::abs(Ball->transform.Translation.x) >= width or std::abs(Ball->transform.Translation.y) >= height)
+        {
+            Ball->transform.Translation = Vector3();
+            Ball->movementDirection = Vector3(-1.f, 0.f, 0.f);
+            ballBounced = false;
+            Ball->movementSpeed = 382.f;
+        }
     }
     ImGui::End();
+
 }
 
 void Pong::UpdateInput()
@@ -289,6 +406,31 @@ void Pong::UpdateInput()
         else if (Instance->Input.IsKeyDown(Keys::Down))
         {
             movementInputPlayer2.y -= 1.f;
+        }
+
+    }
+    if(std::abs(movementInputPlayer3.y) != 1.f)
+    {
+        if(Instance->Input.IsKeyDown(Keys::H))
+        {
+            movementInputPlayer3.x += 1.f;
+        }
+        else if (Instance->Input.IsKeyDown(Keys::F))
+        {
+            movementInputPlayer3.x -= 1.f;
+        }
+
+    }
+    
+    if(std::abs(movementInputPlayer4.y) != 1.f)
+    {
+        if(Instance->Input.IsKeyDown(Keys::L))
+        {
+            movementInputPlayer4.x += 1.f;
+        }
+        else if (Instance->Input.IsKeyDown(Keys::J))
+        {
+            movementInputPlayer4.x -= 1.f;
         }
 
     }

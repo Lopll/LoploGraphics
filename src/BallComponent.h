@@ -18,7 +18,7 @@ public:
     Vector3 movementDirection;    
     float movementSpeed;
     float movementAcceleration;
-    const float MAX_SPEED = 3000.f;
+    const float MAX_SPEED = 1250.f;
     
     BallComponent
     (
