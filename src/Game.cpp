@@ -1,8 +1,11 @@
 #include "Game.h"
 
+#include "RectangleComponent.h"
+
 float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
+// CameraComponent* Game::Camera = nullptr;
 
 Game::Game(LPCWSTR Name, int width, int height):
 	Input(this),
@@ -12,7 +15,17 @@ Game::Game(LPCWSTR Name, int width, int height):
 {
 	Instance = this;
 	
-	// aspectRatio = (float)width/(float)height;
+	aspectRatio = (float)width/(float)height;
+	
+	Entities["Camera"].transform.Translation = Vector3(100.f, 100.f, -100.f);
+    Camera = Entities["Camera"].AddComponent<CameraComponent>("Camera");
+    Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
+    Camera->SetLookAt(Vector3());
+    
+    Entities["WorldBounds"].transform.Scale = Vector3(10.f, 0.1f, 1.0f);
+    Entities["WorldBounds"].transform.Translation = Vector3(0.0f, 0.0f, 0.0f);
+    Entities["WorldBounds"].transform.Rotation = Vector3(1.f, 0.0f, 0.0f);
+    Entities["WorldBounds"].AddComponent<RectangleComponent>("Bounds");
 }
 
 void Game::CreateBackBuffer()
@@ -24,12 +37,6 @@ void Game::CreateBackBuffer()
 		std::cerr << "Failed to create render target view!" << std::endl;
 		return;
 	}
-	// res = Device->CreateShaderResourceView(backBuffer, nullptr, &RenderSRV);
-	// if(FAILED(res))
-	// {
-	// 	std::cerr << "Failed to create shader resource view!" << std::endl;
-	// 	return;
-	// }
 }
 
 bool Game::Initialize()
@@ -86,8 +93,10 @@ bool Game::Initialize()
 
 Matrix Game::CalcProjectionMatrix()
 {
-	return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);
+	// return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);
 	// return Matrix::CreateOrthographic(2.f, 2.f, -100.f, 100.f);
+	Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
+	return Camera->projection;
 }
 
 void Game::PrepareResources()
@@ -105,8 +114,8 @@ void Game::PrepareResources()
 		Device->CreateBuffer(&desc, nullptr, ProjectionBuffer.GetAddressOf());
 	}
 
-	Matrix proj = CalcProjectionMatrix();
-	UpdateProjectionBuffer(proj);
+	Matrix proj = Camera->projection;
+	UpdateProjectionBuffer(proj, Camera->view);
 	
 	for(auto& component : Components)
 	{
@@ -120,6 +129,7 @@ void Game::Update(float dt)
 	{
 		component->Update(dt);
 	}
+	
 }
 
 void Game::UpdateInput()
@@ -227,7 +237,7 @@ void Game::PrepareFrame()
 	Context->ClearState();
 
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
-	Context->ClearRenderTargetView(RenderView.Get(), color);
+	Context->ClearRenderTargetView(RenderView.Get(), FOCUS_COLOR);
 
 	SetViewport();
 	
@@ -259,6 +269,7 @@ int Game::Run()
 		NewImGuiFrame();
 		UpdateInput();
 		Update(dt);
+		UpdateProjectionBuffer(Camera->projection, Camera->view);
 
 		Draw();
 		RenderImGui();
@@ -292,48 +303,51 @@ void Game::DestroyResources()
 	}
 }
 
-void Game::Resize()
-{
-	RenderView.Reset();
-	backBuffer.Reset();
-	
-	Context->OMSetRenderTargets(0, nullptr, nullptr);
-	
-	auto res = SwapChain->ResizeBuffers(0, Display.ClientWidth, Display.ClientHeight, DXGI_FORMAT_UNKNOWN, 0);
-	if(FAILED(res))
-	{
-		std::cerr << "Failed to resize buffers!" << std::endl;
-		return;
-	}
-	
-	CreateBackBuffer();
-	RestoreTargets();
-	
-	if (!ProjectionBuffer)
-	{
-		D3D11_BUFFER_DESC desc = {};
-		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		desc.ByteWidth = sizeof(PassConstants);
-
-		Device->CreateBuffer(&desc, nullptr, ProjectionBuffer.GetAddressOf());
-	}
-
-	Matrix proj = CalcProjectionMatrix();
-	UpdateProjectionBuffer(proj);
-	
-	ScreenResized = false;
-}
-
-void Game::UpdateProjectionBuffer(Matrix proj)
+void Game::UpdateProjectionBuffer(Matrix proj, Matrix view)
 {
 	Matrix tProj = proj.Transpose();
-
-	PassConstants temp = { tProj, tProj.Invert() };
+	Matrix tView = view.Transpose();
+	
+	PassConstants temp = { tProj, tProj.Invert(), tView };
 
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
 	Context->Map(ProjectionBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 	memcpy(mapped.pData, &temp, sizeof(PassConstants));
 	Context->Unmap(ProjectionBuffer.Get(), 0);
 }
+
+// LEGACY
+void Game::Resize()
+{
+	// RenderView.Reset();
+	// backBuffer.Reset();
+	
+	// Context->OMSetRenderTargets(0, nullptr, nullptr);
+	
+	// auto res = SwapChain->ResizeBuffers(0, Display.ClientWidth, Display.ClientHeight, DXGI_FORMAT_UNKNOWN, 0);
+	// if(FAILED(res))
+	// {
+	// 	std::cerr << "Failed to resize buffers!" << std::endl;
+	// 	return;
+	// }
+	
+	// CreateBackBuffer();
+	// RestoreTargets();
+	
+	// if (!ProjectionBuffer)
+	// {
+	// 	D3D11_BUFFER_DESC desc = {};
+	// 	desc.Usage = D3D11_USAGE_DYNAMIC;
+	// 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	// 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	// 	desc.ByteWidth = sizeof(PassConstants);
+
+	// 	Device->CreateBuffer(&desc, nullptr, ProjectionBuffer.GetAddressOf());
+	// }
+
+	// Matrix proj = CalcProjectionMatrix();
+	// // UpdateProjectionBuffer(proj);
+	
+	// ScreenResized = false;
+}
+

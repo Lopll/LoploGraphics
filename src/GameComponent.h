@@ -9,7 +9,7 @@ class Game;
 struct TransformData
 {
     Vector3 Scale;
-    float Rotation;
+    Vector3 Rotation;
     Vector3 Translation;
 };
 

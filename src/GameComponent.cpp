@@ -9,7 +9,7 @@ GameComponent::GameComponent(TransformData& ownerTransform, Vector4 Color)
 void GameComponent::ApplyTransform()
 {
     constantData.World = Matrix::CreateScale(transform.Scale)
-                            * Matrix::CreateRotationZ(DirectX::XMConvertToRadians(transform.Rotation))
+                            * Matrix::CreateFromYawPitchRoll(transform.Rotation)
                             * Matrix::CreateTranslation(transform.Translation);
     constantData.World = constantData.World.Transpose();
 }

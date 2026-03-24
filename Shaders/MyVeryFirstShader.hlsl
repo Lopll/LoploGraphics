@@ -13,6 +13,7 @@ cbuffer MainPass : register(b1)
 {
     float4x4 gProjection;
     float4x4 gInvProjection;
+    float4x4 gView;
 };
 
 struct VS_IN
@@ -32,7 +33,7 @@ PS_IN VSMain( VS_IN input )
 	PS_IN output = (PS_IN)0;
 	
     float4 PosW = mul(float4(input.posL.xyz, 1.0f), constantData.World);
-    output.posH = mul(PosW, gProjection);
+    output.posH = mul(PosW, mul(gProjection, gView));
 
     output.col = input.col;
 	

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BallComponent.cpp" />
+    <ClCompile Include="src\CameraComponent.cpp" />
     <ClCompile Include="src\CollisionComponent.cpp" />
     <ClCompile Include="external\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="external\imgui\backends\imgui_impl_win32.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Planets.cpp" />
     <ClCompile Include="src\RenderComponent.cpp" />
     <ClCompile Include="src\BlockComponent.cpp" />
     <ClCompile Include="src\Delegates.cpp" />
@@ -35,12 +37,12 @@
     <ClCompile Include="src\GameComponent.cpp" />
     <ClCompile Include="src\InputDevice.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Pong.cpp" />
     <ClCompile Include="src\RectangleComponent.cpp" />
     <ClCompile Include="src\TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BallComponent.h" />
+    <ClInclude Include="src\CameraComponent.h" />
     <ClInclude Include="src\CollisionComponent.h" />
     <ClInclude Include="external\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="external\imgui\backends\imgui_impl_win32.h" />
@@ -52,6 +54,7 @@
     <ClInclude Include="external\imgui\imstb_truetype.h" />
     <ClInclude Include="src\FrameResources.h" />
     <ClInclude Include="src\GeometryGenerator.h" />
+    <ClInclude Include="src\Planets.h" />
     <ClInclude Include="src\RenderComponent.h" />
     <ClInclude Include="src\BlockComponent.h" />
     <ClInclude Include="src\Delegates.h" />
@@ -61,7 +64,6 @@
     <ClInclude Include="src\GameComponent.h" />
     <ClInclude Include="src\InputDevice.h" />
     <ClInclude Include="src\Keys.h" />
-    <ClInclude Include="src\Pong.h" />
     <ClInclude Include="src\RectangleComponent.h" />
     <ClInclude Include="src\TriangleComponent.h" />
   </ItemGroup>
@@ -160,7 +162,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)packages\directxtk_desktop_2019.2025.10.28.2\native\lib\x86\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\1\Creativity\Projects\C++\LoploGraphics\packages\directxtk_desktop_2019.2025.10.28.2\native\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

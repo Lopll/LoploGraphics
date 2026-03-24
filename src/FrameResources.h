@@ -12,4 +12,5 @@ struct PassConstants
 {
     DirectX::SimpleMath::Matrix Proj = DirectX::SimpleMath::Matrix::Identity;
     DirectX::SimpleMath::Matrix InvProj = DirectX::SimpleMath::Matrix::Identity;
+    DirectX::SimpleMath::Matrix View = DirectX::SimpleMath::Matrix::Identity;
 };

@@ -23,6 +23,7 @@
 #include "DisplayWin32.h"
 #include "InputDevice.h"
 #include "GameComponent.h"
+#include "CameraComponent.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -86,6 +87,12 @@ public:
     DisplayWin32 Display;
     // float aspectRatio;
     
+    CameraComponent* Camera;
+    float fov = 103.f;
+    float aspectRatio;
+    float nearZ = 0.1f;
+    float farZ = 100.f;
+    
     InputDevice Input;
     std::vector<std::unique_ptr<GameComponent>> Components;
     std::unordered_map<std::string, Entity> Entities;
@@ -120,7 +127,7 @@ public:
     virtual int Run();
     Matrix CalcProjectionMatrix();
     void Resize();
-    void UpdateProjectionBuffer(Matrix proj);
+    void UpdateProjectionBuffer(Matrix proj, Matrix view);
 
     void DestroyResources();
     virtual void Draw();

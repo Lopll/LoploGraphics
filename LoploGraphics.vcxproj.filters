@@ -42,9 +42,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Pong.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\BlockComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -90,15 +87,18 @@
     <ClCompile Include="src\BallComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Planets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\DisplayWin32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Pong.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\BlockComponent.h">
@@ -162,6 +162,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\BallComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CameraComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Planets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
