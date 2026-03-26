@@ -8,7 +8,7 @@
 struct Vertex
 {
     DirectX::SimpleMath::Vector3 Pos;
-    DirectX::SimpleMath::Vector4 Color;
+    DirectX::SimpleMath::Vector4 Color = {1,1,1,1};
 };
 
 class RenderComponent : public GameComponent

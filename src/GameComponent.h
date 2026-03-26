@@ -8,9 +8,9 @@ class Game;
 
 struct TransformData
 {
-    Vector3 Scale;
-    Vector3 Rotation;
-    Vector3 Translation;
+    Vector3 Scale       = {1, 1, 1};
+    Vector3 Rotation    = {0, 0, 0};
+    Vector3 Translation = {0, 0, 0};
 };
 
 class GameComponent

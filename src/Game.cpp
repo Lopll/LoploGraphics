@@ -1,6 +1,8 @@
 #include "Game.h"
 
 #include "RectangleComponent.h"
+#include "RenderComponent.h"
+#include "GeometryGenerator.h"
 
 float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
@@ -29,7 +31,68 @@ Game::Game(LPCWSTR Name, int width, int height):
     Entities["WorldBounds"].transform.Scale = Vector3(10.f, 10.f, 100.f);
     Entities["WorldBounds"].transform.Translation = Vector3(0.0f, 0.0f, 0.0f);
     Entities["WorldBounds"].transform.Rotation = Vector3(0.f, 0.0f, 0.0f);
-    Entities["WorldBounds"].AddComponent<RectangleComponent>("Bounds");
+    //Entities["WorldBounds"].AddComponent<RectangleComponent>("Bounds");
+
+	// Variant with Geometry Generator
+	GeometryGenerator geoGen;
+	GeometryGenerator::MeshData mesh = geoGen.CreateBox(1, 1, 1, 2);
+	std::vector<Vertex> vert;
+	vert.resize(mesh.Vertices.size());
+	for (int i = 0; i < mesh.Vertices.size(); i++)
+	{
+		vert[i].Pos = mesh.Vertices[i].Position;
+		float randCol = ((i % (vert.size() / 2)) + 255) / 255;
+		vert[i].Color = { mesh.Vertices[i].TexC.x, mesh.Vertices[i].TexC.y, 0, 1 };
+	}
+	Entities["TestRenderVariantA"].AddComponent<RenderComponent>("Cube", Color(1,1,1,1), vert, mesh.Indices32);
+	Entities["TestRenderVariantA"].transform.Translation = Vector3(-5,0,0);
+	Entities["TestRenderVariantA"].transform.Scale = Vector3(20,20,20);
+	// End of first variant
+
+	// Variant with no Geometry Generator
+	std::vector<Vertex> vertices =
+	{
+		Vertex({ Vector3(-1.0f, -1.0f, -1.0f), Color(1.f, 1.f, 1.f) }), // White
+		Vertex({ Vector3(-1.0f, +1.0f, -1.0f), Color(0.f, 0.f, 0.f) }), // Black
+		Vertex({ Vector3(+1.0f, +1.0f, -1.0f), Color(1.f, 0.f, 0.f) }), // Red
+		Vertex({ Vector3(+1.0f, -1.0f, -1.0f), Color(0.f, 1.f, 0.f) }), // Green
+		Vertex({ Vector3(-1.0f, -1.0f, +1.0f), Color(0.f, 0.f, 1.f) }), // Blue
+		Vertex({ Vector3(-1.0f, +1.0f, +1.0f), Color(1.f, 1.f, 0.f) }), // Yellow
+		Vertex({ Vector3(+1.0f, +1.0f, +1.0f), Color(0.f, 1.f, 1.f) }), // Cyan
+		Vertex({ Vector3(+1.0f, -1.0f, +1.0f), Color(1.f, 0.f, 1.f) })  // Magenta
+	};
+	std::vector<std::uint32_t> indices =
+	{
+		// front face
+		0, 1, 2,
+		0, 2, 3,
+
+		// back face
+		4, 6, 5,
+		4, 7, 6,
+
+		// left face
+		4, 5, 1,
+		4, 1, 0,
+
+		// right face
+		3, 2, 6,
+		3, 6, 7,
+
+		// top face
+		1, 5, 6,
+		1, 6, 2,
+
+		// bottom face
+		4, 0, 3,
+		4, 3, 7
+	};
+	Entities["TestRenderVariantB"].AddComponent<RenderComponent>("Cube", Color(1, 1, 1, 1), vertices, indices);
+	Entities["TestRenderVariantB"].transform.Scale = Vector3(10, 10, 10);
+	Entities["TestRenderVariantB"].transform.Translation = Vector3(25, 0, 0);
+	// end of second varitant
+
+
 }
 
 void Game::CreateBackBuffer()

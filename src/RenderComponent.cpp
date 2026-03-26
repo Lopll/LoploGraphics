@@ -92,7 +92,7 @@ void RenderComponent::LoadGeometry()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(Vector4) * vertices.size();
+	vertexBufDesc.ByteWidth = sizeof(Vertex) * vertices.size();
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	vertexData.pSysMem = vertices.data();
@@ -117,8 +117,9 @@ void RenderComponent::LoadGeometry()
 	Game::Instance->Device->CreateBuffer(&indexBufDesc, &indexData, &indexBuffer);
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_NONE;
+	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FrontCounterClockwise = TRUE;
 
 	auto res = Game::Instance->Device->CreateRasterizerState(&rastDesc, &rastState);
 	if(FAILED(res))
@@ -151,7 +152,7 @@ void RenderComponent::Draw()
 	Game::Instance->Context->IASetInputLayout(layout.Get());
 	Game::Instance->Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	UINT strides[] = { 32 };
+	UINT strides[] = { sizeof(Vertex) };
 	UINT offsets[] = { 0 };
 	Game::Instance->Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), strides, offsets);
 	Game::Instance->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
