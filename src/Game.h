@@ -24,6 +24,7 @@
 #include "InputDevice.h"
 #include "GameComponent.h"
 #include "CameraComponent.h"
+#include "OrbitalCameraComponent.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -87,7 +88,7 @@ public:
     DisplayWin32 Display;
     // float aspectRatio;
     
-    CameraComponent* Camera;
+    OrbitalCameraComponent* Camera;
     float fov = 103.f;
     float aspectRatio;
     float nearZ = 0.1f;

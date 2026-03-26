@@ -13,7 +13,7 @@ public:
     
     CameraComponent(TransformData& ownerTransform);
     void SetProjectionValues(float fov, float aspectRatio, float nearZ, float farZ);
-    void SetLookAt(Vector3 lookAt);
+    virtual void SetLookAt(Vector3 lookAt);
     void Update(float dt) override;
     
     void AdjustPosition(Vector3 adjustment = Vector3());

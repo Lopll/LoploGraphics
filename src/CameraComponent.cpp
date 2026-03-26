@@ -42,13 +42,6 @@ void CameraComponent::Update(float dt)
     target += transform.Translation;
     Vector3 upDir = Vector3::Transform(Vector3::Up, rot);
     view = Matrix::CreateLookAt(transform.Translation, target, upDir);
-    
-    
-    // Vector3 camPos = Vector3(50.f, 0.f, 0.f);
-    
-    // Matrix rotMat = Matrix::CreateFromYawPitchRoll(45.f, 0.f, 0.f);
-    // view = Matrix::CreateLookAt(camPos, Vector3(), Vector3::Up);
-    // projection = Matrix::CreatePerspectiveFieldOfView(90.f, 1.f, 0.1f, 1000.f);
 }
 
 void CameraComponent::AdjustPosition(Vector3 adjustment)

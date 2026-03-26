@@ -5,7 +5,6 @@
 float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
-// CameraComponent* Game::Camera = nullptr;
 float cameraMovementSpeed = 1000.f;
 float actCameraMovementSpeed = cameraMovementSpeed;
 float cameraRotationSpeed = 1000.f;
@@ -22,8 +21,8 @@ Game::Game(LPCWSTR Name, int width, int height):
 	aspectRatio = (float)width/(float)height;
 	
 	Entities["Camera"].transform.Scale = Vector3(1.f, 1.f, 1.f);
-	Entities["Camera"].transform.Translation = Vector3(0.f, 0.f, -10.f);
-    Camera = Entities["Camera"].AddComponent<CameraComponent>("Camera");
+	Entities["Camera"].transform.Translation = Vector3(0.f, 0.f, 0.f);
+    Camera = Entities["Camera"].AddComponent<OrbitalCameraComponent>("Camera");
     Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
     Camera->SetLookAt(Vector3());
     
@@ -181,11 +180,11 @@ void Game::UpdateInput()
 	}
 	if(Input.IsKeyDown(Keys::NumPad8))
 	{
-		Entities["Camera"].transform.Rotation.y += 0.01f * actCameraRotationSpeed/10;
+		Entities["Camera"].transform.Rotation.z += 0.01f * actCameraRotationSpeed/10;
 	}
 	if(Input.IsKeyDown(Keys::NumPad5))
 	{
-		Entities["Camera"].transform.Rotation.y -= 0.01f * actCameraRotationSpeed/10;
+		Entities["Camera"].transform.Rotation.z -= 0.01f * actCameraRotationSpeed/10;
 	}
 }
 
