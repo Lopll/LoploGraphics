@@ -7,8 +7,7 @@ CameraComponent::CameraComponent(TransformData& ownerTransform): GameComponent(o
 
 void CameraComponent::SetProjectionValues(float fov, float aspectRatio, float nearZ, float farZ)
 {
-    float fovRadians = (fov/360.f) * DirectX::XM_PI;
-    projection = Matrix::CreatePerspectiveFieldOfView(fovRadians, aspectRatio, nearZ, farZ);
+    projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(fov), aspectRatio, nearZ, farZ);
 }
 
 void CameraComponent::SetLookAt(Vector3 lookAt)
@@ -43,4 +42,17 @@ void CameraComponent::Update(float dt)
     target += transform.Translation;
     Vector3 upDir = Vector3::Transform(Vector3::Up, rot);
     view = Matrix::CreateLookAt(transform.Translation, target, upDir);
+    
+    
+    // Vector3 camPos = Vector3(50.f, 0.f, 0.f);
+    
+    // Matrix rotMat = Matrix::CreateFromYawPitchRoll(45.f, 0.f, 0.f);
+    // view = Matrix::CreateLookAt(camPos, Vector3(), Vector3::Up);
+    // projection = Matrix::CreatePerspectiveFieldOfView(90.f, 1.f, 0.1f, 1000.f);
+}
+
+void CameraComponent::AdjustPosition(Vector3 adjustment)
+{
+    adjustment = Vector3::Transform(adjustment, Matrix::CreateFromYawPitchRoll(transform.Rotation.x,transform.Rotation.y,0.f));
+    transform.Translation += adjustment;
 }

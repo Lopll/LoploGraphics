@@ -33,7 +33,10 @@ PS_IN VSMain( VS_IN input )
 	PS_IN output = (PS_IN)0;
 	
     float4 PosW = mul(float4(input.posL.xyz, 1.0f), constantData.World);
-    output.posH = mul(PosW, mul(gProjection, gView));
+    float4 posV = mul(PosW, gView);
+	output.posH = mul(posV, gProjection);
+
+
 
     output.col = input.col;
 	

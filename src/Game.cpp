@@ -6,6 +6,10 @@ float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
 // CameraComponent* Game::Camera = nullptr;
+float cameraMovementSpeed = 1000.f;
+float actCameraMovementSpeed = cameraMovementSpeed;
+float cameraRotationSpeed = 1000.f;
+float actCameraRotationSpeed = cameraRotationSpeed;
 
 Game::Game(LPCWSTR Name, int width, int height):
 	Input(this),
@@ -17,14 +21,15 @@ Game::Game(LPCWSTR Name, int width, int height):
 	
 	aspectRatio = (float)width/(float)height;
 	
-	Entities["Camera"].transform.Translation = Vector3(100.f, 100.f, -100.f);
+	Entities["Camera"].transform.Scale = Vector3(1.f, 1.f, 1.f);
+	Entities["Camera"].transform.Translation = Vector3(0.f, 0.f, -10.f);
     Camera = Entities["Camera"].AddComponent<CameraComponent>("Camera");
     Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
     Camera->SetLookAt(Vector3());
     
-    Entities["WorldBounds"].transform.Scale = Vector3(10.f, 0.1f, 1.0f);
+    Entities["WorldBounds"].transform.Scale = Vector3(10.f, 10.f, 100.f);
     Entities["WorldBounds"].transform.Translation = Vector3(0.0f, 0.0f, 0.0f);
-    Entities["WorldBounds"].transform.Rotation = Vector3(1.f, 0.0f, 0.0f);
+    Entities["WorldBounds"].transform.Rotation = Vector3(0.f, 0.0f, 0.0f);
     Entities["WorldBounds"].AddComponent<RectangleComponent>("Bounds");
 }
 
@@ -93,8 +98,6 @@ bool Game::Initialize()
 
 Matrix Game::CalcProjectionMatrix()
 {
-	// return Matrix::CreateOrthographic((float)Display.ClientWidth, (float)Display.ClientHeight, -100.f, 100.f);
-	// return Matrix::CreateOrthographic(2.f, 2.f, -100.f, 100.f);
 	Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
 	return Camera->projection;
 }
@@ -114,8 +117,7 @@ void Game::PrepareResources()
 		Device->CreateBuffer(&desc, nullptr, ProjectionBuffer.GetAddressOf());
 	}
 
-	Matrix proj = Camera->projection;
-	UpdateProjectionBuffer(proj, Camera->view);
+	UpdateProjectionBuffer(Camera->projection, Camera->view);
 	
 	for(auto& component : Components)
 	{
@@ -125,6 +127,9 @@ void Game::PrepareResources()
 
 void Game::Update(float dt)
 {
+	actCameraMovementSpeed = cameraMovementSpeed * dt;
+	actCameraRotationSpeed = cameraRotationSpeed * dt;
+	// Camera->SetLookAt(Vector3());
 	for(auto& component : Components)
 	{
 		component->Update(dt);
@@ -137,6 +142,50 @@ void Game::UpdateInput()
 	if (Input.IsKeyDown(Keys::Escape))
 	{
 		PostQuitMessage(0);
+	}
+	
+	Vector3 adj;
+	if(Input.IsKeyDown(Keys::W))
+	{
+		adj.z -= 0.01f * actCameraMovementSpeed;
+	}
+	if(Input.IsKeyDown(Keys::S))
+	{
+		adj.z += 0.01f * actCameraMovementSpeed;
+	}
+	if(Input.IsKeyDown(Keys::D))
+	{
+		adj.x += 0.01f * actCameraMovementSpeed;
+	}
+	if(Input.IsKeyDown(Keys::A))
+	{
+		adj.x -= 0.01f * actCameraMovementSpeed;
+	}
+	if(Input.IsKeyDown(Keys::E))
+	{
+		adj.y += 0.01f * actCameraMovementSpeed;
+	}
+	if(Input.IsKeyDown(Keys::Q))
+	{
+		adj.y -= 0.01f * actCameraMovementSpeed;
+	}
+	Camera->AdjustPosition(adj);
+	
+	if(Input.IsKeyDown(Keys::NumPad6))
+	{
+		Entities["Camera"].transform.Rotation.x += 0.01f * actCameraRotationSpeed/10;
+	}
+	if(Input.IsKeyDown(Keys::NumPad4))
+	{
+		Entities["Camera"].transform.Rotation.x -= 0.01f * actCameraRotationSpeed/10;
+	}
+	if(Input.IsKeyDown(Keys::NumPad8))
+	{
+		Entities["Camera"].transform.Rotation.y += 0.01f * actCameraRotationSpeed/10;
+	}
+	if(Input.IsKeyDown(Keys::NumPad5))
+	{
+		Entities["Camera"].transform.Rotation.y -= 0.01f * actCameraRotationSpeed/10;
 	}
 }
 
