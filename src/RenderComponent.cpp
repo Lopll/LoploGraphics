@@ -2,8 +2,8 @@
 #include "Game.h"
 #include <array>
 
-RenderComponent::RenderComponent(TransformData& ownerTransform, Vector4 Color, std::vector<Vertex> Vertices, std::vector<std::uint32_t> Indices)
-	: GameComponent(ownerTransform, Color),
+RenderComponent::RenderComponent(TransformData& ownerTransform, Vector4 Color, GameComponent* parent, std::vector<Vertex> Vertices, std::vector<std::uint32_t> Indices)
+	: GameComponent(ownerTransform, Color, parent),
 	vertices(Vertices), indices(Indices)
 {}
 

@@ -19,10 +19,13 @@ public:
     struct ObjectConstants constantData;
     TransformData& transform;
 
+    GameComponent* Parent = nullptr;
+
     GameComponent
     (
         TransformData& ownerTransform,
-        Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f)
+        Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+        GameComponent* parent = nullptr
     );
     
     virtual void ApplyTransform();

@@ -4,8 +4,8 @@
 
 struct ObjectConstants
 {
-    DirectX::SimpleMath::Matrix World                       = DirectX::SimpleMath::Matrix::Identity;
-    DirectX::SimpleMath::Color Color                        = DirectX::SimpleMath::Color(1, 0, 0);
+    DirectX::SimpleMath::Matrix World = DirectX::SimpleMath::Matrix::Identity;
+    DirectX::SimpleMath::Color Color = DirectX::SimpleMath::Color(1, 0, 0);
 };
 
 struct PassConstants

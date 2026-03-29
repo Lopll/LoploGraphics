@@ -36,6 +36,7 @@ public:
     (
         TransformData& ownerTransform,
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+        GameComponent* parent = nullptr,
         std::vector<Vertex> Vertices = {{ Vector3(-0.5f, 0.5f, 0.0f),  Color(1, 0, 0) },
                                         { Vector3(-0.5f, -0.5f, 0.0f), Color(1, 1, 1) },
                                         { Vector3(0.5f, -0.5f, 0.0f),  Color(0, 0, 1) }},
