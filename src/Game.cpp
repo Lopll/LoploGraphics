@@ -7,9 +7,10 @@
 float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
+
 float cameraMovementSpeed = 1000.f;
 float actCameraMovementSpeed = cameraMovementSpeed;
-float cameraRotationSpeed = 1000.f;
+float cameraRotationSpeed = 100.f;
 float actCameraRotationSpeed = cameraRotationSpeed;
 
 Game::Game(LPCWSTR Name, int width, int height):
@@ -22,9 +23,15 @@ Game::Game(LPCWSTR Name, int width, int height):
 	
 	aspectRatio = (float)width/(float)height;
 	
-	Entities["Camera"].transform.Scale = Vector3(1.f, 1.f, 1.f);
-	Entities["Camera"].transform.Translation = Vector3(0.f, 0.f, 0.f);
-    Camera = Entities["Camera"].AddComponent<OrbitalCameraComponent>("Camera");
+	Entities["FPS_Camera"].transform.Scale = Vector3(1.f, 1.f, 1.f);
+	Entities["FPS_Camera"].transform.Translation = Vector3(0.f, 0.f, 30.f);
+	Camera = Entities["FPS_Camera"].AddComponent<CameraComponent>("FPS_Camera");
+	Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
+    Camera->SetLookAt(Vector3());
+	
+	Entities["Orbital_Camera"].transform.Scale = Vector3(1.f, 1.f, 1.f);
+	Entities["Orbital_Camera"].transform.Translation = Vector3(0.f, 0.f, 0.f);
+    Camera = Entities["Orbital_Camera"].AddComponent<OrbitalCameraComponent>("Orbital_Camera");
     Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
     Camera->SetLookAt(Vector3());
     
@@ -199,6 +206,7 @@ void Game::Update(float dt)
 	
 }
 
+bool cameraChanged = false;
 void Game::UpdateInput()
 {
 	if (Input.IsKeyDown(Keys::Escape))
@@ -206,6 +214,25 @@ void Game::UpdateInput()
 		PostQuitMessage(0);
 	}
 	
+	// Change Camera
+	if(!cameraChanged && Input.IsKeyDown(Keys::F5))
+	{
+		cameraChanged = true;
+		if(Camera == static_cast<CameraComponent*>(Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera")))
+		{
+			Camera = Entities["FPS_Camera"].GetComponent<CameraComponent>("FPS_Camera");
+		}
+		else
+		{
+			Camera = Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera");
+		}
+	}
+	else if (cameraChanged && !Input.IsKeyDown(Keys::F5))
+	{
+		cameraChanged = false;
+	}
+	
+	// Move Camera
 	Vector3 adj;
 	if(Input.IsKeyDown(Keys::W))
 	{
@@ -233,22 +260,43 @@ void Game::UpdateInput()
 	}
 	Camera->AdjustPosition(adj);
 	
+	// Rotate Camera
+	adj = Vector3();
 	if(Input.IsKeyDown(Keys::NumPad6))
 	{
-		Entities["Camera"].transform.Rotation.x += 0.01f * actCameraRotationSpeed/10;
+		adj.x +=0.01f * actCameraRotationSpeed;
 	}
 	if(Input.IsKeyDown(Keys::NumPad4))
 	{
-		Entities["Camera"].transform.Rotation.x -= 0.01f * actCameraRotationSpeed/10;
+		adj.x -=0.01f * actCameraRotationSpeed;
 	}
 	if(Input.IsKeyDown(Keys::NumPad8))
 	{
-		Entities["Camera"].transform.Rotation.z += 0.01f * actCameraRotationSpeed/10;
+		if(Camera == static_cast<CameraComponent*>(Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera")))
+		{
+			adj.z +=0.01f * actCameraRotationSpeed;
+		}
+		else
+		{
+			adj.y +=0.01f * actCameraRotationSpeed;
+		}
+		
 	}
 	if(Input.IsKeyDown(Keys::NumPad5))
 	{
-		Entities["Camera"].transform.Rotation.z -= 0.01f * actCameraRotationSpeed/10;
+		if(Camera == static_cast<CameraComponent*>(Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera")))
+		{
+			adj.z -=0.01f * actCameraRotationSpeed;
+		}
+		else
+		{
+			adj.y -=0.01f * actCameraRotationSpeed;
+		}
+		
 	}
+	Camera->AdjustRotation(adj);
+	
+	
 }
 
 float Game::UpdateInternal()

@@ -16,4 +16,6 @@ public:
     void SetLookAt(Vector3 lookAt) override;
     void Update(float dt) override;
     
+    void AdjustPosition(Vector3 adjustment = Vector3()) override;
+    void AdjustRotation(Vector3 adjustment = Vector3()) override;
 };

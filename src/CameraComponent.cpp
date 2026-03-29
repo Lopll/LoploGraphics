@@ -1,5 +1,5 @@
 #include "CameraComponent.h"
-
+#include <iostream>
 CameraComponent::CameraComponent(TransformData& ownerTransform): GameComponent(ownerTransform)
 {
     
@@ -48,4 +48,10 @@ void CameraComponent::AdjustPosition(Vector3 adjustment)
 {
     adjustment = Vector3::Transform(adjustment, Matrix::CreateFromYawPitchRoll(transform.Rotation.x,transform.Rotation.y,0.f));
     transform.Translation += adjustment;
+
+}
+
+void CameraComponent::AdjustRotation(Vector3 adjustment)
+{
+    transform.Rotation += adjustment;
 }

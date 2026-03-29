@@ -88,7 +88,7 @@ public:
     DisplayWin32 Display;
     // float aspectRatio;
     
-    OrbitalCameraComponent* Camera;
+    CameraComponent* Camera;
     float fov = 103.f;
     float aspectRatio;
     float nearZ = 0.1f;
