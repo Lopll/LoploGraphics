@@ -45,6 +45,6 @@ PS_IN VSMain( VS_IN input )
 
 float4 PSMain( PS_IN input ) : SV_Target
 {
-	float4 col = input.col;
+	float4 col = constantData.color;
 	return col;
 }

@@ -8,7 +8,7 @@ float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
 
-float cameraMovementSpeed = 1000.f;
+float cameraMovementSpeed = 5000.f;
 float actCameraMovementSpeed = cameraMovementSpeed;
 float cameraRotationSpeed = 100.f;
 float actCameraRotationSpeed = cameraRotationSpeed;
@@ -109,7 +109,25 @@ void Game::PrepareResources()
 {
 	CreateBackBuffer();
 	
-	if (!ProjectionBuffer)
+	if(!DepthBuffer)
+	{
+		D3D11_TEXTURE2D_DESC depthDesc = {};
+		depthDesc.ArraySize = 1;
+		depthDesc.MipLevels = 1;
+		depthDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthDesc.CPUAccessFlags = 0;
+		depthDesc.MiscFlags = 0;
+		depthDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthDesc.Width = Display.ClientWidth;
+		depthDesc.Height = Display.ClientHeight;
+		depthDesc.SampleDesc = {1, 0};
+		
+		Device->CreateTexture2D(&depthDesc, nullptr, &DepthBuffer);
+		Device->CreateDepthStencilView(DepthBuffer.Get(), nullptr, &DepthView);
+	}
+	
+	if(!ProjectionBuffer)
 	{
 		D3D11_BUFFER_DESC desc = {};
 		desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -139,7 +157,6 @@ void Game::Update(float dt)
 	
 }
 
-bool cameraChanged = false;
 void Game::UpdateInput()
 {
 	if (Input.IsKeyDown(Keys::Escape))
@@ -147,10 +164,24 @@ void Game::UpdateInput()
 		PostQuitMessage(0);
 	}
 	
-	// Change Camera
-	if(!cameraChanged && Input.IsKeyDown(Keys::F5))
+	// toggle wireframe
+	if (Input.IsKeyDown(Keys::F1))
 	{
-		cameraChanged = true;
+    	wireframe = !wireframe;
+		for (auto& component : Components)
+	    {
+	        auto* renderComp = dynamic_cast<RenderComponent*>(component.get());
+	        if (renderComp)
+	        {
+	            renderComp->wireframe = wireframe;
+	        }
+	    }
+	    Sleep(100);
+	}
+	
+	// Change Camera
+	if(Input.IsKeyDown(Keys::F5))
+	{
 		if(Camera == static_cast<CameraComponent*>(Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera")))
 		{
 			Camera = Entities["FPS_Camera"].GetComponent<CameraComponent>("FPS_Camera");
@@ -159,10 +190,7 @@ void Game::UpdateInput()
 		{
 			Camera = Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera");
 		}
-	}
-	else if (cameraChanged && !Input.IsKeyDown(Keys::F5))
-	{
-		cameraChanged = false;
+	    Sleep(100);
 	}
 	
 	// Move Camera
@@ -345,6 +373,7 @@ void Game::PrepareFrame()
 
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Context->ClearRenderTargetView(RenderView.Get(), FOCUS_COLOR);
+	Context->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 	SetViewport();
 	
@@ -359,7 +388,7 @@ void Game::EndFrame()
 
 void Game::RestoreTargets()
 {
-	Context->OMSetRenderTargets(1, RenderView.GetAddressOf(), nullptr);
+	Context->OMSetRenderTargets(1, RenderView.GetAddressOf(), DepthView.Get());
 }
 
 int Game::Run()

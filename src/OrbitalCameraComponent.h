@@ -9,7 +9,7 @@ using namespace DirectX::SimpleMath;
 class OrbitalCameraComponent : public CameraComponent
 {
 public:
-    float distance = 50.f;
+    float distance = 200.f;
     Vector3 lookAtPos;
     
     OrbitalCameraComponent(TransformData& ownerTransform);

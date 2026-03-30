@@ -19,6 +19,7 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
     Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderByteCode;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastState;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeState;
     Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
     Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderByteCode;
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
@@ -32,6 +33,7 @@ protected:
     void LoadGeometry();
 
 public:
+    bool wireframe = false;
     RenderComponent
     (
         TransformData& ownerTransform,

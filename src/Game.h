@@ -86,21 +86,20 @@ class Game
 {
 public:
     DisplayWin32 Display;
-    // float aspectRatio;
     
     CameraComponent* Camera;
     float fov = 103.f;
     float aspectRatio;
     float nearZ = 0.1f;
-    float farZ = 100.f;
+    float farZ = 10000.f;
     
     InputDevice Input;
     std::vector<std::unique_ptr<GameComponent>> Components;
     std::unordered_map<std::string, Entity> Entities;
     
-    // DebugAnnotation; 
-    
     static Game* Instance;
+    
+    bool wireframe = false;
     
     // FPS counter
     std::chrono::time_point<std::chrono::steady_clock> PrevTime;
@@ -114,12 +113,12 @@ public:
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderView;
     Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain;
     Microsoft::WRL::ComPtr<ID3D11Buffer> ProjectionBuffer;
-    // ID3D11ShaderResourceView* RenderSRV;
     
-    bool ScreenResized = false;// find method for it. Maybe bool value, which will be wathed somewhere for resize
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> DepthBuffer;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> DepthView;
+    
+    bool ScreenResized = false;
 
-    // ID3D11Buffer* constantBuffer;
-    
     Game(LPCWSTR Name = L"Waht", int width = 800, int height = 800);
 
     void Exit();

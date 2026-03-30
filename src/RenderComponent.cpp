@@ -128,6 +128,13 @@ void RenderComponent::LoadGeometry()
 		return;
 	}
 	
+	CD3D11_RASTERIZER_DESC wireframeDesc = {};
+	wireframeDesc.CullMode = D3D11_CULL_BACK;
+	wireframeDesc.FillMode = D3D11_FILL_WIREFRAME;
+	wireframeDesc.FrontCounterClockwise = TRUE;
+	
+	Game::Instance->Device->CreateRasterizerState(&wireframeDesc, &wireframeState);
+	
 	// constant buffer
 	D3D11_BUFFER_DESC constantBuffDesc = {};
 	constantBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -148,7 +155,15 @@ void RenderComponent::Initialize()
 
 void RenderComponent::Draw()
 {
-	Game::Instance->Context->RSSetState(rastState.Get());
+	if(wireframe)
+	{
+		Game::Instance->Context->RSSetState(wireframeState.Get());
+	}
+	else
+	{
+		Game::Instance->Context->RSSetState(rastState.Get());
+	}
+	
 	Game::Instance->Context->IASetInputLayout(layout.Get());
 	Game::Instance->Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
@@ -162,6 +177,7 @@ void RenderComponent::Draw()
 	Game::Instance->ProjectionBuffer.Get()
 	};
 	Game::Instance->Context->VSSetConstantBuffers(0, 2, buffers);
+	Game::Instance->Context->PSSetConstantBuffers(0, 2, buffers);
 
 	Game::Instance->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	Game::Instance->Context->PSSetShader(pixelShader.Get(), nullptr, 0);
