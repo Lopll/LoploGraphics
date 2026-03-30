@@ -15,14 +15,24 @@ int planetsCount = 20;
 
 std::random_device rd;
 std::mt19937 gen(rd());
-std::uniform_real_distribution<> dis(0.01, 0.1);
-std::uniform_real_distribution<> planSpeed(0.1, 1.0);
+std::uniform_real_distribution<> dis(0.01, 0.07);
+std::uniform_real_distribution<> planSpeed(0.05, 0.2);
 
 std::vector<float> orbitAngles;
 std::vector<float> orbitSpeeds;
 
 std::vector<float> orbitMoonAngles;
 std::vector<float> orbitMoonSpeeds;
+
+void Planets::zoomToFit(Entity entity)// TODO: update camera pos in realtime with object transform
+{
+	float margin = 1.75;// TODO: уточнить про это в мм
+	auto cam = Game::Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera"); 
+	cam->lookAtPos = entity.transform.Translation;	
+	cam->distance = margin * entity.transform.Scale.y / tanf((DirectX::XMConvertToRadians(Game::fov)/Game::aspectRatio) / 2.f);// ~25
+	std::cout << cam->distance << std::endl;
+	// Entities["Orbital_Camera"].distance = 100.f; // r / tan(fov_rad / 2)
+}
 
 Planets::Planets():
     Game(L"LoploPlanets", width, height)
@@ -38,10 +48,11 @@ Planets::Planets():
         orbitSpeeds[i] = (float)planSpeed(gen);
         orbitMoonSpeeds[i] = (float)planSpeed(gen);
     }
+    orbitSpeeds[1] *= 10; 
     
 	GeometryGenerator geoGen;
 	// Sphere
-	GeometryGenerator::MeshData meshSun = geoGen.CreateSphere(1.0f, 6, 6);
+	GeometryGenerator::MeshData meshSun = geoGen.CreateSphere(1.0f, 30, 30);
 	std::vector<Vertex> vertSun;
 	vertSun.resize(meshSun.Vertices.size());
 	for (int i = 0; i < meshSun.Vertices.size(); i++)
@@ -139,7 +150,6 @@ Planets::Planets():
 	// 	Entities["Moon_"+std::to_string(i)].transform.Scale = Vector3(1);//Vector3(0.5f, 0.5f, 0.5f);
 	// 	Entities["Moon_"+std::to_string(i)].transform.Translation = Vector3(-10,0,0);
 	// }
-	
 }
 
 void Planets::Update(float dt)
@@ -153,7 +163,7 @@ void Planets::Update(float dt)
 	
     for(int i = 1; i <= planetsCount; i++)
     {
-    	Entities["Sun"].transform.Rotation.y += (float)dis(gen) * dt;
+		Entities["Sun"].transform.Rotation.y += (float)dis(gen) * dt / 2;
     	
     	Entities["Planet_"+std::to_string(i)].transform.Rotation.y -= (float)dis(gen) * dt;
 		Matrix rot = Matrix::CreateRotationY(orbitSpeeds[i] * dt);
@@ -168,4 +178,13 @@ void Planets::Update(float dt)
 void Planets::UpdateInput()
 {
     Game::UpdateInput();
+    
+    if(Input.IsKeyDown(Keys::D1))
+    {
+    	zoomToFit(Entities["Sun"]);
+    }
+    if(Input.IsKeyDown(Keys::D2))
+    {
+    	zoomToFit(Entities["Planet_1"]);
+    }
 }
