@@ -7,6 +7,7 @@
 #include "GeometryGenerator.h"
 #include <random>
 #include <vector>
+#include <algorithm>
 
 int width = 640;
 int height = 640;
@@ -24,14 +25,23 @@ std::vector<float> orbitSpeeds;
 std::vector<float> orbitMoonAngles;
 std::vector<float> orbitMoonSpeeds;
 
-void Planets::zoomToFit(Entity entity)// TODO: update camera pos in realtime with object transform
+bool zoomToFitOn = false;
+Entity* zoomTarget;
+
+void Planets::zoomToFit(Entity entity)
 {
-	float margin = 1.75;// TODO: уточнить про это в мм
 	auto cam = Game::Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera"); 
-	cam->lookAtPos = entity.transform.Translation;	
-	cam->distance = margin * entity.transform.Scale.y / tanf((DirectX::XMConvertToRadians(Game::fov)/Game::aspectRatio) / 2.f);// ~25
-	std::cout << cam->distance << std::endl;
-	// Entities["Orbital_Camera"].distance = 100.f; // r / tan(fov_rad / 2)
+	Matrix world = entity.GetComponent<RenderComponent>("Mesh")->constantData.World.Transpose();
+	
+	Vector3 scale;
+	Quaternion rotation;
+	Vector3 translation;
+	world.Decompose(scale, rotation, translation);
+	
+	float worldRadius = max(scale.x, max(scale.y, scale.z));
+	std::cout <<worldRadius<<std::endl;
+	cam->lookAtPos = translation;
+	cam->distance = 8.66;//aspectRatio * 5 / (sinf(DirectX::XMConvertToRadians(Game::fov)/2.f));
 }
 
 Planets::Planets():
@@ -59,7 +69,7 @@ Planets::Planets():
 	{
 	    vertSun[i].Pos = meshSun.Vertices[i].Position;
 	}
-	Entities["Sun"].AddComponent<RenderComponent>("Sphere", Color(1.0f, 0.5f, 0.0f, 1.0f), nullptr, vertSun, meshSun.Indices32);
+	Entities["Sun"].AddComponent<RenderComponent>("Mesh", Color(1.0f, 0.5f, 0.0f, 1.0f), nullptr, vertSun, meshSun.Indices32);
 	Entities["Sun"].transform.Translation = Vector3(0,0,0);
 	Entities["Sun"].transform.Scale = Vector3(20);
 	
@@ -74,18 +84,18 @@ Planets::Planets():
 	
 	for(int i = 1; i <= planetsCount; i++)
 	{
-		Entities["Planet_"+std::to_string(i)].AddComponent<RenderComponent>("Cube", Color(0, 0, 1, 1), Entities["Sun"].GetComponent<RenderComponent>("Sphere"), vert, mesh.Indices32);
+		Entities["Planet_"+std::to_string(i)].AddComponent<RenderComponent>("Mesh", Color(0, 0, 1, 1), Entities["Sun"].GetComponent<RenderComponent>("Mesh"), vert, mesh.Indices32);
 		Entities["Planet_"+std::to_string(i)].transform.Scale = Vector3(0.5);
 		float sign = (i % 2 == 0) ? -1.0f : 1.0f;
 		Entities["Planet_" + std::to_string(i)].transform.Translation = Vector3(3 * i * sign, 0, 0);
 		
 		if (i % 2 != 0)
         {
-            Entities["Moon_"+std::to_string(i)].AddComponent<RenderComponent>("Sphere", Color(1, 0, 0, 1), Entities["Planet_"+std::to_string(i)].GetComponent<RenderComponent>("Cube"), vertSun, meshSun.Indices32);
+            Entities["Moon_"+std::to_string(i)].AddComponent<RenderComponent>("Mesh", Color(1, 0, 0, 1), Entities["Planet_"+std::to_string(i)].GetComponent<RenderComponent>("Mesh"), vertSun, meshSun.Indices32);
         }
         else
         {
-            Entities["Moon_"+std::to_string(i)].AddComponent<RenderComponent>("Cube", Color(1, 0, 0, 1), Entities["Planet_"+std::to_string(i)].GetComponent<RenderComponent>("Cube"), vert, mesh.Indices32);
+            Entities["Moon_"+std::to_string(i)].AddComponent<RenderComponent>("Mesh", Color(1, 0, 0, 1), Entities["Planet_"+std::to_string(i)].GetComponent<RenderComponent>("Mesh"), vert, mesh.Indices32);
         }
 		Entities["Moon_"+std::to_string(i)].transform.Scale = Vector3(0.5);
 		Entities["Moon_"+std::to_string(i)].transform.Translation = Vector3(1.5,0,0);
@@ -160,18 +170,22 @@ void Planets::Update(float dt)
 	{
 		component->Update(dt);
 	}
-	
-    for(int i = 1; i <= planetsCount; i++)
-    {
-		Entities["Sun"].transform.Rotation.y += (float)dis(gen) * dt / 2;
-    	
-    	Entities["Planet_"+std::to_string(i)].transform.Rotation.y -= (float)dis(gen) * dt;
-		Matrix rot = Matrix::CreateRotationY(orbitSpeeds[i] * dt);
-		Entities["Planet_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Planet_"+std::to_string(i)].transform.Translation, rot);
+	// Entities["Sun"].transform.Rotation.y += (float)dis(gen) * dt / 2;
+	// for(int i = 1; i <= planetsCount; i++)
+	// {
+	// 	Entities["Planet_"+std::to_string(i)].transform.Rotation.y -= (float)dis(gen) * dt;
+	// 	Matrix rot = Matrix::CreateRotationY(orbitSpeeds[i] * dt);
+	// 	Entities["Planet_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Planet_"+std::to_string(i)].transform.Translation, rot);
         
-        Entities["Moon_"+std::to_string(i)].transform.Rotation.y += (float)dis(gen) * dt;
-		rot = Matrix::CreateRotationY(orbitMoonSpeeds[i] * dt);
-		Entities["Moon_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Moon_"+std::to_string(i)].transform.Translation, rot);
+	//     Entities["Moon_"+std::to_string(i)].transform.Rotation.y += (float)dis(gen) * dt;
+	// 	rot = Matrix::CreateRotationY(orbitMoonSpeeds[i] * dt);
+	// 	Entities["Moon_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Moon_"+std::to_string(i)].transform.Translation, rot);
+	// }
+    
+    
+    if(zoomToFitOn)
+    {
+    	zoomToFit(*zoomTarget);
     }
 }
 
@@ -181,10 +195,18 @@ void Planets::UpdateInput()
     
     if(Input.IsKeyDown(Keys::D1))
     {
-    	zoomToFit(Entities["Sun"]);
+    	zoomToFitOn = true;
+    	zoomTarget = &Entities["Sun"]; 
+		Sleep(100);
     }
     if(Input.IsKeyDown(Keys::D2))
     {
-    	zoomToFit(Entities["Planet_1"]);
+    	zoomToFitOn = true;
+    	zoomTarget = &Entities["Planet_1"]; 
+		Sleep(100);
+    }
+    if(Input.IsKeyDown(Keys::D0))
+    {
+    	zoomToFitOn = false;
     }
 }
