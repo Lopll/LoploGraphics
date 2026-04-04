@@ -38,10 +38,19 @@ void Planets::zoomToFit(Entity entity)
 	Vector3 translation;
 	world.Decompose(scale, rotation, translation);
 	
-	float worldRadius = max(scale.x, max(scale.y, scale.z));
+	float worldRadius;
+	if(entity.GetComponent<RenderComponent>("Mesh")->vertices.size() > 300)
+	{
+		worldRadius = max(scale.x, max(scale.y, scale.z));
+	}
+	else
+	{
+		worldRadius = 0.5f * sqrt(scale.x*scale.x + scale.y*scale.y + scale.z*scale.z);
+	}
+	
 	std::cout <<worldRadius<<std::endl;
 	cam->lookAtPos = translation;
-	cam->distance = 8.66;//aspectRatio * 5 / (sinf(DirectX::XMConvertToRadians(Game::fov)/2.f));
+	cam->distance = aspectRatio * worldRadius / (sinf(DirectX::XMConvertToRadians(Game::fov)/2.f));
 }
 
 Planets::Planets():

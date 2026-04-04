@@ -26,7 +26,6 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
 #pragma endregion 
-    std::vector<Vertex> vertices;
     std::vector<std::uint32_t> indices;
 
     void LoadShadersAndLayout();
@@ -34,6 +33,7 @@ protected:
 
 public:
     bool wireframe = false;
+    std::vector<Vertex> vertices;
     RenderComponent
     (
         TransformData& ownerTransform,
