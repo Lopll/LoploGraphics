@@ -7,7 +7,7 @@ int main()
 #if defined(DEBUG) || defined(_DEBUG)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-    Planets game;
+    Game game;
     game.Run();
     return 0;
 }

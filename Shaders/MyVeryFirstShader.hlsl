@@ -28,6 +28,9 @@ struct PS_IN
  	float4 col : COLOR;
 };
 
+// Texture2D DiffuseMap : register(t0);
+// SamplerState Sampler ; register(s0);
+
 PS_IN VSMain( VS_IN input )
 {
 	PS_IN output = (PS_IN)0;
@@ -45,6 +48,6 @@ PS_IN VSMain( VS_IN input )
 
 float4 PSMain( PS_IN input ) : SV_Target
 {
-	float4 col = constantData.color;
+	float4 col = constantData.color;//DiffuseMap.Sample(Sampler, input.tex.xy);//
 	return col;
 }

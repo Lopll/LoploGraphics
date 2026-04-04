@@ -25,6 +25,9 @@
 #include "GameComponent.h"
 #include "CameraComponent.h"
 #include "OrbitalCameraComponent.h"
+#include "RenderComponent.h"
+#include "RectangleComponent.h"
+#include "GeometryGenerator.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -35,6 +38,8 @@
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
+
+#include "tiny_obj_loader.h"
 
 using namespace DirectX::SimpleMath;
 
@@ -144,6 +149,8 @@ public:
     void ShutdownImGui();
     void NewImGuiFrame();
     void RenderImGui();
+    
+    bool LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVertices, std::vector<std::uint32_t>& outIndices, Vector4 defaultColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
 private:
     void CreateBackBuffer();

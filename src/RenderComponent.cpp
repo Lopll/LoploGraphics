@@ -144,6 +144,20 @@ void RenderComponent::LoadGeometry()
 	constantBuffDesc.StructureByteStride = 0;
 	constantBuffDesc.ByteWidth = sizeof(ObjectConstants);
 	Game::Instance->Device->CreateBuffer(&constantBuffDesc, nullptr, constantBuffer.GetAddressOf());
+	
+	// sampler
+	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 1.0f;
+	samplerDesc.BorderColor[1] = 1.0f;
+	samplerDesc.BorderColor[2] = 1.0f;
+	samplerDesc.BorderColor[3] = 1.0f;
+	samplerDesc.MaxLOD = INT_MAX;
+	Game::Instance->Device->CreateSamplerState(&samplerDesc, &sampler);
 }
 
 void RenderComponent::Initialize()
@@ -181,6 +195,11 @@ void RenderComponent::Draw()
 
 	Game::Instance->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	Game::Instance->Context->PSSetShader(pixelShader.Get(), nullptr, 0);
+	
+	// context->PSSetShaderResources(0, 1, &textureResourceView);
+	// context->PSSetSamplers(0, 1, &sampler);
+	
+	
 	Game::Instance->Context->DrawIndexed(indices.size(), 0, 0);
 }
 
@@ -188,6 +207,18 @@ void RenderComponent::Update(float dt)
 {
 	ApplyTransform();
 
+	if (!constantBuffer)
+    {
+        std::cerr << "ERROR: constantBuffer is null in RenderComponent::Update!" << std::endl;
+        return;
+    }
+    
+    if (!Game::Instance->Context)
+    {
+        std::cerr << "ERROR: Context is null!" << std::endl;
+        return;
+    }
+    
 	// update constant buffer
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	Game::Instance->Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &res);

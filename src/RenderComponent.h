@@ -25,6 +25,9 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
+    
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 #pragma endregion 
     std::vector<std::uint32_t> indices;
 

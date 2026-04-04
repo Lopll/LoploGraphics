@@ -1,8 +1,7 @@
 #include "Game.h"
 
-#include "RectangleComponent.h"
-#include "RenderComponent.h"
-#include "GeometryGenerator.h"
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "tiny_obj_loader.h"
 
 float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
 
@@ -96,6 +95,7 @@ bool Game::Initialize()
 	StartTime = std::chrono::steady_clock::now();
 	PrevTime = StartTime;
 	
+	
 	return true;
 }
 
@@ -140,10 +140,27 @@ void Game::PrepareResources()
 
 	UpdateProjectionBuffer(Camera->projection, Camera->view);
 	
+	
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+	
+	if (LoadOBJModel("./Ball.obj", vertices, indices, Color(1,1,1,1)))
+	{
+	    Entity& modelEntity = Entities["Ball"];
+	    
+	    modelEntity.transform.Translation = Vector3(0, 0, 0);
+	    modelEntity.transform.Scale = Vector3(1);
+	    
+		modelEntity.AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices);
+	}
+	
+	
 	for(auto& component : Components)
 	{
 		component->Initialize();
-	}	
+	}
+	
+	
 }
 
 void Game::Update(float dt)
@@ -487,3 +504,46 @@ void Game::Resize()
 	// ScreenResized = false;
 }
 
+bool Game::LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVertices, std::vector<std::uint32_t>& outIndices, Vector4 defaultColor)
+{
+	tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+    
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filepath.c_str());          
+    
+	if (!err.empty()) {
+	    std::cerr << "OBJ Error: " << err << std::endl;
+	    return false;
+	}
+    
+	if (!ret) {
+	    std::cerr << "Failed to load OBJ file: " << filepath << std::endl;
+	    return false;
+	}
+    
+	std::cout << "Loading OBJ: " << filepath << std::endl;
+	std::cout << "Vertices count: " << attrib.vertices.size() / 3 << std::endl;
+	std::cout << "Shapes count: " << shapes.size() << std::endl;
+    
+	for (const auto& shape : shapes) {
+	    for (const auto& index : shape.mesh.indices) {
+	        Vertex vertex;
+            
+	        vertex.Pos.x = attrib.vertices[3 * index.vertex_index + 0];
+	        vertex.Pos.y = attrib.vertices[3 * index.vertex_index + 1];
+	        vertex.Pos.z = attrib.vertices[3 * index.vertex_index + 2];
+            
+	        vertex.Color = defaultColor;
+            
+	        outVertices.push_back(vertex);
+	        outIndices.push_back(static_cast<std::uint32_t>(outIndices.size()));
+	    }
+	}
+    
+	std::cout << "Loaded " << outVertices.size() << " vertices, " 
+	          << outIndices.size() << " indices" << std::endl;
+    
+	return true;
+}
