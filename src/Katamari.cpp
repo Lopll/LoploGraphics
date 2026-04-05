@@ -56,6 +56,11 @@ Katamari::Katamari():
 	    Entities["Ball"].transform.Scale = Vector3(1);
 		Ball = Entities["Ball"].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, L"./Models./ball_basecolor.dds");
 		BallCol = Entities["Ball"].AddComponent<CollisionSphereComponent>("Collision", Vector3(), Ball->CalculateBoundingRadius());
+		
+		// Entities["smal"].transform.Scale = Vector3(0.5);
+		// Entities["smal"].transform.Translation = Vector3(0, 100, 0);
+		// RenderComponent* smal = Entities["smal"].AddComponent<RenderComponent>("smal", Color(1,1,1,1),Ball,vertices, indices, L"./Models./ball_basecolor.dds");
+		
 	}
 	
 	for(int i = 0; i < objectCount; i++)
@@ -79,7 +84,7 @@ Katamari::Katamari():
 
 void Katamari::zoomToFit(Entity entity)
 {
-	float margin = 100.f;
+	float margin = 2.f * BallCol->bounds.Radius;
 
 	auto cam = Game::Entities["Orbital_Camera"].GetComponent<OrbitalCameraComponent>("Orbital_Camera"); 
 	Matrix world = entity.GetComponent<RenderComponent>("Mesh")->constantData.World.Transpose();
@@ -150,30 +155,41 @@ void Katamari::Update(float dt)
 	for(int i = 0; i < objectCount; i++)
 	{
 		CollisionSphereComponent* col = Entities["Object_"+std::to_string(i)].GetComponent<CollisionSphereComponent>("Collision");
-		DirectX::ContainmentType type = BallCol->bounds.Contains(col->bounds);
-		const char* typeStr = (type == DirectX::CONTAINS) ? "CONTAINS" : (type == DirectX::INTERSECTS) ? "INTERSECTS" : "DISJOINT";
-	    ImGui::TextColored(type == DirectX::CONTAINS ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0.5f, 0, 1), "Ball-object_%d Contains result: %s", i,typeStr);
-	    
-	    float maxBallScale = max(Ball->transform.Scale.x,max(Ball->transform.Scale.y,Ball->transform.Scale.z));
-	    float ballR = maxBallScale * BallCol->bounds.Radius;
-	    float maxObjScale = max(Entities["Object_"+std::to_string(i)].transform.Scale.x,max(Entities["Object_"+std::to_string(i)].transform.Scale.y,Entities["Object_"+std::to_string(i)].transform.Scale.z));
-		float colR = col->bounds.Radius * maxObjScale;
-	    
-	    if(type == DirectX::INTERSECTS)
-	    {
-	    	if(ballR > colR)
-	    	{
-	    		std::cout<<"KA TA MA RI!\n";
-	    		// set parent
-	    		// handle transform
-	    		BallCol->bounds.Radius = ballR + (2*colR);
-	    		Sleep(100);
-	    	}
-	    	else
-	    	{
-	    		
-	    	}
-	    }
+		
+		if(col)
+		{
+			DirectX::ContainmentType type = BallCol->bounds.Contains(col->bounds);
+			const char* typeStr = (type == DirectX::CONTAINS) ? "CONTAINS" : (type == DirectX::INTERSECTS) ? "INTERSECTS" : "DISJOINT";
+		    ImGui::TextColored(type == DirectX::CONTAINS ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0.5f, 0, 1), "Ball-object_%d Contains result: %s", i,typeStr);
+		    
+		    float maxBallScale = max(Ball->transform.Scale.x,max(Ball->transform.Scale.y,Ball->transform.Scale.z));
+		    float ballR = maxBallScale * BallCol->bounds.Radius;
+		    float maxObjScale = max(Entities["Object_"+std::to_string(i)].transform.Scale.x,max(Entities["Object_"+std::to_string(i)].transform.Scale.y,Entities["Object_"+std::to_string(i)].transform.Scale.z));
+			float colR = col->bounds.Radius * maxObjScale;
+		    
+		    if(type == DirectX::INTERSECTS)
+		    {
+		    	if(ballR > colR)
+		    	{
+		    		RenderComponent* objRender = Entities["Object_"+std::to_string(i)].GetComponent<RenderComponent>("Mesh");
+				    objRender->Parent = Ball;
+				    
+				    Vector3 worldObjPos = Entities["Object_"+std::to_string(i)].transform.Translation;
+				    Vector3 worldBallPos = Entities["Ball"].transform.Translation;
+				    Vector3 localPos = worldObjPos - worldBallPos;
+				    
+				    objRender->transform.Translation = Vector3::Transform(localPos,Matrix::CreateFromYawPitchRoll(Ball->transform.Rotation.x,Ball->transform.Rotation.y,Ball->transform.Rotation.z).Invert());
+					objRender->transform.Rotation = Entities["Object_"+std::to_string(i)].transform.Rotation;
+		    		
+		    		BallCol->bounds.Radius = ballR + colR;
+		    		RemoveComponentFromEntity("Object_"+std::to_string(i), "Collision");
+		    	}
+		    	else
+		    	{
+		    		
+		    	}
+		    }
+		}
 	}
 	ImGui::End();
 }

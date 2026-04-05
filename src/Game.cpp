@@ -554,3 +554,28 @@ bool Game::LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVert
     
 	return true;
 }
+
+void Game::RemoveComponentFromEntity(const std::string& entityName, const std::string& componentName)
+{
+    auto entityIt = Entities.find(entityName);
+    if (entityIt == Entities.end()) return;
+    
+    Entity& entity = entityIt->second;
+    auto compIt = entity.components.find(componentName);
+    if (compIt == entity.components.end()) return;
+    
+    GameComponent* component = compIt->second;
+    
+    auto globalIt = std::find_if(Components.begin(), Components.end(),
+        [component](const std::unique_ptr<GameComponent>& comp) {
+            return comp.get() == component;
+        });
+    
+    if (globalIt != Components.end())
+    {
+        component->DestroyResources();
+        Components.erase(globalIt);
+    }
+    
+    entity.components.erase(compIt);
+}

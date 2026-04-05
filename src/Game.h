@@ -73,12 +73,6 @@ typedef struct Entity {
         return dynamic_cast<T*>(it->second);
     }
 
-    void RemoveComponent(const std::string& name)
-    {
-        components.erase(name);
-        // TODO: Remove from global list
-    }
-
 } Entity;
 
 class Game
@@ -145,7 +139,7 @@ public:
     void RenderImGui();
     
     bool LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVertices, std::vector<std::uint32_t>& outIndices, Vector4 defaultColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-
+    void RemoveComponentFromEntity(const std::string& entityName, const std::string& componentName);
 private:
     void CreateBackBuffer();
 };
