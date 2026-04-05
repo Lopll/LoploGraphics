@@ -29,8 +29,8 @@
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\GeometryGenerator.cpp" />
+    <ClCompile Include="src\Katamari.cpp" />
     <ClCompile Include="src\OrbitalCameraComponent.cpp" />
-    <ClCompile Include="src\Planets.cpp" />
     <ClCompile Include="src\RenderComponent.cpp" />
     <ClCompile Include="src\BlockComponent.cpp" />
     <ClCompile Include="src\Delegates.cpp" />
@@ -56,8 +56,8 @@
     <ClInclude Include="external\imgui\imstb_truetype.h" />
     <ClInclude Include="src\FrameResources.h" />
     <ClInclude Include="src\GeometryGenerator.h" />
+    <ClInclude Include="src\Katamari.h" />
     <ClInclude Include="src\OrbitalCameraComponent.h" />
-    <ClInclude Include="src\Planets.h" />
     <ClInclude Include="src\RenderComponent.h" />
     <ClInclude Include="src\BlockComponent.h" />
     <ClInclude Include="src\Delegates.h" />

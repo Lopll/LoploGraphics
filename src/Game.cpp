@@ -140,21 +140,6 @@ void Game::PrepareResources()
 
 	UpdateProjectionBuffer(Camera->projection, Camera->view);
 	
-	
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
-	
-	if (LoadOBJModel("./Models./Ball.obj", vertices, indices, Color(1,1,1,1)))
-	{
-	    Entity& modelEntity = Entities["Ball"];
-	    
-	    modelEntity.transform.Translation = Vector3(0, 0, 0);
-	    modelEntity.transform.Scale = Vector3(1);
-	    
-		modelEntity.AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, L"./Models./ball_basecolor.dds");
-	}
-	
-	
 	for(auto& component : Components)
 	{
 		component->Initialize();
@@ -549,6 +534,23 @@ bool Game::LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVert
 	        outIndices.push_back(static_cast<std::uint32_t>(outIndices.size()));
 	    }
 	}
+	
+	// center model
+	Vector3 minV(FLT_MAX, FLT_MAX, FLT_MAX);
+    Vector3 maxV(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+    for (const auto& v : outVertices) {
+        minV.x = min(minV.x, v.Pos.x);
+        minV.y = min(minV.y, v.Pos.y);
+        minV.z = min(minV.z, v.Pos.z);
+        
+        maxV.x = max(maxV.x, v.Pos.x);
+        maxV.y = max(maxV.y, v.Pos.y);
+        maxV.z = max(maxV.z, v.Pos.z);
+    }
+    Vector3 center = (minV + maxV) * 0.5f;
+    for (auto& v : outVertices) {
+        v.Pos -= center;
+    }
     
 	return true;
 }

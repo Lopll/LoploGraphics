@@ -48,7 +48,6 @@ void Planets::zoomToFit(Entity entity)
 		worldRadius = 0.5f * sqrt(scale.x*scale.x + scale.y*scale.y + scale.z*scale.z);
 	}
 	
-	std::cout <<worldRadius<<std::endl;
 	cam->lookAtPos = translation;
 	cam->distance = aspectRatio * worldRadius / (sinf(DirectX::XMConvertToRadians(Game::fov)/2.f));
 }
