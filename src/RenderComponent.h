@@ -5,10 +5,14 @@
 #include <d3dcompiler.h>
 #include <wrl/client.h>
 
+#include <DDSTextureLoader.h>
+
+
 struct Vertex
 {
     DirectX::SimpleMath::Vector3 Pos;
     DirectX::SimpleMath::Vector4 Color = {1,1,1,1};
+    DirectX::SimpleMath::Vector2 TexCoord;
 };
 
 class RenderComponent : public GameComponent
@@ -26,7 +30,8 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
     
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
+    const wchar_t* diffuseFilename;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> diffuseTexture;
     Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 #pragma endregion 
     std::vector<std::uint32_t> indices;
@@ -42,10 +47,11 @@ public:
         TransformData& ownerTransform,
         Vector4 Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f),
         GameComponent* parent = nullptr,
-        std::vector<Vertex> Vertices = {{ Vector3(-0.5f, 0.5f, 0.0f),  Color(1, 0, 0) },
-                                        { Vector3(-0.5f, -0.5f, 0.0f), Color(1, 1, 1) },
-                                        { Vector3(0.5f, -0.5f, 0.0f),  Color(0, 0, 1) }},
-        std::vector<std::uint32_t> Indices = { 0, 1, 2 }
+        std::vector<Vertex> Vertices = {{ Vector3(-0.5f, 0.5f, 0.0f),  Color(1, 0, 0), Vector2(0,0) },
+                                        { Vector3(-0.5f, -0.5f, 0.0f), Color(1, 1, 1), Vector2(0,0) },
+                                        { Vector3(0.5f, -0.5f, 0.0f),  Color(0, 0, 1), Vector2(0,0) }},
+        std::vector<std::uint32_t> Indices = { 0, 1, 2 },
+        const wchar_t* diffuse = L""
     );
 
     void DestroyResources() override;

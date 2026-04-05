@@ -144,14 +144,14 @@ void Game::PrepareResources()
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 	
-	if (LoadOBJModel("./Ball.obj", vertices, indices, Color(1,1,1,1)))
+	if (LoadOBJModel("./Models./Ball.obj", vertices, indices, Color(1,1,1,1)))
 	{
 	    Entity& modelEntity = Entities["Ball"];
 	    
 	    modelEntity.transform.Translation = Vector3(0, 0, 0);
 	    modelEntity.transform.Scale = Vector3(1);
 	    
-		modelEntity.AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices);
+		modelEntity.AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, L"./Models./ball_basecolor.dds");
 	}
 	
 	
@@ -523,10 +523,6 @@ bool Game::LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVert
 	    return false;
 	}
     
-	std::cout << "Loading OBJ: " << filepath << std::endl;
-	std::cout << "Vertices count: " << attrib.vertices.size() / 3 << std::endl;
-	std::cout << "Shapes count: " << shapes.size() << std::endl;
-    
 	for (const auto& shape : shapes) {
 	    for (const auto& index : shape.mesh.indices) {
 	        Vertex vertex;
@@ -536,14 +532,21 @@ bool Game::LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVert
 	        vertex.Pos.z = attrib.vertices[3 * index.vertex_index + 2];
             
 	        vertex.Color = defaultColor;
+	        
+	        if(index.texcoord_index >= 0 && attrib.texcoords.size() > 0)
+	        {
+	        	vertex.TexCoord.x = attrib.texcoords[2*index.texcoord_index + 0];
+	        	vertex.TexCoord.y = 1.0f - attrib.texcoords[2*index.texcoord_index + 1];
+	        }
+	        else
+	        {
+	        	vertex.TexCoord = Vector2(0,0);
+	        }
             
 	        outVertices.push_back(vertex);
 	        outIndices.push_back(static_cast<std::uint32_t>(outIndices.size()));
 	    }
 	}
-    
-	std::cout << "Loaded " << outVertices.size() << " vertices, " 
-	          << outIndices.size() << " indices" << std::endl;
     
 	return true;
 }

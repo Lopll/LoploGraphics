@@ -20,16 +20,18 @@ struct VS_IN
 {
 	float3 posL : POSITION0;
 	float4 col : COLOR0;
+ 	float2 tex : TEXCOORD0;
 };
 
 struct PS_IN
 {
 	float4 posH : SV_POSITION;
  	float4 col : COLOR;
+ 	float2 tex : TEXCOORD0;
 };
 
-// Texture2D DiffuseMap : register(t0);
-// SamplerState Sampler ; register(s0);
+Texture2D DiffuseMap : register(t0);
+SamplerState Sampler : register(s0);
 
 PS_IN VSMain( VS_IN input )
 {
@@ -42,12 +44,13 @@ PS_IN VSMain( VS_IN input )
 
 
     output.col = input.col;
+    output.tex = input.tex;
 	
 	return output;
 }
 
 float4 PSMain( PS_IN input ) : SV_Target
 {
-	float4 col = constantData.color;//DiffuseMap.Sample(Sampler, input.tex.xy);//
+	float4 col = DiffuseMap.Sample(Sampler, input.tex.xy);//constantData.color;//
 	return col;
 }

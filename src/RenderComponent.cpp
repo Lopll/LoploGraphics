@@ -2,9 +2,9 @@
 #include "Game.h"
 #include <array>
 
-RenderComponent::RenderComponent(TransformData& ownerTransform, Vector4 Color, GameComponent* parent, std::vector<Vertex> Vertices, std::vector<std::uint32_t> Indices)
+RenderComponent::RenderComponent(TransformData& ownerTransform, Vector4 Color, GameComponent* parent, std::vector<Vertex> Vertices, std::vector<std::uint32_t> Indices, const wchar_t* diffuse)
 	: GameComponent(ownerTransform, Color, parent),
-	vertices(Vertices), indices(Indices)
+	vertices(Vertices), indices(Indices), diffuseFilename(diffuse)
 {}
 
 void RenderComponent::LoadShadersAndLayout()
@@ -74,11 +74,19 @@ void RenderComponent::LoadShadersAndLayout()
 		0,
 		D3D11_APPEND_ALIGNED_ELEMENT,
 		D3D11_INPUT_PER_VERTEX_DATA,
+		0},
+	D3D11_INPUT_ELEMENT_DESC {
+		"TEXCOORD",
+		0,
+		DXGI_FORMAT_R32G32_FLOAT,
+		0,
+		28,
+		D3D11_INPUT_PER_VERTEX_DATA,
 		0}
 	};
 	Game::Instance->Device->CreateInputLayout(
 		inputElements,
-		2,
+		3,
 		vertexShaderByteCode->GetBufferPointer(),
 		vertexShaderByteCode->GetBufferSize(),
 		&layout);
@@ -158,6 +166,12 @@ void RenderComponent::LoadGeometry()
 	samplerDesc.BorderColor[3] = 1.0f;
 	samplerDesc.MaxLOD = INT_MAX;
 	Game::Instance->Device->CreateSamplerState(&samplerDesc, &sampler);
+	
+	// texture
+	if(diffuseFilename != L"")
+	{
+		DirectX::CreateDDSTextureFromFile(Game::Instance->Device.Get(), Game::Instance->Context.Get(), diffuseFilename, nullptr, diffuseTexture.GetAddressOf());
+	}
 }
 
 void RenderComponent::Initialize()
@@ -196,9 +210,12 @@ void RenderComponent::Draw()
 	Game::Instance->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	Game::Instance->Context->PSSetShader(pixelShader.Get(), nullptr, 0);
 	
-	// context->PSSetShaderResources(0, 1, &textureResourceView);
-	// context->PSSetSamplers(0, 1, &sampler);
 	
+	if(diffuseFilename != L"")
+	{
+		Game::Instance->Context->PSSetShaderResources(0, 1, diffuseTexture.GetAddressOf());
+		Game::Instance->Context->PSSetSamplers(0, 1, sampler.GetAddressOf());
+	}
 	
 	Game::Instance->Context->DrawIndexed(indices.size(), 0, 0);
 }
