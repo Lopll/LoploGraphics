@@ -105,11 +105,16 @@ void Katamari::Update(float dt)
 	if( movementInput.y or movementInput.x)
     {	
         Vector3 camRot = Game::Entities["Orbital_Camera"].transform.Rotation;
+        Quaternion cameraRotation = Quaternion::CreateFromYawPitchRoll(-camRot.x, 0, 0.0f);
     	// rotation
         movementInput.Normalize();
-        float speed = rotationSpeed * dt;
+        float speed = 2 * rotationSpeed * dt;
         Vector3 rotationAxis = Vector3(movementInput.x, 0.0f, movementInput.y);
         Quaternion deltaRotation = Quaternion::CreateFromAxisAngle(rotationAxis, speed);
+
+        Quaternion cameraConjugate = cameraRotation;
+	    cameraConjugate.Conjugate();
+	    deltaRotation = cameraRotation * deltaRotation * cameraConjugate;
         
         Quaternion currentRotation;
         Vector3 scale;
@@ -120,9 +125,10 @@ void Katamari::Update(float dt)
         
         Ball->transform.Rotation = newRotation.ToEuler();
         
-        Vector3 moveDelta = Vector3(-movementInput.y, 0.f, movementInput.x);
-        moveDelta = Vector3::Transform(moveDelta, Matrix::CreateFromYawPitchRoll(camRot.x, 0, 0));
-        Ball->transform.Translation += moveDelta;
+        // movement
+		Vector3 moveDelta = Vector3(-movementInput.y, 0.f, movementInput.x);
+		moveDelta = Vector3::Transform(moveDelta, Matrix::CreateFromYawPitchRoll(camRot.x, 0, 0));
+		Ball->transform.Translation += moveDelta;
         
         movementInput = Vector2(0.0f, 0.0f);
     }
