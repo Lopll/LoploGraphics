@@ -4,6 +4,7 @@
 #include "CameraComponent.h"
 #include "RectangleComponent.h"
 #include "RenderComponent.h"
+#include "CollisionSphereComponent.h"
 #include "GeometryGenerator.h"
 #include <random>
 #include <vector>
@@ -25,8 +26,7 @@ const std::vector<ModelAsset> AVAILABLE_MODELS = {
     ModelAsset("Ball", "./Models./Ball.obj", L"./Models./ball_basecolor.dds"),
     ModelAsset("OldChair", "./Models/old_chair.obj", L"./Models/old_chair_diffuse.dds"),
     ModelAsset("OldChair", "./Models./childrens_chair.obj", L"./Models./childrens_chair_diffuse.dds"),
-    ModelAsset("OldChair", "./Models./coffee_table.obj", L"./Models./coffee_table_diffuse.dds"),
-    ModelAsset("OldChair", "./Models./stool.obj", L"./Models./stool.dds")
+    ModelAsset("OldChair", "./Models./coffee_table.obj", L"./Models./coffee_table_diffuse.dds")
 };
 
 int objectCount = 10;
@@ -35,13 +35,14 @@ inline int height = 640;
 
 inline std::random_device katamariRd;
 inline std::mt19937 katamariGen(katamariRd());
-inline std::uniform_real_distribution<> scaleDist(0.3, 2.5);      
-inline std::uniform_real_distribution<> posDist(-500.0f, 500.0f);   
-inline std::uniform_int_distribution<> modelDist(0, 4); 
+inline std::uniform_real_distribution<> scaleDist(0.05, 2);      
+inline std::uniform_real_distribution<> posDist(-300.0f, 300.0f);   
+inline std::uniform_int_distribution<> modelDist(0, 3); 
 
 Vector2 movementInput = Vector2(0,0);
 float rotationSpeed = 1.f;
 RenderComponent* Ball = nullptr;
+CollisionSphereComponent* BallCol = nullptr;
 
 Katamari::Katamari():
     Game(L"LoploKatamari", width, height)
@@ -51,9 +52,10 @@ Katamari::Katamari():
 	
 	if (LoadOBJModel("./Models./Ball.obj", vertices, indices, Color(1,1,1,1)))
 	{
-	    Entities["Ball"].transform.Translation = Vector3(0, 0, 0);
+	    Entities["Ball"].transform.Translation = Vector3(350, 0, 0);
 	    Entities["Ball"].transform.Scale = Vector3(1);
 		Ball = Entities["Ball"].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, L"./Models./ball_basecolor.dds");
+		BallCol = Entities["Ball"].AddComponent<CollisionSphereComponent>("Collision", Vector3(), Ball->CalculateBoundingRadius());
 	}
 	
 	for(int i = 0; i < objectCount; i++)
@@ -65,7 +67,8 @@ Katamari::Katamari():
 		{
 		    Entities["Object_"+std::to_string(i)].transform.Translation = Vector3(posDist(katamariGen), 0, posDist(katamariGen));
 		    Entities["Object_"+std::to_string(i)].transform.Scale = Vector3(scaleDist(katamariGen));
-			Entities["Object_"+std::to_string(i)].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vert, ind, rndModel.texturePath);
+			RenderComponent* rend = Entities["Object_"+std::to_string(i)].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vert, ind, rndModel.texturePath);
+			Entities["Object_"+std::to_string(i)].AddComponent<CollisionSphereComponent>("Collision", Vector3(), rend->CalculateBoundingRadius());
 		}
 		else
 		{
@@ -140,6 +143,39 @@ void Katamari::Update(float dt)
 	{
 		component->Update(dt);
 	}
+	
+	
+	ImGui::Begin("Collision Debug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	
+	for(int i = 0; i < objectCount; i++)
+	{
+		CollisionSphereComponent* col = Entities["Object_"+std::to_string(i)].GetComponent<CollisionSphereComponent>("Collision");
+		DirectX::ContainmentType type = BallCol->bounds.Contains(col->bounds);
+		const char* typeStr = (type == DirectX::CONTAINS) ? "CONTAINS" : (type == DirectX::INTERSECTS) ? "INTERSECTS" : "DISJOINT";
+	    ImGui::TextColored(type == DirectX::CONTAINS ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0.5f, 0, 1), "Ball-object_%d Contains result: %s", i,typeStr);
+	    
+	    float maxBallScale = max(Ball->transform.Scale.x,max(Ball->transform.Scale.y,Ball->transform.Scale.z));
+	    float ballR = maxBallScale * BallCol->bounds.Radius;
+	    float maxObjScale = max(Entities["Object_"+std::to_string(i)].transform.Scale.x,max(Entities["Object_"+std::to_string(i)].transform.Scale.y,Entities["Object_"+std::to_string(i)].transform.Scale.z));
+		float colR = col->bounds.Radius * maxObjScale;
+	    
+	    if(type == DirectX::INTERSECTS)
+	    {
+	    	if(ballR > colR)
+	    	{
+	    		std::cout<<"KA TA MA RI!\n";
+	    		// set parent
+	    		// handle transform
+	    		BallCol->bounds.Radius = ballR + (2*colR);
+	    		Sleep(100);
+	    	}
+	    	else
+	    	{
+	    		
+	    	}
+	    }
+	}
+	ImGui::End();
 }
 
 void Katamari::UpdateInput()

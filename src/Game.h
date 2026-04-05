@@ -51,8 +51,8 @@ typedef struct Entity {
     template<typename T, typename... Args>
     T* AddComponent(const std::string& name, Args&&... args)
     {
-        static_assert(std::is_base_of_v<GameComponent, T>,
-            "T must derive from GameComponent!");
+        // static_assert(std::is_base_of_v<GameComponent, T>,
+            // "T must derive from GameComponent!");
 
         auto newComp = std::make_unique<T>(transform, std::forward<Args>(args)...);
 
@@ -62,12 +62,6 @@ typedef struct Entity {
         Game::Instance->Components.push_back(std::move(newComp));
         return rawPtr;
     }
-
-    // template<typename T>
-    // T* AddComponentDefault(const std::string& name)
-    // {
-    //     return AddComponent<T>(name);
-    // }
 
     template<typename T>
     T* GetComponent(const std::string& name)

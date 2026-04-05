@@ -256,3 +256,19 @@ void RenderComponent::DestroyResources()
 	vertexShaderByteCode->Release();
 	constantBuffer->Release();
 }
+
+float RenderComponent::CalculateBoundingRadius()
+{
+	float boundingRadius = 0.f;
+    for (const auto& vertex : vertices)
+    {
+        float dist = vertex.Pos.Length();
+        if (dist > boundingRadius)
+        {
+            boundingRadius = dist;
+        }
+    }
+    
+    float maxScale = max(transform.Scale.x, max(transform.Scale.y, transform.Scale.z));
+    return boundingRadius *= maxScale;
+}

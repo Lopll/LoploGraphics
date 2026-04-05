@@ -28,6 +28,7 @@
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\CollisionSphereComponent.cpp" />
     <ClCompile Include="src\GeometryGenerator.cpp" />
     <ClCompile Include="src\Katamari.cpp" />
     <ClCompile Include="src\OrbitalCameraComponent.cpp" />
@@ -54,6 +55,7 @@
     <ClInclude Include="external\imgui\imstb_rectpack.h" />
     <ClInclude Include="external\imgui\imstb_textedit.h" />
     <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\CollisionSphereComponent.h" />
     <ClInclude Include="src\FrameResources.h" />
     <ClInclude Include="src\GeometryGenerator.h" />
     <ClInclude Include="src\Katamari.h" />

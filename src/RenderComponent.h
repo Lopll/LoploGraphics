@@ -42,6 +42,9 @@ protected:
 public:
     bool wireframe = false;
     std::vector<Vertex> vertices;
+    
+    
+    
     RenderComponent
     (
         TransformData& ownerTransform,
@@ -53,6 +56,8 @@ public:
         std::vector<std::uint32_t> Indices = { 0, 1, 2 },
         const wchar_t* diffuse = L""
     );
+    
+    float CalculateBoundingRadius();
 
     void DestroyResources() override;
     void Draw() override;
