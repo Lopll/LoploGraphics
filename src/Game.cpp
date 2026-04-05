@@ -511,7 +511,9 @@ bool Game::LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVert
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
     
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filepath.c_str());          
+    std::string objDirectory = filepath.substr(0, filepath.find_last_of("/\\") + 1);
+    
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filepath.c_str(), objDirectory.c_str(), true);          
     
 	if (!err.empty()) {
 	    std::cerr << "OBJ Error: " << err << std::endl;
