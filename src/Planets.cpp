@@ -48,7 +48,6 @@ void Planets::zoomToFit(Entity entity)
 		worldRadius = 0.5f * sqrt(scale.x*scale.x + scale.y*scale.y + scale.z*scale.z);
 	}
 	
-	std::cout <<worldRadius<<std::endl;
 	cam->lookAtPos = translation;
 	cam->distance = aspectRatio * worldRadius / (sinf(DirectX::XMConvertToRadians(Game::fov)/2.f));
 }
@@ -173,29 +172,30 @@ Planets::Planets():
 
 void Planets::Update(float dt)
 {
-    Game::Update(dt);
+    
     
     for(auto& component : Components)
 	{
 		component->Update(dt);
 	}
-	// Entities["Sun"].transform.Rotation.y += (float)dis(gen) * dt / 2;
-	// for(int i = 1; i <= planetsCount; i++)
-	// {
-	// 	Entities["Planet_"+std::to_string(i)].transform.Rotation.y -= (float)dis(gen) * dt;
-	// 	Matrix rot = Matrix::CreateRotationY(orbitSpeeds[i] * dt);
-	// 	Entities["Planet_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Planet_"+std::to_string(i)].transform.Translation, rot);
-        
-	//     Entities["Moon_"+std::to_string(i)].transform.Rotation.y += (float)dis(gen) * dt;
-	// 	rot = Matrix::CreateRotationY(orbitMoonSpeeds[i] * dt);
-	// 	Entities["Moon_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Moon_"+std::to_string(i)].transform.Translation, rot);
-	// }
-    
-    
-    if(zoomToFitOn)
+	if(zoomToFitOn)
     {
     	zoomToFit(*zoomTarget);
     }
+	Game::Update(dt);
+	
+	Entities["Sun"].transform.Rotation.y += (float)dis(gen) * dt / 2;
+	for(int i = 1; i <= planetsCount; i++)
+	{
+		Entities["Planet_"+std::to_string(i)].transform.Rotation.y -= (float)dis(gen) * dt;
+		
+		Matrix rot = Matrix::CreateRotationY(orbitSpeeds[i] * dt);
+		Entities["Planet_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Planet_"+std::to_string(i)].transform.Translation, rot);
+        
+		Entities["Moon_"+std::to_string(i)].transform.Rotation.y += (float)dis(gen) * dt;
+		rot = Matrix::CreateRotationY(orbitMoonSpeeds[i] * dt);
+		Entities["Moon_"+std::to_string(i)].transform.Translation = Vector3::Transform(Entities["Moon_"+std::to_string(i)].transform.Translation, rot);
+	}
 }
 
 void Planets::UpdateInput()
@@ -212,6 +212,12 @@ void Planets::UpdateInput()
     {
     	zoomToFitOn = true;
     	zoomTarget = &Entities["Planet_1"]; 
+		Sleep(100);
+    }
+    if(Input.IsKeyDown(Keys::D3))
+    {
+    	zoomToFitOn = true;
+    	zoomTarget = &Entities["Moon_1"]; 
 		Sleep(100);
     }
     if(Input.IsKeyDown(Keys::D0))
