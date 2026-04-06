@@ -25,8 +25,8 @@ struct ModelAsset
 const std::vector<ModelAsset> AVAILABLE_MODELS = {
     ModelAsset("Ball", "./Models./Ball.obj", L"./Models./ball_basecolor.dds"),
     ModelAsset("OldChair", "./Models/old_chair.obj", L"./Models/old_chair_diffuse.dds"),
-    ModelAsset("OldChair", "./Models./childrens_chair.obj", L"./Models./childrens_chair_diffuse.dds"),
-    ModelAsset("OldChair", "./Models./coffee_table.obj", L"./Models./coffee_table_diffuse.dds")
+    ModelAsset("ChildChair", "./Models./childrens_chair.obj", L"./Models./childrens_chair_diffuse.dds"),
+    ModelAsset("Table", "./Models./coffee_table.obj", L"./Models./coffee_table_diffuse.dds")
 };
 
 int objectCount = 10;
@@ -36,7 +36,7 @@ inline int height = 640;
 inline std::random_device katamariRd;
 inline std::mt19937 katamariGen(katamariRd());
 inline std::uniform_real_distribution<> scaleDist(0.05, 2);      
-inline std::uniform_real_distribution<> posDist(-300.0f, 300.0f);   
+inline std::uniform_real_distribution<> posDist(-400.0f, 400.0f);   
 inline std::uniform_int_distribution<> modelDist(0, 3); 
 
 Vector2 movementInput = Vector2(0,0);
@@ -54,6 +54,7 @@ Katamari::Katamari():
 	{
 	    Entities["Ball"].transform.Translation = Vector3(350, 0, 0);
 	    Entities["Ball"].transform.Scale = Vector3(1);
+	    Entities["Ball"].transform.Rotation = Vector3(90, 0, 0);
 		Ball = Entities["Ball"].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, L"./Models./ball_basecolor.dds");
 		BallCol = Entities["Ball"].AddComponent<CollisionSphereComponent>("Collision", Vector3(), Ball->CalculateBoundingRadius());
 		
@@ -131,7 +132,7 @@ void Katamari::Update(float dt)
         
         Quaternion newRotation = currentRotation * deltaRotation;
         
-        Ball->transform.Rotation = newRotation.ToEuler();
+		Ball->transform.Rotation = newRotation.ToEuler();
         
         // movement
 		Vector3 moveDelta = Vector3(-movementInput.y, 0.f, movementInput.x);
@@ -174,14 +175,14 @@ void Katamari::Update(float dt)
 		    		RenderComponent* objRender = Entities["Object_"+std::to_string(i)].GetComponent<RenderComponent>("Mesh");
 				    objRender->Parent = Ball;
 				    
-				    Vector3 worldObjPos = Entities["Object_"+std::to_string(i)].transform.Translation;
-				    Vector3 worldBallPos = Entities["Ball"].transform.Translation;
-				    Vector3 localPos = worldObjPos - worldBallPos;
+				    Matrix ballWorld = Matrix::CreateScale(Ball->transform.Scale) * Matrix::CreateFromYawPitchRoll(Ball->transform.Rotation) * Matrix::CreateTranslation(Entities["Ball"].transform.Translation);
+					Matrix worldToLocal = ballWorld.Invert();
 				    
-				    objRender->transform.Translation = Vector3::Transform(localPos,Matrix::CreateFromYawPitchRoll(Ball->transform.Rotation.x,Ball->transform.Rotation.y,Ball->transform.Rotation.z).Invert());
-					objRender->transform.Rotation = Entities["Object_"+std::to_string(i)].transform.Rotation;
+				    objRender->transform.Translation = Vector3::Transform(objRender->transform.Translation, worldToLocal);
+					objRender->transform.Rotation = Vector3::Transform(objRender->transform.Rotation,worldToLocal);
+					// objRender->transform.Scale = ; - scale of ball is 1
 		    		
-		    		BallCol->bounds.Radius = ballR + colR;
+					BallCol->bounds.Radius = ballR + colR;
 		    		RemoveComponentFromEntity("Object_"+std::to_string(i), "Collision");
 		    	}
 		    	else
