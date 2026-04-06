@@ -52,7 +52,7 @@ Katamari::Katamari():
 	
 	if (LoadOBJModel("./Models./Ball.obj", vertices, indices, Color(1,1,1,1)))
 	{
-	    Entities["Ball"].transform.Translation = Vector3(350, 0, 0);
+	    Entities["Ball"].transform.Translation = Vector3(400, 0, 0);
 	    Entities["Ball"].transform.Scale = Vector3(1);
 	    Entities["Ball"].transform.Rotation = Vector3(90, 0, 0);
 		Ball = Entities["Ball"].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, L"./Models./ball_basecolor.dds");
@@ -151,7 +151,7 @@ void Katamari::Update(float dt)
 	}
 	
 	
-	ImGui::Begin("Collision Debug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	// ImGui::Begin("Collision Debug", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	
 	for(int i = 0; i < objectCount; i++)
 	{
@@ -161,7 +161,7 @@ void Katamari::Update(float dt)
 		{
 			DirectX::ContainmentType type = BallCol->bounds.Contains(col->bounds);
 			const char* typeStr = (type == DirectX::CONTAINS) ? "CONTAINS" : (type == DirectX::INTERSECTS) ? "INTERSECTS" : "DISJOINT";
-		    ImGui::TextColored(type == DirectX::CONTAINS ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0.5f, 0, 1), "Ball-object_%d Contains result: %s", i,typeStr);
+			// ImGui::TextColored(type == DirectX::CONTAINS ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0.5f, 0, 1), "Ball-object_%d Contains result: %s", i,typeStr);
 		    
 		    float maxBallScale = max(Ball->transform.Scale.x,max(Ball->transform.Scale.y,Ball->transform.Scale.z));
 		    float ballR = maxBallScale * BallCol->bounds.Radius;
@@ -192,7 +192,7 @@ void Katamari::Update(float dt)
 		    }
 		}
 	}
-	ImGui::End();
+	// ImGui::End();
 }
 
 void Katamari::UpdateInput()
