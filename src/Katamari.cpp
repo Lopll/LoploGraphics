@@ -1,3 +1,5 @@
+// double jump
+
 #include "Katamari.h"
 
 #include "RectangleComponent.h"
@@ -28,6 +30,12 @@ const std::vector<ModelAsset> AVAILABLE_MODELS = {
     ModelAsset("ChildChair", "./Models./childrens_chair.obj", L"./Models./childrens_chair_diffuse.dds"),
     ModelAsset("Table", "./Models./coffee_table.obj", L"./Models./coffee_table_diffuse.dds")
 };
+
+float floorY = 0.f;
+float ySpeed = 0.f;
+float g = 30;
+float jumpForce = 35;
+int jumpCount = 0;
 
 int objectCount = 10;
 inline int width = 640;
@@ -111,7 +119,7 @@ void Katamari::zoomToFit(Entity entity)
 
 void Katamari::Update(float dt)
 {
-	if( movementInput.y or movementInput.x)
+	if( (movementInput.y or movementInput.x) && jumpCount == 0)
     {	
         Vector3 camRot = Game::Entities["Orbital_Camera"].transform.Rotation;
         Quaternion cameraRotation = Quaternion::CreateFromYawPitchRoll(-camRot.x, 0, 0.0f);
@@ -178,10 +186,18 @@ void Katamari::Update(float dt)
 				    Matrix ballWorld = Matrix::CreateScale(Ball->transform.Scale) * Matrix::CreateFromYawPitchRoll(Ball->transform.Rotation) * Matrix::CreateTranslation(Entities["Ball"].transform.Translation);
 					Matrix worldToLocal = ballWorld.Invert();
 				    
-				    objRender->transform.Translation = Vector3::Transform(objRender->transform.Translation, worldToLocal);
-					objRender->transform.Rotation = Vector3::Transform(objRender->transform.Rotation,worldToLocal);
-					// objRender->transform.Scale = ; - scale of ball is 1
-		    		
+					Matrix objectWorld = Matrix::CreateScale(objRender->transform.Scale) * Matrix::CreateFromYawPitchRoll(objRender->transform.Rotation) * Matrix::CreateTranslation(objRender->transform.Translation);
+					objectWorld *= worldToLocal;
+					
+					Vector3 scale;
+					Quaternion rotation;
+					Vector3 translation;
+					objectWorld.Decompose(scale, rotation, translation);
+					
+					objRender->transform.Translation = translation;
+					objRender->transform.Rotation = rotation.ToEuler();
+					objRender->transform.Scale = scale;
+					
 					BallCol->bounds.Radius = ballR + colR;
 		    		RemoveComponentFromEntity("Object_"+std::to_string(i), "Collision");
 		    	}
@@ -193,6 +209,22 @@ void Katamari::Update(float dt)
 		}
 	}
 	// ImGui::End();
+	
+	// grabity
+	if(Ball->transform.Translation.y > floorY)
+	{
+		ySpeed -= g * dt;
+	}
+	else if (jumpCount != 0 && Ball->transform.Translation.y != floorY)
+	{
+		jumpCount = 0;
+		ySpeed = 0.f;
+		Ball->transform.Translation.y = floorY;
+	}
+	if(ySpeed != 0.f)
+	{
+		Ball->transform.Translation.y += ySpeed * dt;
+	}
 }
 
 void Katamari::UpdateInput()
@@ -215,4 +247,10 @@ void Katamari::UpdateInput()
     {
 		movementInput.x += 1.f;
     }
+	if(Input.IsKeyDown(Keys::Space) && jumpCount <= 2)
+	{
+		ySpeed = jumpForce;
+		jumpCount++;
+		Sleep(100);
+	}
 }
