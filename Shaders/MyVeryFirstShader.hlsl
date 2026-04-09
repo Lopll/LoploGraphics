@@ -66,17 +66,23 @@ PS_IN VSMain( VS_IN input )
 
 float4 PSMain( PS_IN input ) : SV_Target
 {
-	float4 materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
-	
-	
-	float3 lightDir = normalize(lightDirection); 
-	float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
-	float3 reflectDir = reflect(-lightDir, input.normal); 
-	float RdotV = max(dot(reflectDir, viewDir), 0.0);
-	
-	float4 diffuse = materialDiffuse * lightIntencity * dot(lightDir, input.normal);
-	float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, constantData.materialAlpha);
-	float ambientIntencity = 0.618f;
-	float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
-	return diffuse + specular + ambient;
+	if(constantData.materialAlpha != -1)
+	{
+		float4 materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
+		
+		float3 lightDir = normalize(lightDirection); 
+		float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
+		float3 reflectDir = reflect(-lightDir, input.normal); 
+		float RdotV = max(dot(reflectDir, viewDir), 0.0);
+		
+		float4 diffuse = materialDiffuse * lightIntencity * dot(lightDir, input.normal);
+		float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, constantData.materialAlpha);
+		float ambientIntencity = 0.618f;
+		float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
+		return diffuse + specular + ambient;
+	}
+	else
+	{
+		return constantData.color;
+	}
 }

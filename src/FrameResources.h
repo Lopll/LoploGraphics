@@ -9,7 +9,7 @@ struct ObjectConstants
     Matrix World = Matrix::Identity;
     Color Col = Color(1, 0, 0);
     
-    Vector4 MaterialSpecular = Vector4(1);// TODO create a options for models 
+    Vector4 MaterialSpecular = Vector4(1);
     Vector3 MaterialAmbient = Vector3(1);
     float MaterialAlpha = 32;
     

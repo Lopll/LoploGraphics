@@ -58,6 +58,19 @@ CollisionSphereComponent* BallCol = nullptr;
 Katamari::Katamari():
     Game(L"LoploKatamari", width, height)
 {
+	GeometryGenerator geoGen;
+	GeometryGenerator::MeshData mesh = geoGen.CreateBox(1, 1, 1, 2);
+	std::vector<Vertex> floorVertices;
+	floorVertices.resize(mesh.Vertices.size());
+	for (int i = 0; i < mesh.Vertices.size(); i++)
+	{
+		floorVertices[i].Pos = mesh.Vertices[i].Position;
+	}
+	Entities["Floor"].AddComponent<RenderComponent>("Mesh", Color(0.5f,0.5f,0.5f,1.0f), nullptr, floorVertices, mesh.Indices32);
+	Entities["Floor"].transform.Scale = Vector3(1000.f,1.f,1000.f);
+	Entities["Floor"].transform.Translation = Vector3(0.f,-35.f,0.f);
+	Entities["Floor"].GetComponent<RenderComponent>("Mesh")->constantData.MaterialAlpha = -1.f;
+	
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 	struct ModelAsset ballModel = AVAILABLE_MODELS[0];
