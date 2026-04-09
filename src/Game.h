@@ -1,4 +1,3 @@
-// TODO: all com pointers?
 // MEGA TODO: 
 #pragma once
 
@@ -75,10 +74,20 @@ typedef struct Entity {
 
 } Entity;
 
+struct LightSource
+{
+	Vector3 Direction;
+	float Intencity;
+	LightSource(Vector3 dir = Vector3(0.f), float i = 1.f): Direction(dir), Intencity(i) {};
+};
+
 class Game
 {
 public:
     DisplayWin32 Display;
+    
+    struct LightSource directionalLight;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> LightBuffer;
     
     CameraComponent* Camera;
     float fov = 103.f;

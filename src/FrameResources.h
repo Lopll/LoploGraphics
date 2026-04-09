@@ -2,15 +2,29 @@
 
 #include <SimpleMath.h>
 
+using namespace DirectX::SimpleMath;
+
 struct ObjectConstants
 {
-    DirectX::SimpleMath::Matrix World = DirectX::SimpleMath::Matrix::Identity;
-    DirectX::SimpleMath::Color Color = DirectX::SimpleMath::Color(1, 0, 0);
+    Matrix World = Matrix::Identity;
+    Color Col = Color(1, 0, 0);
+    
+    Vector4 MaterialSpecular = Vector4(1);// TODO create a options for models 
+    Vector3 MaterialAmbient = Vector3(1);
+    float MaterialAlpha = 32;
+    
 };
 
 struct PassConstants
 {
-    DirectX::SimpleMath::Matrix Proj = DirectX::SimpleMath::Matrix::Identity;
-    DirectX::SimpleMath::Matrix InvProj = DirectX::SimpleMath::Matrix::Identity;
-    DirectX::SimpleMath::Matrix View = DirectX::SimpleMath::Matrix::Identity;
+    Matrix Proj = Matrix::Identity;
+    Matrix InvProj = Matrix::Identity;
+    Matrix View = Matrix::Identity;
+    Matrix InvView = Matrix::Identity;
+};
+
+struct LightPass
+{
+    float LightIntencity = 1.f;
+    Vector3 LightDirection = Vector3(0.f);
 };

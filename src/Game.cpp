@@ -33,6 +33,8 @@ Game::Game(LPCWSTR Name, int width, int height):
     Camera = Entities["Orbital_Camera"].AddComponent<OrbitalCameraComponent>("Orbital_Camera");
     Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
     Camera->SetLookAt(Vector3());
+    
+    directionalLight = LightSource(Vector3(0.5f, -0.5f, 0.2f), 1.f);
 }
 
 void Game::CreateBackBuffer()
@@ -137,6 +139,16 @@ void Game::PrepareResources()
 
 		Device->CreateBuffer(&desc, nullptr, ProjectionBuffer.GetAddressOf());
 	}
+	
+	if(!LightBuffer)
+	{
+		D3D11_BUFFER_DESC lightBuffDesc = {};
+		lightBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
+		lightBuffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		lightBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		lightBuffDesc.ByteWidth = sizeof(LightPass);
+		Game::Instance->Device->CreateBuffer(&lightBuffDesc, nullptr, LightBuffer.GetAddressOf());
+	}
 
 	UpdateProjectionBuffer(Camera->projection, Camera->view);
 	
@@ -157,6 +169,15 @@ void Game::Update(float dt)
 		component->Update(dt);
 	}
 	
+	// Light update
+	D3D11_MAPPED_SUBRESOURCE mapped = {};
+	Context->Map(LightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	LightPass lightData;
+	lightData.LightIntencity = directionalLight.Intencity;
+	lightData.LightDirection = directionalLight.Direction;
+	lightData.LightDirection.Normalize();
+	memcpy(mapped.pData, &lightData, sizeof(LightPass));
+	Context->Unmap(LightBuffer.Get(), 0);
 }
 
 void Game::UpdateInput()
@@ -446,7 +467,7 @@ void Game::UpdateProjectionBuffer(Matrix proj, Matrix view)
 	Matrix tProj = proj.Transpose();
 	Matrix tView = view.Transpose();
 	
-	PassConstants temp = { tProj, tProj.Invert(), tView };
+	PassConstants temp = { tProj, tProj.Invert(), tView, tView.Invert() };
 
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
 	Context->Map(ProjectionBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
@@ -529,6 +550,17 @@ bool Game::LoadOBJModel(const std::string filepath, std::vector<Vertex>& outVert
 	        {
 	        	vertex.TexCoord = Vector2(0,0);
 	        }
+	        
+	        if (index.normal_index >= 0 && attrib.normals.size() > 0)
+			{
+			    vertex.Normal.x = attrib.normals[3 * index.normal_index + 0];
+			    vertex.Normal.y = attrib.normals[3 * index.normal_index + 1];
+			    vertex.Normal.z = attrib.normals[3 * index.normal_index + 2];
+			}
+			else
+			{
+			    vertex.Normal = Vector3(0, 1, 0); 
+			}
             
 	        outVertices.push_back(vertex);
 	        outIndices.push_back(static_cast<std::uint32_t>(outIndices.size()));

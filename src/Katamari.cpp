@@ -19,16 +19,19 @@ struct ModelAsset
     std::string name;
     std::string modelPath;
     const wchar_t* texturePath;
+    Vector4 materialSpecular;
+    Vector3 materialAmbient;
+    float materialAlpha;
     
-    ModelAsset(const std::string& n, const std::string& m, const wchar_t* t)
-        : name(n), modelPath(m), texturePath(t) {}
+    ModelAsset(const std::string& n, const std::string& m, const wchar_t* t, Vector4 spec, Vector3 amb, float alpha)
+        : name(n), modelPath(m), texturePath(t), materialSpecular(spec), materialAmbient(amb), materialAlpha(alpha) {}
 };
 
 const std::vector<ModelAsset> AVAILABLE_MODELS = {
-    ModelAsset("Ball", "./Models./Ball.obj", L"./Models./ball_basecolor.dds"),
-    ModelAsset("OldChair", "./Models/old_chair.obj", L"./Models/old_chair_diffuse.dds"),
-    ModelAsset("ChildChair", "./Models./childrens_chair.obj", L"./Models./childrens_chair_diffuse.dds"),
-    ModelAsset("Table", "./Models./coffee_table.obj", L"./Models./coffee_table_diffuse.dds")
+    ModelAsset("Ball", "./Models./Ball.obj", L"./Models./ball_basecolor.dds", Vector4(0.3f, 0.3f, 0.3f, 1.f), Vector3(0.8f, 0.6f, 0.5f), 8.f),
+    ModelAsset("OldChair", "./Models/old_chair.obj", L"./Models/old_chair_diffuse.dds", Vector4(0.1f, 0.1f, 0.1f, 1.f), Vector3(0.4f, 0.2f, 0.1f), 4.f),
+    ModelAsset("ChildChair", "./Models./childrens_chair.obj", L"./Models./childrens_chair_diffuse.dds", Vector4(0.3f, 0.3f, 0.3f, 1.f), Vector3(0.8f, 0.6f, 0.5f), 32.f),
+    ModelAsset("Table", "./Models./coffee_table.obj", L"./Models./coffee_table_diffuse.dds", Vector4(0.773911f, 0.773911f, 0.773911f, 1.f), Vector3(0.23125f, 0.23125f, 0.23125f), 4.f)
 };
 
 float floorY = 0.f;
@@ -57,19 +60,18 @@ Katamari::Katamari():
 {
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
-	
-	if (LoadOBJModel("./Models./Ball.obj", vertices, indices, Color(1,1,1,1)))
+	struct ModelAsset ballModel = AVAILABLE_MODELS[0];
+	if (LoadOBJModel(ballModel.modelPath, vertices, indices, Color(1,1,1,1)))
 	{
 	    Entities["Ball"].transform.Translation = Vector3(400, 0, 0);
 	    Entities["Ball"].transform.Scale = Vector3(1);
 	    Entities["Ball"].transform.Rotation = Vector3(90, 0, 0);
-		Ball = Entities["Ball"].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, L"./Models./ball_basecolor.dds");
+		Ball = Entities["Ball"].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vertices, indices, ballModel.texturePath);
+		Ball->constantData.MaterialSpecular = ballModel.materialSpecular;
+		Ball->constantData.MaterialAmbient = ballModel.materialAmbient;
+		Ball->constantData.MaterialAlpha = ballModel.materialAlpha;
+		
 		BallCol = Entities["Ball"].AddComponent<CollisionSphereComponent>("Collision", Vector3(), Ball->CalculateBoundingRadius());
-		
-		// Entities["smal"].transform.Scale = Vector3(0.5);
-		// Entities["smal"].transform.Translation = Vector3(0, 100, 0);
-		// RenderComponent* smal = Entities["smal"].AddComponent<RenderComponent>("smal", Color(1,1,1,1),Ball,vertices, indices, L"./Models./ball_basecolor.dds");
-		
 	}
 	
 	for(int i = 0; i < objectCount; i++)
@@ -79,10 +81,13 @@ Katamari::Katamari():
 		struct ModelAsset rndModel = AVAILABLE_MODELS[modelDist(katamariGen)];
 		if (LoadOBJModel(rndModel.modelPath, vert, ind, Color(1,1,1,1)))
 		{
-		    Entities["Object_"+std::to_string(i)].transform.Translation = Vector3(posDist(katamariGen), 0, posDist(katamariGen));
+		    Entities["Object_"+std::to_string(i)].transform.Translation = Vector3(posDist(katamariGen), 0.f, posDist(katamariGen));
 		    Entities["Object_"+std::to_string(i)].transform.Scale = Vector3(scaleDist(katamariGen));
 			RenderComponent* rend = Entities["Object_"+std::to_string(i)].AddComponent<RenderComponent>("Mesh", Color(1,1,1,1),nullptr,vert, ind, rndModel.texturePath);
 			Entities["Object_"+std::to_string(i)].AddComponent<CollisionSphereComponent>("Collision", Vector3(), rend->CalculateBoundingRadius());
+			rend->constantData.MaterialSpecular = rndModel.materialSpecular;
+			rend->constantData.MaterialAmbient = rndModel.materialAmbient;
+			rend->constantData.MaterialAlpha = rndModel.materialAlpha;
 		}
 		else
 		{

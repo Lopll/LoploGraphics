@@ -82,11 +82,19 @@ void RenderComponent::LoadShadersAndLayout()
 		0,
 		28,
 		D3D11_INPUT_PER_VERTEX_DATA,
+		0},
+	D3D11_INPUT_ELEMENT_DESC {
+		"NORMAL",
+		0,
+		DXGI_FORMAT_R32G32B32_FLOAT,
+		0,
+		36,
+		D3D11_INPUT_PER_VERTEX_DATA,
 		0}
 	};
 	Game::Instance->Device->CreateInputLayout(
 		inputElements,
-		3,
+		4,
 		vertexShaderByteCode->GetBufferPointer(),
 		vertexShaderByteCode->GetBufferSize(),
 		&layout);
@@ -200,12 +208,14 @@ void RenderComponent::Draw()
 	Game::Instance->Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), strides, offsets);
 	Game::Instance->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	ID3D11Buffer* buffers[2] = {
-	constantBuffer.Get(),
-	Game::Instance->ProjectionBuffer.Get()
+	ID3D11Buffer* buffers[3] = 
+	{
+		constantBuffer.Get(),
+		Game::Instance->ProjectionBuffer.Get(),
+		Game::Instance->LightBuffer.Get()
 	};
-	Game::Instance->Context->VSSetConstantBuffers(0, 2, buffers);
-	Game::Instance->Context->PSSetConstantBuffers(0, 2, buffers);
+	Game::Instance->Context->VSSetConstantBuffers(0, 3, buffers);
+	Game::Instance->Context->PSSetConstantBuffers(0, 3, buffers);
 
 	Game::Instance->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	Game::Instance->Context->PSSetShader(pixelShader.Get(), nullptr, 0);

@@ -7,12 +7,14 @@
 
 #include <DDSTextureLoader.h>
 
+// TODO: add ambient, diffuse and specular vectors
 
 struct Vertex
 {
     DirectX::SimpleMath::Vector3 Pos;
     DirectX::SimpleMath::Vector4 Color = {1,1,1,1};
     DirectX::SimpleMath::Vector2 TexCoord;
+    DirectX::SimpleMath::Vector3 Normal;
 };
 
 class RenderComponent : public GameComponent
@@ -32,6 +34,12 @@ protected:
     
     const wchar_t* diffuseFilename;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> diffuseTexture;
+    const wchar_t* aoFilename;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> aoTexture;
+    const wchar_t* normalFilename;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalTexture;
+    const wchar_t* roughFilename;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roughTexture;
     Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 #pragma endregion 
     std::vector<std::uint32_t> indices;
