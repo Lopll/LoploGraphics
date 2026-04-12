@@ -147,7 +147,60 @@ void Game::PrepareResources()
 		lightBuffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		lightBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		lightBuffDesc.ByteWidth = sizeof(LightPass);
-		Game::Instance->Device->CreateBuffer(&lightBuffDesc, nullptr, LightBuffer.GetAddressOf());
+		Device->CreateBuffer(&lightBuffDesc, nullptr, LightBuffer.GetAddressOf());
+	}
+	
+	if(!ShadowMap)
+	{
+		D3D11_TEXTURE2D_DESC shadowMapDesc = {};
+		shadowMapDesc.Width = 4096;
+		shadowMapDesc.Height = 4096;
+		shadowMapDesc.MipLevels = 1;
+		shadowMapDesc.ArraySize = 1;
+		shadowMapDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+		shadowMapDesc.SampleDesc.Count = 1;
+		shadowMapDesc.SampleDesc.Quality = 0;
+		shadowMapDesc.Usage = D3D11_USAGE_DEFAULT;
+		shadowMapDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+		shadowMapDesc.CPUAccessFlags = 0;
+		shadowMapDesc.MiscFlags = 0;
+		
+		Device->CreateTexture2D(&shadowMapDesc, nullptr, &ShadowMap);
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+		dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Texture2D.MipSlice = 0;
+		Device->CreateDepthStencilView(ShadowMap.Get(), &dsvDesc, &ShadowMapDepthView);
+		
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		Device->CreateShaderResourceView(ShadowMap.Get(), &srvDesc, &ShadowMapResourceView);
+		
+		D3D11_SAMPLER_DESC shadowSamplerDesc = {};
+		shadowSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+		shadowSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+		shadowSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		shadowSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+		shadowSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+		shadowSamplerDesc.BorderColor[0] = 1.0f;
+		shadowSamplerDesc.BorderColor[1] = 1.0f;
+		shadowSamplerDesc.BorderColor[2] = 1.0f;
+		shadowSamplerDesc.BorderColor[3] = 1.0f;
+		shadowSamplerDesc.MaxLOD = INT_MAX;
+		Device->CreateSamplerState(&shadowSamplerDesc, &ShadowSampler);
+		
+		CD3D11_RASTERIZER_DESC shadowRastDesc = {};
+		shadowRastDesc.CullMode = D3D11_CULL_FRONT;
+		shadowRastDesc.FillMode = D3D11_FILL_SOLID;
+		shadowRastDesc.FrontCounterClockwise = TRUE;
+		shadowRastDesc.DepthBias = 1000;
+		shadowRastDesc.DepthBiasClamp = 0.0f;
+		shadowRastDesc.SlopeScaledDepthBias = 2.0f;
+		Device->CreateRasterizerState(&shadowRastDesc, &ShadowRS);
 	}
 
 	UpdateProjectionBuffer(Camera->projection, Camera->view);
@@ -170,14 +223,14 @@ void Game::Update(float dt)
 	}
 	
 	// Light update
-	D3D11_MAPPED_SUBRESOURCE mapped = {};
-	Context->Map(LightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-	LightPass lightData;
-	lightData.LightIntencity = directionalLight.Intencity;
-	lightData.LightDirection = directionalLight.Direction;
-	lightData.LightDirection.Normalize();
-	memcpy(mapped.pData, &lightData, sizeof(LightPass));
-	Context->Unmap(LightBuffer.Get(), 0);
+	// D3D11_MAPPED_SUBRESOURCE mapped = {};
+	// Context->Map(LightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	// LightPass lightData;
+	// lightData.LightIntencity = directionalLight.Intencity;
+	// lightData.LightDirection = directionalLight.Direction;
+	// lightData.LightDirection.Normalize();
+	// memcpy(mapped.pData, &lightData, sizeof(LightPass));
+	// Context->Unmap(LightBuffer.Get(), 0);
 }
 
 void Game::UpdateInput()
@@ -377,11 +430,11 @@ bool Game::MessageHandler()
 	return false;
 }
 
-void Game::SetViewport()
+void Game::SetViewport(float w, float h)
 {
 	D3D11_VIEWPORT viewport = {};
-	viewport.Width = static_cast<float>(Display.ClientWidth);
-	viewport.Height = static_cast<float>(Display.ClientHeight);
+	viewport.Width = w;
+	viewport.Height = h;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0;
@@ -398,9 +451,20 @@ void Game::PrepareFrame()
 	Context->ClearRenderTargetView(RenderView.Get(), FOCUS_COLOR);
 	Context->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
-	SetViewport();
+	SetViewport(static_cast<float>(Display.ClientWidth), static_cast<float>(Display.ClientHeight));
 	
-	RestoreTargets();
+	Context->OMSetRenderTargets(1, RenderView.GetAddressOf(), DepthView.Get());
+}
+
+void Game::PrepareShadowFrame()
+{
+	Context->ClearDepthStencilView(ShadowMapDepthView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
+	SetViewport(4096.f, 4096.f);
+	
+	Context->RSSetState(ShadowRS.Get());
+	
+	Context->PSSetShader(nullptr, nullptr, 0);
+	Context->OMSetRenderTargets(0, nullptr, ShadowMapDepthView.Get());
 }
 
 void Game::EndFrame()
@@ -424,6 +488,29 @@ int Game::Run()
 	while(!MessageHandler())
 	{
 		float dt = UpdateInternal();
+		// Draw Shadow Map
+		PrepareShadowFrame();
+		
+		// ligth
+		D3D11_MAPPED_SUBRESOURCE mapped = {};
+		Context->Map(LightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+		LightPass lightData;
+		lightData.LightIntencity = directionalLight.Intencity;
+		lightData.LightDirection = directionalLight.Direction;
+		lightData.LightDirection.Normalize();
+		
+		Vector3 lightPos = directionalLight.Direction * 2000.f;
+		lightPos.y *= -1;
+		Matrix lightView = Matrix::CreateLookAt(lightPos, Vector3(), Vector3::Up);
+		Matrix lightProjection = Matrix::CreateOrthographic(2000.f, 2000.f, 0.1f, 2000.f);
+		lightData.LightView = (lightView * lightProjection).Transpose();
+		
+		memcpy(mapped.pData, &lightData, sizeof(LightPass));
+		Context->Unmap(LightBuffer.Get(), 0);
+		
+		UpdateProjectionBuffer(lightProjection, lightView);
+		DrawShadow();
+		
 		PrepareFrame();
 		NewImGuiFrame();
 		UpdateInput();
@@ -450,6 +537,14 @@ void Game::Draw()
 	for(auto& component : Components)
 	{
 		component->Draw();
+	}
+}
+
+void Game::DrawShadow()
+{
+	for(auto& component : Components)
+	{
+		component->DrawShadow();
 	}
 }
 

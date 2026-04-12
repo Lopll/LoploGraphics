@@ -69,6 +69,7 @@ public:
 
     void DestroyResources() override;
     void Draw() override;
+    void DrawShadow() override;
     void Initialize() override;
     void Update(float dt) override;
 };

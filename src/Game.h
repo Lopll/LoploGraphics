@@ -119,6 +119,12 @@ public:
     Microsoft::WRL::ComPtr<ID3D11Texture2D> DepthBuffer;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> DepthView;
     
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> ShadowMap;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> ShadowMapDepthView;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapResourceView;
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> ShadowSampler;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> ShadowRS;
+    
     bool ScreenResized = false;
 
     Game(LPCWSTR Name = L"Waht", int width = 800, int height = 800);
@@ -133,10 +139,12 @@ public:
 
     void DestroyResources();
     virtual void Draw();
+    virtual void DrawShadow();
     void EndFrame();
     virtual bool Initialize();
-    void SetViewport();
+    void SetViewport(float w, float h);
     void PrepareFrame();
+    void PrepareShadowFrame();
     virtual void PrepareResources();
     virtual void Update(float dt);
     virtual void UpdateInput();

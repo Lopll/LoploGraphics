@@ -32,6 +32,7 @@ public:
     
     virtual void DestroyResources(){};
     virtual void Draw(){};
+    virtual void DrawShadow(){};
     virtual void Initialize(){};
     virtual void Reload(){};
     virtual void Update(float dt){};

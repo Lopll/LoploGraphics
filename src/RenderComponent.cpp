@@ -227,6 +227,36 @@ void RenderComponent::Draw()
 		Game::Instance->Context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 	}
 	
+	// shadow map
+	if(Game::Instance->ShadowMapResourceView)
+	{
+		Game::Instance->Context->PSSetShaderResources(1, 1, Game::Instance->ShadowMapResourceView.GetAddressOf());
+		Game::Instance->Context->PSSetSamplers(1, 1, Game::Instance->ShadowSampler.GetAddressOf());
+	}
+	
+	Game::Instance->Context->DrawIndexed(indices.size(), 0, 0);
+}
+
+void RenderComponent::DrawShadow()
+{
+	// Game::Instance->Context->RSSetState(rastState.Get());
+	
+	Game::Instance->Context->IASetInputLayout(layout.Get());
+	Game::Instance->Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+	UINT strides[] = { sizeof(Vertex) };
+	UINT offsets[] = { 0 };
+	Game::Instance->Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), strides, offsets);
+	Game::Instance->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	ID3D11Buffer* buffers[1] = 
+	{
+		constantBuffer.Get(),
+	};
+	Game::Instance->Context->VSSetConstantBuffers(0, 1, buffers);
+
+	Game::Instance->Context->VSSetShader(vertexShader.Get(), nullptr, 0);
+	
 	Game::Instance->Context->DrawIndexed(indices.size(), 0, 0);
 }
 

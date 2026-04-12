@@ -26,6 +26,7 @@ cbuffer LightPass : register(b2)
 {
 	float3 lightDirection;
 	float lightIntencity;
+	float4x4 shadowView;
 };
 
 struct VS_IN
@@ -48,6 +49,9 @@ struct PS_IN
 Texture2D DiffuseMap : register(t0);
 SamplerState Sampler : register(s0);
 
+Texture2D ShadowMap : register(t1);
+SamplerComparisonState  ShadowSampler : register(s1);
+
 PS_IN VSMain( VS_IN input )
 {
 	PS_IN output = (PS_IN)0;
@@ -66,23 +70,40 @@ PS_IN VSMain( VS_IN input )
 
 float4 PSMain( PS_IN input ) : SV_Target
 {
+	float3 lightDir = normalize(lightDirection); 
+	float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
+	float3 reflectDir = reflect(-lightDir, input.normal); 
+	float RdotV = max(dot(reflectDir, viewDir), 0.0);
+
+	float4 materialDiffuse;
+	float alpha;
+	float4 diffuse;
 	if(constantData.materialAlpha != -1)
 	{
-		float4 materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
-		
-		float3 lightDir = normalize(lightDirection); 
-		float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
-		float3 reflectDir = reflect(-lightDir, input.normal); 
-		float RdotV = max(dot(reflectDir, viewDir), 0.0);
-		
-		float4 diffuse = materialDiffuse * lightIntencity * dot(lightDir, input.normal);
-		float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, constantData.materialAlpha);
-		float ambientIntencity = 0.618f;
-		float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
-		return diffuse + specular + ambient;
+		materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
+		alpha = constantData.materialAlpha;
+		diffuse = materialDiffuse * lightIntencity * dot(lightDir, input.normal);
 	}
 	else
 	{
-		return constantData.color;
+		materialDiffuse = constantData.color;
+		alpha = 32;
+		diffuse = constantData.color;
 	}
+	
+	// shadow map
+	float4 lightSpacePos = mul(float4(input.worldPos, 1.0f), shadowView);
+	lightSpacePos.xyz /= lightSpacePos.w;
+	float2 uv = lightSpacePos.xy * 0.5f + 0.5f;
+	uv.y = 1.0f - uv.y;
+	float shadow = 1.0f;
+	if(uv.x >= 0.0f && uv.x <= 1.0f && uv.y >= 0.0f && uv.y <= 1.0f)
+	{
+		shadow = ShadowMap.SampleCmpLevelZero(ShadowSampler, uv, lightSpacePos.z);
+	}
+	
+	float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, alpha);
+	float ambientIntencity = 0.618f;
+	float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
+	return shadow * (diffuse + specular) + ambient;
 }

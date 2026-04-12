@@ -27,4 +27,5 @@ struct LightPass
 {
     float LightIntencity = 1.f;
     Vector3 LightDirection = Vector3(0.f);
+    Matrix LightView = Matrix::Identity;
 };
