@@ -91,13 +91,13 @@ float4 PSMain( PS_IN input ) : SV_Target
 		diffuse = constantData.color;
 	}
 	
-	// shadow map
+	// shadow map - TODO
 	float4 lightSpacePos = mul(float4(input.worldPos, 1.0f), shadowView);
 	lightSpacePos.xyz /= lightSpacePos.w;
 	float2 uv = lightSpacePos.xy * 0.5f + 0.5f;
 	uv.y = 1.0f - uv.y;
 	float shadow = 1.0f;
-	if(uv.x >= 0.0f && uv.x <= 1.0f && uv.y >= 0.0f && uv.y <= 1.0f)
+	// if(uv.x >= 0.0f && uv.x <= 1.0f && uv.y >= 0.0f && uv.y <= 1.0f)
 	{
 		shadow = ShadowMap.SampleCmpLevelZero(ShadowSampler, uv, lightSpacePos.z);
 	}

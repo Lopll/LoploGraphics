@@ -153,8 +153,8 @@ void Game::PrepareResources()
 	if(!ShadowMap)
 	{
 		D3D11_TEXTURE2D_DESC shadowMapDesc = {};
-		shadowMapDesc.Width = 4096;
-		shadowMapDesc.Height = 4096;
+		shadowMapDesc.Width = 8192;
+		shadowMapDesc.Height = 8192;
 		shadowMapDesc.MipLevels = 1;
 		shadowMapDesc.ArraySize = 1;
 		shadowMapDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
@@ -190,16 +190,16 @@ void Game::PrepareResources()
 		shadowSamplerDesc.BorderColor[1] = 1.0f;
 		shadowSamplerDesc.BorderColor[2] = 1.0f;
 		shadowSamplerDesc.BorderColor[3] = 1.0f;
-		shadowSamplerDesc.MaxLOD = INT_MAX;
+		// shadowSamplerDesc.MaxLOD = INT_MAX;
 		Device->CreateSamplerState(&shadowSamplerDesc, &ShadowSampler);
 		
 		CD3D11_RASTERIZER_DESC shadowRastDesc = {};
 		shadowRastDesc.CullMode = D3D11_CULL_FRONT;
 		shadowRastDesc.FillMode = D3D11_FILL_SOLID;
 		shadowRastDesc.FrontCounterClockwise = TRUE;
-		shadowRastDesc.DepthBias = 1000;
+		shadowRastDesc.DepthBias = 100;
 		shadowRastDesc.DepthBiasClamp = 0.0f;
-		shadowRastDesc.SlopeScaledDepthBias = 2.0f;
+		shadowRastDesc.SlopeScaledDepthBias = 0.5f;
 		Device->CreateRasterizerState(&shadowRastDesc, &ShadowRS);
 	}
 
@@ -459,7 +459,7 @@ void Game::PrepareFrame()
 void Game::PrepareShadowFrame()
 {
 	Context->ClearDepthStencilView(ShadowMapDepthView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
-	SetViewport(4096.f, 4096.f);
+	SetViewport(8192.f, 8192.f);
 	
 	Context->RSSetState(ShadowRS.Get());
 	
