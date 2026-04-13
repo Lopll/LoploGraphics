@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <string>
 #include <memory>
-
+std::chrono::time_point<std::chrono::steady_clock> jumpTime;
 struct ModelAsset
 {
     std::string name;
@@ -107,6 +107,8 @@ Katamari::Katamari():
 		    std::cout << "FAILED to load: " << rndModel.modelPath << std::endl; // Провал
 		}
 	}
+	
+	jumpTime = std::chrono::steady_clock::now();
 }
 
 void Katamari::zoomToFit(Entity entity)
@@ -245,6 +247,8 @@ void Katamari::Update(float dt)
 	}
 }
 
+
+
 void Katamari::UpdateInput()
 {
     Game::UpdateInput();
@@ -265,10 +269,10 @@ void Katamari::UpdateInput()
     {
 		movementInput.x += 1.f;
     }
-	if(Input.IsKeyDown(Keys::Space) && jumpCount <= 2)
+	if(Input.IsKeyDown(Keys::Space) && jumpCount < 2 && std::chrono::duration<float>(jumpTime - std::chrono::steady_clock::now()).count() < -0.5f)
 	{
+		jumpTime = std::chrono::steady_clock::now();
 		ySpeed = jumpForce;
 		jumpCount++;
-		Sleep(100);
 	}
 }
