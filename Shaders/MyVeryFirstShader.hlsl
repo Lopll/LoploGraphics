@@ -82,8 +82,9 @@ float4 PSMain( PS_IN input ) : SV_Target
 	{
 		materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
 		alpha = constantData.materialAlpha;
-		diffuse = materialDiffuse * lightIntencity * dot(lightDir, input.normal);
-	}
+        float NdotL = max(0.2f, dot(lightDir, input.normal));
+        diffuse = materialDiffuse * lightIntencity * NdotL;
+    }
 	else
 	{
 		materialDiffuse = constantData.color;

@@ -194,12 +194,12 @@ void Game::PrepareResources()
 		Device->CreateSamplerState(&shadowSamplerDesc, &ShadowSampler);
 		
 		CD3D11_RASTERIZER_DESC shadowRastDesc = {};
-		shadowRastDesc.CullMode = D3D11_CULL_FRONT;
+		shadowRastDesc.CullMode = D3D11_CULL_BACK;
 		shadowRastDesc.FillMode = D3D11_FILL_SOLID;
 		shadowRastDesc.FrontCounterClockwise = TRUE;
-		shadowRastDesc.DepthBias = 0;
+		shadowRastDesc.DepthBias = 50;
+		shadowRastDesc.SlopeScaledDepthBias = 2.0f;
 		shadowRastDesc.DepthBiasClamp = 0.0f;
-		shadowRastDesc.SlopeScaledDepthBias = 0.f;
 		Device->CreateRasterizerState(&shadowRastDesc, &ShadowRS);
 	}
 
@@ -507,16 +507,16 @@ int Game::Run()
 		
 		memcpy(mapped.pData, &lightData, sizeof(LightPass));
 		Context->Unmap(LightBuffer.Get(), 0);
+		UpdateInput();
+		Update(dt);
 		
 		UpdateProjectionBuffer(lightProjection, lightView);
 		DrawShadow();
 		
 		PrepareFrame();
 		NewImGuiFrame();
-		UpdateInput();
-		Update(dt);
-		UpdateProjectionBuffer(Camera->projection, Camera->view);
 
+		UpdateProjectionBuffer(Camera->projection, Camera->view);
 		Draw();
 		RenderImGui();
 		EndFrame();
