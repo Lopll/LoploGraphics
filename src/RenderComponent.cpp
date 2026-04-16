@@ -232,6 +232,7 @@ void RenderComponent::Draw()
 	{
 		Game::Instance->Context->PSSetShaderResources(1, 1, Game::Instance->ShadowMapResourceView.GetAddressOf());
 		Game::Instance->Context->PSSetSamplers(1, 1, Game::Instance->ShadowSampler.GetAddressOf());
+		Game::Instance->Context->PSSetSamplers(2, 1, Game::Instance->ShadowTestSampler.GetAddressOf());
 	}
 	
 	Game::Instance->Context->DrawIndexed(indices.size(), 0, 0);

@@ -4,6 +4,7 @@
 #include "tiny_obj_loader.h"
 
 float FOCUS_COLOR[4] = {0.08235f, 0.12941f, 0.16471f, 1.0f};
+float WHITE_COLOR[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 Game* Game::Instance = nullptr; // definiton if the static variable?
 
@@ -11,6 +12,8 @@ float cameraMovementSpeed = 5000.f;
 float actCameraMovementSpeed = cameraMovementSpeed;
 float cameraRotationSpeed = 100.f;
 float actCameraRotationSpeed = cameraRotationSpeed;
+
+std::chrono::time_point<std::chrono::steady_clock> showShadowMapTime;
 
 Game::Game(LPCWSTR Name, int width, int height):
 	Input(this),
@@ -35,6 +38,7 @@ Game::Game(LPCWSTR Name, int width, int height):
     Camera->SetLookAt(Vector3());
     
 	// directionalLight = LightSource(Vector3(0.5f, -0.5f, 0.2f), 1.f);
+	showShadowMapTime = std::chrono::steady_clock::now();
 }
 
 void Game::CreateBackBuffer()
@@ -190,8 +194,20 @@ void Game::PrepareResources()
 		shadowSamplerDesc.BorderColor[1] = 1.0f;
 		shadowSamplerDesc.BorderColor[2] = 1.0f;
 		shadowSamplerDesc.BorderColor[3] = 1.0f;
-		// shadowSamplerDesc.MaxLOD = INT_MAX;
 		Device->CreateSamplerState(&shadowSamplerDesc, &ShadowSampler);
+		
+		D3D11_SAMPLER_DESC shadowTestSamplerDesc = {};
+		shadowTestSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+		shadowTestSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+		shadowTestSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		shadowTestSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		shadowTestSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		shadowTestSamplerDesc.BorderColor[0] = 1.0f;
+		shadowTestSamplerDesc.BorderColor[1] = 1.0f;
+		shadowTestSamplerDesc.BorderColor[2] = 1.0f;
+		shadowTestSamplerDesc.BorderColor[3] = 1.0f;
+		shadowTestSamplerDesc.MaxLOD = INT_MAX;
+		Device->CreateSamplerState(&shadowTestSamplerDesc, &ShadowTestSampler);
 		
 		CD3D11_RASTERIZER_DESC shadowRastDesc = {};
 		shadowRastDesc.CullMode = D3D11_CULL_BACK;
@@ -338,7 +354,11 @@ void Game::UpdateInput()
 	}
 	Camera->AdjustRotation(adj);
 	
-	
+	if(Input.IsKeyDown(Keys::F2) && std::chrono::duration<float>(std::chrono::steady_clock::now() - showShadowMapTime).count() > 0.5f)
+	{
+		showShadowMap = showShadowMap == 1.0f ? 0.f : 1.f; 
+		showShadowMapTime = std::chrono::steady_clock::now();
+	}
 }
 
 float Game::UpdateInternal()
@@ -438,7 +458,7 @@ void Game::PrepareFrame()
 	Context->ClearState();
 
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
-	Context->ClearRenderTargetView(RenderView.Get(), FOCUS_COLOR);
+	Context->ClearRenderTargetView(RenderView.Get(), showShadowMap == 1.0f ? WHITE_COLOR : FOCUS_COLOR);
 	Context->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 	SetViewport(static_cast<float>(Display.ClientWidth), static_cast<float>(Display.ClientHeight));
@@ -498,7 +518,10 @@ int Game::Run()
 		PrepareFrame();
 		NewImGuiFrame();
 
-		UpdateProjectionBuffer(Camera->projection, Camera->view);
+		if(!showShadowMap)
+		{
+			UpdateProjectionBuffer(Camera->projection, Camera->view);
+		}
 		Draw();
 		RenderImGui();
 		EndFrame();
@@ -544,7 +567,7 @@ void Game::UpdateProjectionBuffer(Matrix proj, Matrix view)
 	Matrix tProj = proj.Transpose();
 	Matrix tView = view.Transpose();
 	
-	PassConstants temp = { tProj, tProj.Invert(), tView, tView.Invert() };
+	PassConstants temp = { tProj, tProj.Invert(), tView, tView.Invert(), showShadowMap, Vector3()};
 
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
 	Context->Map(ProjectionBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);

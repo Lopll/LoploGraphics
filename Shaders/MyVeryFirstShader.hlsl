@@ -34,6 +34,8 @@ cbuffer MainPass : register(b1)
     float4x4 gInvProjection;
     float4x4 gView;
     float4x4 gInvView;
+    float showShadowMap;
+    float3 padding;
 };
 
 cbuffer LightPass : register(b2)
@@ -65,6 +67,7 @@ SamplerState Sampler : register(s0);
 
 Texture2D ShadowMap : register(t1);
 SamplerComparisonState  ShadowSampler : register(s1);
+SamplerState  ShadowTestSampler : register(s2);
 
 PS_IN VSMain( VS_IN input )
 {
@@ -81,7 +84,7 @@ PS_IN VSMain( VS_IN input )
     output.normal = normalize(output.normal);
 	return output;
 }
-
+		
 float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 materialDiffuse, float alpha, float3 lightDirection, float lightIntencity, float3 color, bool castShadows)
 {
 	float3 lightDir = normalize(-lightDirection);
@@ -91,9 +94,9 @@ float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 material
 	float4 diffuse;
 	if(constantData.materialAlpha != -1)
 	{
-        float NdotL = max(0.2f, dot(lightDir, normal));
-        diffuse = materialDiffuse * lightIntencity * NdotL;
-    }
+	    float NdotL = max(0.2f, dot(lightDir, normal));
+	    diffuse = materialDiffuse * lightIntencity * NdotL;
+	}
 	else
 	{
 		diffuse = constantData.color * lightIntencity;
@@ -118,32 +121,42 @@ float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 material
 
 float4 PSMain( PS_IN input ) : SV_Target
 {
-	float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
-
-	float4 materialDiffuse;
-	float alpha;
-	if(constantData.materialAlpha != -1)
+	if(showShadowMap == 1.0f)
 	{
-		materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
-		alpha = constantData.materialAlpha;
-    }
+		float4 lightSpacePos = mul(float4(input.worldPos, 1.0f), shadowView);
+		lightSpacePos.xyz /= lightSpacePos.w;
+		float2 uv = lightSpacePos.xy * 0.5f + 0.5f;
+		uv.y = 1.0f - uv.y;
+		float shadow = ShadowMap.Sample(ShadowTestSampler, uv);
+		return shadow;
+	}
 	else
 	{
-		materialDiffuse = constantData.color;
-		alpha = 32;
+		float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
+
+		float4 materialDiffuse;
+		float alpha;
+		if(constantData.materialAlpha != -1)
+		{
+			materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
+			alpha = constantData.materialAlpha;
+	    }
+		else
+		{
+			materialDiffuse = constantData.color;
+			alpha = 32;
+		}
+		float4 result = CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha, directionalLight.direction, directionalLight.intencity, float3(1.0f, 0.95f, 0.85f), true);
+		
+		for(int i = 0; i < 100; i++)
+		{
+			float3 lightDirection = input.worldPos-pointLight[i].position;
+			float len = length(lightDirection);
+			float attenuation = max(0.0f, 1-(len/pointLight[i].radius) );//(1-(lightDirection/pointLight.radius));
+			attenuation *= attenuation;
+			result += CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha,  lightDirection, pointLight[i].intencity * attenuation, pointLight[i].color, false);
+		}
+		return result;
 	}
-	float4 result = CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha, directionalLight.direction, directionalLight.intencity, float3(1.0f, 0.95f, 0.85f), true);
 	
-	for(int i = 0; i < 100; i++)
-	{
-		float3 lightDirection = input.worldPos-pointLight[i].position;
-		float len = length(lightDirection);
-		float attenuation = max(0.0f, 1-(len/pointLight[i].radius) );//(1-(lightDirection/pointLight.radius));
-		attenuation *= attenuation;
-		result += CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha,  lightDirection, pointLight[i].intencity * attenuation, pointLight[i].color, false);
-	}
-	
-	
-	
-	return result;
 }

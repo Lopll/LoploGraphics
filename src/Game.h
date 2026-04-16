@@ -89,6 +89,8 @@ public:
     struct LightSource directionalLight;
     Microsoft::WRL::ComPtr<ID3D11Buffer> LightBuffer;
     
+    float showShadowMap = 0.0f;
+    
     CameraComponent* Camera;
     float fov = 103.f;
     float aspectRatio;
@@ -123,6 +125,7 @@ public:
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> ShadowMapDepthView;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapResourceView;
     Microsoft::WRL::ComPtr<ID3D11SamplerState> ShadowSampler;
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> ShadowTestSampler;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> ShadowRS;
     
     bool ScreenResized = false;

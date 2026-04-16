@@ -21,6 +21,8 @@ struct PassConstants
     Matrix InvProj = Matrix::Identity;
     Matrix View = Matrix::Identity;
     Matrix InvView = Matrix::Identity;
+    float ShowShadowMap = 0.0f;
+    Vector3 padding;
 };
 
 struct PointLightData
