@@ -5,3 +5,8 @@ PointLightComponent::PointLightComponent(TransformData& ownerTransform, Vector3 
 {
     
 }
+
+void PointLightComponent::Update(float dt)
+{
+    ApplyTransform();   
+}

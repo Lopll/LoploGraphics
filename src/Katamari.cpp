@@ -16,6 +16,14 @@
 #include "PointLightComponent.h"
 
 
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<> lightSpeed(0.001, 1.0f);
+std::uniform_real_distribution<> color(0.01, 1.0f);
+std::uniform_real_distribution<> intencivity(0.1, 16.18f);
+std::uniform_real_distribution<> radius(1.f, 5.f);
+std::uniform_int_distribution<> coin(0, 1);
+
 std::chrono::time_point<std::chrono::steady_clock> jumpTime;
 struct ModelAsset
 {
@@ -57,6 +65,8 @@ Vector2 movementInput = Vector2(0,0);
 float rotationSpeed = 1.f;
 RenderComponent* Ball = nullptr;
 CollisionSphereComponent* BallCol = nullptr;
+
+int pointLightCount = 100;
 
 Katamari::Katamari():
     Game(L"LoploKatamari", width, height)
@@ -117,8 +127,12 @@ Katamari::Katamari():
 	// light
 	directionalLight = LightSource(Vector3(0.5f, -0.5f, 0.2f), 1.f);
 	
-	Entities["PointLight"].transform.Translation = Vector3(0.f, 10.f, 0.f);
-	Entities["PointLight"].AddComponent<PointLightComponent>("PointLight", Vector3(1.f, 0.f, 0.f), nullptr, 0.75f, 300.f);
+	for(int i = 0; i < pointLightCount; i++)
+	{
+		Entities["PointLight_"+std::to_string(i)].transform.Translation = Vector3(0.f, BallCol->bounds.Radius, 0.f);
+		Entities["PointLight_"+std::to_string(i)].AddComponent<PointLightComponent>("PointLight", Vector3(color(gen), color(gen), color(gen)), Ball, intencivity(gen), radius(gen));
+	}
+	
 }
 
 void Katamari::zoomToFit(Entity entity)
@@ -162,8 +176,11 @@ void Katamari::UpdateLight()
 	Matrix lightProjection = Matrix::CreateOrthographic(2000.f, 2000.f, 0.1f, 2000.f);
 	lightData.LightView = (lightView * lightProjection).Transpose();
 	
-	PointLightComponent* pointLight = Entities["PointLight"].GetComponent<PointLightComponent>("PointLight");
-	lightData.pointLightData = PointLightData(pointLight->Intencity, pointLight->constantData.World.Translation(), pointLight->Color, pointLight->Radius);
+	for(int i = 0; i < pointLightCount; i++)
+	{
+		PointLightComponent* pointLight = Entities["PointLight_"+std::to_string(i)].GetComponent<PointLightComponent>("PointLight");
+		lightData.pointLightData[i] = PointLightData(pointLight->Intencity, pointLight->constantData.World.Transpose().Translation(), pointLight->Color, pointLight->Radius);
+	}
 	
 	memcpy(mapped.pData, &lightData, sizeof(LightPass));
 	Context->Unmap(LightBuffer.Get(), 0);
@@ -206,6 +223,18 @@ void Katamari::Update(float dt)
 
 	zoomToFit(Game::Entities["Ball"]);
     Game::Update(dt);
+    
+    // point light movement
+	for(int i = 0; i < pointLightCount; i++)
+	{
+		PointLightComponent* pointLight = Entities["PointLight_"+std::to_string(i)].GetComponent<PointLightComponent>("PointLight");
+		
+		Matrix rot = Matrix::CreateRotationZ(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
+		rot *= Matrix::CreateRotationX(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
+		rot *= Matrix::CreateRotationY(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
+		
+		pointLight->transform.Translation = Vector3::Transform(pointLight->transform.Translation, rot);
+	}
     
     for(auto& component : Components)
 	{
@@ -279,6 +308,8 @@ void Katamari::Update(float dt)
 	{
 		Ball->transform.Translation.y += ySpeed * dt;
 	}
+	
+	
 }
 
 

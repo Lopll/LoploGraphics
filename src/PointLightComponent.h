@@ -7,7 +7,7 @@ public:
     float Intencity;
     float Radius;
     Vector3 Color;
-
+    
     PointLightComponent
     (
         TransformData& ownerTransform,
@@ -17,5 +17,6 @@ public:
         float radius = 1.0f
     );
     
+    void Update(float dt) override;
       
 };

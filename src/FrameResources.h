@@ -42,5 +42,5 @@ struct LightPass
 {
     DirectionalLightData directionalLightData = DirectionalLightData();
     Matrix LightView = Matrix::Identity;
-    PointLightData pointLightData = PointLightData();
+    PointLightData pointLightData[100];
 };

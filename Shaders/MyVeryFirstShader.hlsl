@@ -40,7 +40,7 @@ cbuffer LightPass : register(b2)
 {
 	DirectionalLight directionalLight;
 	float4x4 shadowView;
-	PointLight pointLight;
+	PointLight pointLight[100];
 };
 
 struct VS_IN
@@ -100,7 +100,7 @@ float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 material
 	}	
 	
 	float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, alpha);
-	float ambientIntencity = 0.618f;
+	float ambientIntencity = 0.618f * lightIntencity;
 	float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
 	
 	if(castShadows)
@@ -134,10 +134,16 @@ float4 PSMain( PS_IN input ) : SV_Target
 	}
 	float4 result = CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha, directionalLight.direction, directionalLight.intencity, float3(1.0f, 0.95f, 0.85f), true);
 	
-	float3 lightDirection = input.worldPos-pointLight.position;
-	float len = length(lightDirection);
-	float attenuation = max(0.0f, 1-(len/pointLight.radius) );//(1-(lightDirection/pointLight.radius));
-	attenuation *= attenuation;
-	result += CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha,  lightDirection, pointLight.intencity * attenuation, pointLight.color, false);
+	for(int i = 0; i < 100; i++)
+	{
+		float3 lightDirection = input.worldPos-pointLight[i].position;
+		float len = length(lightDirection);
+		float attenuation = max(0.0f, 1-(len/pointLight[i].radius) );//(1-(lightDirection/pointLight.radius));
+		attenuation *= attenuation;
+		result += CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha,  lightDirection, pointLight[i].intencity * attenuation, pointLight[i].color, false);
+	}
+	
+	
+	
 	return result;
 }

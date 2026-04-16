@@ -493,7 +493,6 @@ int Game::Run()
 		
 		UpdateLight();
 
-		// UpdateProjectionBuffer(lightProjection, lightView);
 		DrawShadow();
 		
 		PrepareFrame();
