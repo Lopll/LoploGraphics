@@ -23,9 +23,24 @@ struct PassConstants
     Matrix InvView = Matrix::Identity;
 };
 
+struct PointLightData
+{
+    float Intencity = 1.f;
+    Vector3 Position = Vector3(0.f);
+    Vector3 Color = Vector3(0.f);
+    float Radius = 1.f;
+};
+
+struct DirectionalLightData
+{
+    float Intencity = 1.f;
+    Vector3 Direction = Vector3(0.f);
+    // DirectionalLightData(float i, Vector3 d):Intencity(i), Direction(d){}
+};
+
 struct LightPass
 {
-    float LightIntencity = 1.f;
-    Vector3 LightDirection = Vector3(0.f);
+    DirectionalLightData directionalLightData = DirectionalLightData();
     Matrix LightView = Matrix::Identity;
+    PointLightData pointLightData = PointLightData();
 };

@@ -82,10 +82,10 @@ PS_IN VSMain( VS_IN input )
 	return output;
 }
 
-float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 materialDiffuse, float alpha, float3 lightDirection, float lightIntencity, bool castShadows)
+float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 materialDiffuse, float alpha, float3 lightDirection, float lightIntencity, float3 color, bool castShadows)
 {
 	float3 lightDir = normalize(-lightDirection);
-	float3 reflectDir = reflect(lightDirection, normal); 
+	float3 reflectDir = reflect(normalize(lightDirection), normal); 
 	float RdotV = max(dot(reflectDir, viewDir), 0.0);
 	
 	float4 diffuse;
@@ -96,7 +96,7 @@ float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 material
     }
 	else
 	{
-		diffuse = constantData.color;
+		diffuse = constantData.color * lightIntencity;
 	}	
 	
 	float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, alpha);
@@ -113,19 +113,15 @@ float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 material
 		return shadow * (diffuse+specular) + ambient;
 	}
 	
-	return diffuse + specular + ambient;
+	return float4(color,1.f) * (diffuse + specular) + ambient;
 }
 
 float4 PSMain( PS_IN input ) : SV_Target
 {
-	// float3 lightDir = normalize(lightDirection); 
 	float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
-	// float3 reflectDir = reflect(-lightDir, input.normal); 
-	// float RdotV = max(dot(reflectDir, viewDir), 0.0);
 
 	float4 materialDiffuse;
 	float alpha;
-
 	if(constantData.materialAlpha != -1)
 	{
 		materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
@@ -136,17 +132,12 @@ float4 PSMain( PS_IN input ) : SV_Target
 		materialDiffuse = constantData.color;
 		alpha = 32;
 	}
+	float4 result = CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha, directionalLight.direction, directionalLight.intencity, float3(1.0f, 0.95f, 0.85f), true);
 	
-	// shadow map
-	// float4 lightSpacePos = mul(float4(input.worldPos, 1.0f), shadowView);
-	// lightSpacePos.xyz /= lightSpacePos.w;
-	// float2 uv = lightSpacePos.xy * 0.5f + 0.5f;
-	// uv.y = 1.0f - uv.y;
-	// float shadow = 1.f;//ShadowMap.SampleCmpLevelZero(ShadowSampler, uv, lightSpacePos.z);
-	
-	// float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, alpha);
-	// float ambientIntencity = 0.618f;
-	// float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
-	// return shadow * (diffuse + specular) + ambient;
-	return CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha, directionalLight.direction, directionalLight.intencity, true);
+	float3 lightDirection = input.worldPos-pointLight.position;
+	float len = length(lightDirection);
+	float attenuation = max(0.0f, 1-(len/pointLight.radius) );//(1-(lightDirection/pointLight.radius));
+	attenuation *= attenuation;
+	result += CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha,  lightDirection, pointLight.intencity * attenuation, pointLight.color, false);
+	return result;
 }

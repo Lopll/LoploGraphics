@@ -34,7 +34,7 @@ Game::Game(LPCWSTR Name, int width, int height):
     Camera->SetProjectionValues(fov, aspectRatio, nearZ, farZ);
     Camera->SetLookAt(Vector3());
     
-    directionalLight = LightSource(Vector3(0.5f, -0.5f, 0.2f), 1.f);
+	// directionalLight = LightSource(Vector3(0.5f, -0.5f, 0.2f), 1.f);
 }
 
 void Game::CreateBackBuffer()
@@ -468,6 +468,11 @@ void Game::RestoreTargets()
 	Context->OMSetRenderTargets(1, RenderView.GetAddressOf(), DepthView.Get());
 }
 
+void Game::UpdateLight()
+{
+
+}
+
 int Game::Run()
 {
 	if (!Initialize()) 
@@ -482,25 +487,13 @@ int Game::Run()
 		PrepareShadowFrame();
 		
 		// ligth
-		D3D11_MAPPED_SUBRESOURCE mapped = {};
-		Context->Map(LightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-		LightPass lightData;
-		lightData.LightIntencity = directionalLight.Intencity;
-		lightData.LightDirection = directionalLight.Direction;
-		lightData.LightDirection.Normalize();
 		
-		Vector3 lightPos = -directionalLight.Direction * 2000.f;
-		// lightPos.y *= -1;
-		Matrix lightView = Matrix::CreateLookAt(lightPos, Vector3(), Vector3::Up);
-		Matrix lightProjection = Matrix::CreateOrthographic(2000.f, 2000.f, 0.1f, 2000.f);
-		lightData.LightView = (lightView * lightProjection).Transpose();
-		
-		memcpy(mapped.pData, &lightData, sizeof(LightPass));
-		Context->Unmap(LightBuffer.Get(), 0);
 		UpdateInput();
 		Update(dt);
 		
-		UpdateProjectionBuffer(lightProjection, lightView);
+		UpdateLight();
+
+		// UpdateProjectionBuffer(lightProjection, lightView);
 		DrawShadow();
 		
 		PrepareFrame();

@@ -114,9 +114,11 @@ Katamari::Katamari():
 	jumpTime = std::chrono::steady_clock::now();
 	
 	
-	// point light
-	// Entities["PointLight"].transform.Translation = Vector3(0.f, 10.f, 0.f);
-	// Entities["PointLight"].AddComponent<PointLightComponent>("PointLight", Vector3(), nullptr, 1.f, 15.f);
+	// light
+	directionalLight = LightSource(Vector3(0.5f, -0.5f, 0.2f), 1.f);
+	
+	Entities["PointLight"].transform.Translation = Vector3(0.f, 10.f, 0.f);
+	Entities["PointLight"].AddComponent<PointLightComponent>("PointLight", Vector3(1.f, 0.f, 0.f), nullptr, 0.75f, 300.f);
 }
 
 void Katamari::zoomToFit(Entity entity)
@@ -143,6 +145,30 @@ void Katamari::zoomToFit(Entity entity)
 	
 	cam->lookAtPos = translation;
 	cam->distance = margin * aspectRatio * worldRadius / (sinf(DirectX::XMConvertToRadians(Game::fov)/2.f));
+}
+
+void Katamari::UpdateLight()
+{
+	D3D11_MAPPED_SUBRESOURCE mapped = {};
+	Context->Map(LightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	LightPass lightData;
+	Vector3 dir = directionalLight.Direction;
+	dir.Normalize();
+	lightData.directionalLightData = DirectionalLightData(directionalLight.Intencity, dir);
+	
+	// for shadows 
+	Vector3 lightPos = -directionalLight.Direction * 2000.f;
+	Matrix lightView = Matrix::CreateLookAt(lightPos, Vector3(), Vector3::Up);
+	Matrix lightProjection = Matrix::CreateOrthographic(2000.f, 2000.f, 0.1f, 2000.f);
+	lightData.LightView = (lightView * lightProjection).Transpose();
+	
+	PointLightComponent* pointLight = Entities["PointLight"].GetComponent<PointLightComponent>("PointLight");
+	lightData.pointLightData = PointLightData(pointLight->Intencity, pointLight->constantData.World.Translation(), pointLight->Color, pointLight->Radius);
+	
+	memcpy(mapped.pData, &lightData, sizeof(LightPass));
+	Context->Unmap(LightBuffer.Get(), 0);
+	
+	UpdateProjectionBuffer(lightProjection, lightView);
 }
 
 void Katamari::Update(float dt)

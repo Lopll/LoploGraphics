@@ -9,4 +9,5 @@ public:
     void zoomToFit(Entity entity);
     void Update(float dt) override;
     void UpdateInput() override;
+    void UpdateLight() override;
 };

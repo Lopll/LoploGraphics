@@ -148,6 +148,7 @@ public:
     virtual void PrepareResources();
     virtual void Update(float dt);
     virtual void UpdateInput();
+    virtual void UpdateLight();
     float  UpdateInternal();
 
     void InitImGui();
