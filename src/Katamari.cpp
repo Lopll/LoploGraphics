@@ -13,6 +13,9 @@
 #include <algorithm>
 #include <string>
 #include <memory>
+#include "PointLightComponent.h"
+
+
 std::chrono::time_point<std::chrono::steady_clock> jumpTime;
 struct ModelAsset
 {
@@ -109,6 +112,11 @@ Katamari::Katamari():
 	}
 	
 	jumpTime = std::chrono::steady_clock::now();
+	
+	
+	// point light
+	// Entities["PointLight"].transform.Translation = Vector3(0.f, 10.f, 0.f);
+	// Entities["PointLight"].AddComponent<PointLightComponent>("PointLight", Vector3(), nullptr, 1.f, 15.f);
 }
 
 void Katamari::zoomToFit(Entity entity)

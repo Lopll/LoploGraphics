@@ -221,16 +221,6 @@ void Game::Update(float dt)
 	{
 		component->Update(dt);
 	}
-	
-	// Light update
-	// D3D11_MAPPED_SUBRESOURCE mapped = {};
-	// Context->Map(LightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-	// LightPass lightData;
-	// lightData.LightIntencity = directionalLight.Intencity;
-	// lightData.LightDirection = directionalLight.Direction;
-	// lightData.LightDirection.Normalize();
-	// memcpy(mapped.pData, &lightData, sizeof(LightPass));
-	// Context->Unmap(LightBuffer.Get(), 0);
 }
 
 void Game::UpdateInput()
@@ -499,8 +489,8 @@ int Game::Run()
 		lightData.LightDirection = directionalLight.Direction;
 		lightData.LightDirection.Normalize();
 		
-		Vector3 lightPos = directionalLight.Direction * 2000.f;
-		lightPos.y *= -1;
+		Vector3 lightPos = -directionalLight.Direction * 2000.f;
+		// lightPos.y *= -1;
 		Matrix lightView = Matrix::CreateLookAt(lightPos, Vector3(), Vector3::Up);
 		Matrix lightProjection = Matrix::CreateOrthographic(2000.f, 2000.f, 0.1f, 2000.f);
 		lightData.LightView = (lightView * lightProjection).Transpose();

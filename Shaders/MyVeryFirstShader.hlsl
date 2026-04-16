@@ -1,3 +1,17 @@
+struct PointLight
+{
+	float intencity;
+	float3 position;
+	float3 color;
+	float radius;
+};
+
+struct DirectionalLight
+{
+	float intencity;
+	float3 direction;
+};
+
 struct ConstantData
 {
     float4x4 World;
@@ -12,7 +26,7 @@ struct ConstantData
 cbuffer ConstantBuffer : register(b0)
 {
 	ConstantData constantData;
-}
+};
 
 cbuffer MainPass : register(b1)
 {
@@ -24,9 +38,9 @@ cbuffer MainPass : register(b1)
 
 cbuffer LightPass : register(b2)
 {
-	float3 lightDirection;
-	float lightIntencity;
+	DirectionalLight directionalLight;
 	float4x4 shadowView;
+	PointLight pointLight;
 };
 
 struct VS_IN
@@ -68,43 +82,71 @@ PS_IN VSMain( VS_IN input )
 	return output;
 }
 
+float4 CalcLight(float3 viewDir, float3 normal, float3 worldPos, float4 materialDiffuse, float alpha, float3 lightDirection, float lightIntencity, bool castShadows)
+{
+	float3 lightDir = normalize(-lightDirection);
+	float3 reflectDir = reflect(lightDirection, normal); 
+	float RdotV = max(dot(reflectDir, viewDir), 0.0);
+	
+	float4 diffuse;
+	if(constantData.materialAlpha != -1)
+	{
+        float NdotL = max(0.2f, dot(lightDir, normal));
+        diffuse = materialDiffuse * lightIntencity * NdotL;
+    }
+	else
+	{
+		diffuse = constantData.color;
+	}	
+	
+	float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, alpha);
+	float ambientIntencity = 0.618f;
+	float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
+	
+	if(castShadows)
+	{
+		float4 lightSpacePos = mul(float4(worldPos, 1.0f), shadowView);
+		lightSpacePos.xyz /= lightSpacePos.w;
+		float2 uv = lightSpacePos.xy * 0.5f + 0.5f;
+		uv.y = 1.0f - uv.y;
+		float shadow = ShadowMap.SampleCmpLevelZero(ShadowSampler, uv, lightSpacePos.z);
+		return shadow * (diffuse+specular) + ambient;
+	}
+	
+	return diffuse + specular + ambient;
+}
+
 float4 PSMain( PS_IN input ) : SV_Target
 {
-	float3 lightDir = normalize(lightDirection); 
+	// float3 lightDir = normalize(lightDirection); 
 	float3 viewDir = normalize(gInvView[3].xyz - input.worldPos);
-	float3 reflectDir = reflect(-lightDir, input.normal); 
-	float RdotV = max(dot(reflectDir, viewDir), 0.0);
+	// float3 reflectDir = reflect(-lightDir, input.normal); 
+	// float RdotV = max(dot(reflectDir, viewDir), 0.0);
 
 	float4 materialDiffuse;
 	float alpha;
-	float4 diffuse;
+
 	if(constantData.materialAlpha != -1)
 	{
 		materialDiffuse = DiffuseMap.Sample(Sampler, input.tex.xy);
 		alpha = constantData.materialAlpha;
-        float NdotL = max(0.2f, dot(lightDir, input.normal));
-        diffuse = materialDiffuse * lightIntencity * NdotL;
     }
 	else
 	{
 		materialDiffuse = constantData.color;
 		alpha = 32;
-		diffuse = constantData.color;
 	}
 	
-	// shadow map - TODO
-	float4 lightSpacePos = mul(float4(input.worldPos, 1.0f), shadowView);
-	lightSpacePos.xyz /= lightSpacePos.w;
-	float2 uv = lightSpacePos.xy * 0.5f + 0.5f;
-	uv.y = 1.0f - uv.y;
-	float shadow = 1.0f;
-	// if(uv.x >= 0.0f && uv.x <= 1.0f && uv.y >= 0.0f && uv.y <= 1.0f)
-	{
-		shadow = ShadowMap.SampleCmpLevelZero(ShadowSampler, uv, lightSpacePos.z);
-	}
+	// shadow map
+	// float4 lightSpacePos = mul(float4(input.worldPos, 1.0f), shadowView);
+	// lightSpacePos.xyz /= lightSpacePos.w;
+	// float2 uv = lightSpacePos.xy * 0.5f + 0.5f;
+	// uv.y = 1.0f - uv.y;
+	// float shadow = 1.f;//ShadowMap.SampleCmpLevelZero(ShadowSampler, uv, lightSpacePos.z);
 	
-	float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, alpha);
-	float ambientIntencity = 0.618f;
-	float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
-	return shadow * (diffuse + specular) + ambient;
+	// float4 specular = constantData.materialSpecular * lightIntencity * pow(RdotV, alpha);
+	// float ambientIntencity = 0.618f;
+	// float4 ambient = float4(constantData.materialAmbient.xyz, 1.0) * materialDiffuse * ambientIntencity;
+	// return shadow * (diffuse + specular) + ambient;
+	return CalcLight(viewDir, input.normal, input.worldPos, materialDiffuse, alpha, directionalLight.direction, directionalLight.intencity, true);
 }

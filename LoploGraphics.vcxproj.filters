@@ -90,13 +90,19 @@
     <ClCompile Include="src\CameraComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Planets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\OrbitalCameraComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GeometryGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CollisionSphereComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Katamari.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PointLightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,10 +179,16 @@
     <ClInclude Include="src\CameraComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Planets.h">
+    <ClInclude Include="src\OrbitalCameraComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\OrbitalCameraComponent.h">
+    <ClInclude Include="src\CollisionSphereComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Katamari.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PointLightComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
