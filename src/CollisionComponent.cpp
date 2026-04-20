@@ -26,7 +26,7 @@ DirectX::ContainmentType CollisionComponent::Contains(const CollisionComponent& 
 }
 
 Vector3 CollisionComponent::calcNormal(DirectX::BoundingBox box)
-{
+{   
     using namespace std;
     
     Vector3 d = bounds.Center - box.Center;
