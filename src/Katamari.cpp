@@ -225,16 +225,16 @@ void Katamari::Update(float dt)
     Game::Update(dt);
     
     // point light movement
-	for(int i = 0; i < pointLightCount; i++)
-	{
-		PointLightComponent* pointLight = Entities["PointLight_"+std::to_string(i)].GetComponent<PointLightComponent>("PointLight");
+	// for(int i = 0; i < pointLightCount; i++)
+	// {
+	// 	PointLightComponent* pointLight = Entities["PointLight_"+std::to_string(i)].GetComponent<PointLightComponent>("PointLight");
 		
-		Matrix rot = Matrix::CreateRotationZ(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
-		rot *= Matrix::CreateRotationX(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
-		rot *= Matrix::CreateRotationY(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
+	// 	Matrix rot = Matrix::CreateRotationZ(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
+	// 	rot *= Matrix::CreateRotationX(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
+	// 	rot *= Matrix::CreateRotationY(lightSpeed(gen) * dt * (coin(gen)) ? 1 : -1);
 		
-		pointLight->transform.Translation = Vector3::Transform(pointLight->transform.Translation, rot);
-	}
+	// 	pointLight->transform.Translation = Vector3::Transform(pointLight->transform.Translation, rot);
+	// }
     
     for(auto& component : Components)
 	{

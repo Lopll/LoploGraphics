@@ -213,9 +213,9 @@ void Game::PrepareResources()
 		shadowRastDesc.CullMode = D3D11_CULL_BACK;
 		shadowRastDesc.FillMode = D3D11_FILL_SOLID;
 		shadowRastDesc.FrontCounterClockwise = TRUE;
-		shadowRastDesc.DepthBias = 50;
-		shadowRastDesc.SlopeScaledDepthBias = 2.0f;
-		shadowRastDesc.DepthBiasClamp = 0.0f;
+		shadowRastDesc.DepthBias = 1000;
+		shadowRastDesc.SlopeScaledDepthBias = 8.f;
+		shadowRastDesc.DepthBiasClamp = 0.1f;
 		Device->CreateRasterizerState(&shadowRastDesc, &ShadowRS);
 	}
 
